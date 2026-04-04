@@ -577,13 +577,8 @@
   <section id="hero">
     <div class="hero-bg"></div>
     <div class="hero-reel">
-      <div class="reel-placeholder">
-        <div class="play-btn">
-          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-            <path d="M5 3L15 9L5 15V3Z" fill="#c8a96e"/>
-          </svg>
-        </div>
-        <div class="reel-label">Showreel 2024</div>
+      <div class="reel-placeholder" style="background:transparent; border:none; padding:0;">
+        <iframe src="https://player.vimeo.com/video/1180109124?badge=0&autopause=0&player_id=0&app_id=58479" width="100%" height="100%" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" title="Malik Motion Promo Idea 1" style="position:absolute; inset:0; width:100%; height:100%;"></iframe>
       </div>
     </div>
     <div class="hero-content reveal">
@@ -778,7 +773,7 @@
     <div class="section-label">Get in touch</div>
     <h2 class="section-title reveal">Let's make<br>something.</h2>
     <p class="contact-tagline reveal">Got a project in mind?</p>
-    <a href="mailto:hello@malikmotion.dk" class="contact-email reveal">hello@malikmotion.dk</a>
+    <a href="/cdn-cgi/l/email-protection#0f676a6363604f626e63666462607b666061216b64" class="contact-email reveal"><span class="__cf_email__" data-cfemail="8be3eee7e7e4cbe6eae7e2e0e6e4ffe2e4e5a5efe0">[email&#160;protected]</span></a>
     <div class="contact-links reveal">
       <a href="https://malikmotion.dk" target="_blank">malikmotion.dk</a>
       <a href="https://www.instagram.com/" target="_blank">Instagram</a>
@@ -793,7 +788,7 @@
     <span class="footer-logo">Malik Motion</span>
   </footer>
 
-  <script>
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
     // Cursor
     const cursor = document.getElementById('cursor');
     const ring = document.getElementById('cursorRing');
@@ -818,12 +813,4 @@
     }, { threshold: 0.1 });
     reveals.forEach(el => observer.observe(el));
 
-    // Initial hero reveal
-    window.addEventListener('load', () => {
-      document.querySelectorAll('#hero .reveal').forEach((el, i) => {
-        setTimeout(() => el.classList.add('visible'), 300 + i * 150);
-      });
-    });
-  </script>
-</body>
-</html>
+    // Initi
