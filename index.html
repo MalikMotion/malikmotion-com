@@ -33,15 +33,13 @@ body{background:#f5f3ef;color:#111;font-family:'Inter',sans-serif;font-weight:30
 .hero-video{margin-top:48px;position:relative;overflow:hidden;border-radius:3px}
 .hero-video video{width:100%;display:block;aspect-ratio:16/8;object-fit:cover;pointer-events:none}
 
-/* INTRO — full bleed dark bg, content centered */
-.intro{position:relative;overflow:hidden;background:linear-gradient(135deg,#1a1a1a 0%,#2d2a24 40%,#1a1610 100%);margin-top:80px}
-.intro::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.03) 1px,transparent 1px);background-size:80px 80px;mask-image:radial-gradient(ellipse at 30% 50%,black 20%,transparent 75%);pointer-events:none}
-.intro::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 60% 50%,rgba(200,169,110,0.08) 0%,transparent 65%);pointer-events:none}
-.intro-inner{position:relative;z-index:1;padding:100px 48px;max-width:1200px;margin:0 auto}
-.section-tag{font-size:0.65rem;letter-spacing:0.22em;text-transform:uppercase;color:rgba(200,169,110,0.7);margin-bottom:28px;font-weight:400;display:flex;align-items:center;gap:12px}
-.section-tag::after{content:'';width:32px;height:1px;background:rgba(200,169,110,0.4)}
-.intro-text{font-family:'Playfair Display',serif;font-size:clamp(1.9rem,4vw,3.2rem);font-weight:400;line-height:1.3;color:#f2ede8;max-width:860px}
-.intro-text em{font-style:italic;color:rgba(200,169,110,0.85)}
+/* INTRO */
+.intro{margin-top:80px}
+.intro-inner{padding:100px 48px;max-width:1200px;margin:0 auto}
+.section-tag{font-size:0.65rem;letter-spacing:0.22em;text-transform:uppercase;color:#999;margin-bottom:28px;font-weight:400;display:flex;align-items:center;gap:12px}
+.section-tag::after{content:'';width:32px;height:1px;background:#ccc}
+.intro-text{font-family:'Playfair Display',serif;font-size:clamp(1.9rem,4vw,3.2rem);font-weight:400;line-height:1.3;color:#111;max-width:860px}
+.intro-text em{font-style:italic;color:#666}
 
 /* SECTION TAG LIGHT (used outside dark sections) */
 .section-tag-light{font-size:0.65rem;letter-spacing:0.22em;text-transform:uppercase;color:#999;margin-bottom:28px;font-weight:400;display:flex;align-items:center;gap:12px}
@@ -168,9 +166,9 @@ body{background:#f5f3ef;color:#111;font-family:'Inter',sans-serif;font-weight:30
 <!-- HERO -->
 <div class="wrap">
   <div class="hero-text">
-    <div class="hero-label">Videoproduktion · Motion Design · Randers, Danmark</div>
+    <div class="hero-label">Videoproduktion · Motion Design</div>
     <h1 class="hero-title">Film der<br><em>mærkes</em></h1>
-    <p class="hero-desc">Autentisk og cinematisk videoproduktion til brands og marketingteams der vil mærkes — ikke bare ses.</p>
+    <p class="hero-desc">Autentisk videoproduktion til brands og marketingteams</p>
   </div>
   <div class="hero-video">
     <video autoplay muted loop playsinline disablepictureinpicture disableremoteplayback>
@@ -232,7 +230,7 @@ body{background:#f5f3ef;color:#111;font-family:'Inter',sans-serif;font-weight:30
 <section class="work wrap fade-up" id="work">
   <div class="work-header">
     <h2 class="work-title">Udvalgte projekter</h2>
-    <a class="work-link" href="mailto:hello@malikmotion.dk">Se alle projekter →</a>
+    <a class="work-link" href="/cdn-cgi/l/email-protection#a6cec3cacac9e6cbc7cacfcdcbc9d2cfc9c888c2cd">Se alle projekter →</a>
   </div>
   <div class="work-grid">
     <div class="work-item">
@@ -315,7 +313,7 @@ body{background:#f5f3ef;color:#111;font-family:'Inter',sans-serif;font-weight:30
     <h2 class="contact-title">Har du et<br>projekt <em>i tankerne?</em></h2>
   </div>
   <div>
-    <a class="contact-email" href="mailto:hello@malikmotion.dk">hello@malikmotion.dk</a>
+    <a class="contact-email" href="/cdn-cgi/l/email-protection#7f171a1313103f121e13161412100b161011511b14"><span class="__cf_email__" data-cfemail="87efe2ebebe8c7eae6ebeeeceae8f3eee8e9a9e3ec">[email&#160;protected]</span></a>
     <div class="contact-info">
       Malik Motion — Tobias Vermehren<br>
       Randers, Danmark<br>
@@ -337,11 +335,4 @@ body{background:#f5f3ef;color:#111;font-family:'Inter',sans-serif;font-weight:30
   </div>
 </footer>
 
-<script>
-const obs = new IntersectionObserver(entries => {
-  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible') });
-}, {threshold: 0.08});
-document.querySelectorAll('.fade-up').forEach(el => obs.observe(el));
-</script>
-</body>
-</html>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/emai
