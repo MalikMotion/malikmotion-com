@@ -9,52 +9,24 @@
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth;font-size:16px}
 body{background:#f5f3ef;color:#111;font-family:'Inter',sans-serif;font-weight:300;overflow-x:hidden}
-
-/* NAV */
-.nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;justify-content:space-between;align-items:center;padding:24px 48px;mix-blend-mode:difference;pointer-events:none}
+.nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;justify-content:space-between;align-items:center;padding:28px 48px;pointer-events:none}
 .nav a{pointer-events:all}
-.nav-logo{font-family:'Playfair Display',serif;font-size:1.25rem;font-weight:400;color:#fff;text-decoration:none;letter-spacing:0.02em}
+.nav-logo{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:400;color:#111;text-decoration:none;letter-spacing:0.02em;font-style:italic}
 .nav-links{display:flex;gap:32px;list-style:none}
-.nav-links a{font-size:0.8rem;color:#fff;text-decoration:none;letter-spacing:0.08em;font-weight:400;transition:opacity 0.2s}
-.nav-links a:hover{opacity:0.5}
-
-/* HERO */
-.hero{height:100vh;background:#111;position:relative;display:flex;align-items:flex-start;overflow:hidden}
-.hero-video-bg{position:absolute;inset:0;background:linear-gradient(135deg,#1a1a1a 0%,#2d2a24 40%,#1a1610 100%);display:flex;align-items:center;justify-content:center}
-.hero-noise{position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");opacity:0.4;pointer-events:none}
-.hero-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0.1) 50%,transparent 100%)}
-.hero-content{position:relative;z-index:2;padding:140px 48px 64px;width:100%}
-.hero-label{font-size:0.7rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-bottom:16px;font-weight:400}
-.hero-title{font-family:'Playfair Display',serif;font-size:clamp(3.5rem,8vw,7.5rem);font-weight:400;color:#fff;line-height:0.95;letter-spacing:-0.01em}
-.hero-title em{font-style:italic;display:block}
-.rotating{display:inline-block;overflow:hidden;vertical-align:bottom}
-.rotating-inner{display:flex;flex-direction:column;animation:rotateWords 8s steps(1) infinite}
-.rotating-inner span{height:1em;display:block;line-height:1}
-@keyframes rotateWords{0%{transform:translateY(0)}25%{transform:translateY(-1em)}50%{transform:translateY(-2em)}75%{transform:translateY(-3em)}100%{transform:translateY(0)}}
-.hero-bottom{display:flex;justify-content:space-between;align-items:flex-end;margin-top:32px}
-.hero-desc{max-width:380px;font-size:0.85rem;color:rgba(255,255,255,0.55);line-height:1.8;font-weight:300}
-.hero-scroll{display:flex;flex-direction:column;align-items:center;gap:8px;font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(255,255,255,0.35)}
-.hero-scroll-line{width:1px;height:48px;background:linear-gradient(to bottom,rgba(255,255,255,0.5),transparent);animation:scrollLine 2s ease-in-out infinite}
-@keyframes scrollLine{0%,100%{opacity:0.3;transform:scaleY(0.5)}50%{opacity:1;transform:scaleY(1)}}
-
-/* VIDEO HINT */
-.video-hint{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;z-index:1}
-.video-hint-circle{width:90px;height:90px;border:1px solid rgba(255,255,255,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;animation:pulse 3s ease-in-out infinite}
-.video-hint-circle svg{width:20px;height:20px;fill:rgba(255,255,255,0.4)}
-@keyframes pulse{0%,100%{transform:scale(1);opacity:0.4}50%{transform:scale(1.08);opacity:0.7}}
-.video-hint-label{font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.25);font-weight:300}
-
-/* GRID DECORATIVE */
-.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.025) 1px,transparent 1px);background-size:100px 100px;mask-image:radial-gradient(ellipse at center,black 20%,transparent 70%)}
-
-/* INTRO */
-.intro{padding:120px 48px;max-width:960px}
+.nav-links a{font-size:0.8rem;color:#111;text-decoration:none;letter-spacing:0.06em;font-weight:400;transition:opacity 0.2s}
+.nav-links a:hover{opacity:0.4}
+.hero-text{padding:140px 48px 52px}
+.hero-label{font-size:0.68rem;letter-spacing:0.2em;text-transform:uppercase;color:#aaa;margin-bottom:20px;font-weight:400}
+.hero-title{font-family:'Playfair Display',serif;font-size:clamp(3.2rem,7vw,6.5rem);font-weight:400;color:#111;line-height:1.0;letter-spacing:-0.02em}
+.hero-title em{font-style:italic;color:#666}
+.hero-desc{max-width:500px;font-size:0.85rem;color:#999;line-height:1.9;font-weight:300;margin-top:28px}
+.hero-video{margin:48px 48px 0;position:relative;overflow:hidden;border-radius:3px}
+.hero-video video{width:100%;display:block;aspect-ratio:16/8;object-fit:cover;pointer-events:none}
+.intro{padding:100px 48px 80px;max-width:960px}
 .section-tag{font-size:0.65rem;letter-spacing:0.22em;text-transform:uppercase;color:#999;margin-bottom:28px;font-weight:400;display:flex;align-items:center;gap:12px}
 .section-tag::after{content:'';width:32px;height:1px;background:#ccc}
 .intro-text{font-family:'Playfair Display',serif;font-size:clamp(1.9rem,4vw,3.2rem);font-weight:400;line-height:1.3;color:#111}
 .intro-text em{font-style:italic;color:#666}
-
-/* SERVICES */
 .services{padding:0 48px 120px}
 .services-grid{display:grid;grid-template-columns:1fr 1fr 1fr;border-top:1px solid #ddd}
 .service{padding:52px 0;border-right:1px solid #ddd;padding-right:44px}
@@ -69,15 +41,13 @@ body{background:#f5f3ef;color:#111;font-family:'Inter',sans-serif;font-weight:30
 .service-list li{font-size:0.73rem;color:#999;padding:7px 0;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;gap:10px;font-weight:300}
 .service-list li:last-child{border-bottom:none}
 .service-list li::before{content:'';width:3px;height:3px;background:#bbb;border-radius:50%;flex-shrink:0}
-
-/* WORK GRID */
 .work{padding:0 48px 120px}
 .work-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:40px;padding-top:80px;border-top:1px solid #ddd}
 .work-title{font-family:'Playfair Display',serif;font-size:2rem;font-weight:400;color:#111}
 .work-link{font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:#999;text-decoration:none;border-bottom:1px solid #ddd;padding-bottom:2px;font-weight:400;transition:color 0.2s,border-color 0.2s}
 .work-link:hover{color:#111;border-color:#111}
 .work-grid{display:grid;grid-template-columns:1fr 1fr;gap:3px}
-.work-item{position:relative;overflow:hidden;aspect-ratio:16/10;cursor:pointer;background:#ddd}
+.work-item{position:relative;overflow:hidden;aspect-ratio:16/10;cursor:pointer}
 .work-item:first-child{grid-column:span 2;aspect-ratio:16/7}
 .work-bg{position:absolute;inset:0;transition:transform 0.7s cubic-bezier(0.25,0.46,0.45,0.94)}
 .work-item:hover .work-bg{transform:scale(1.04)}
@@ -89,33 +59,25 @@ body{background:#f5f3ef;color:#111;font-family:'Inter',sans-serif;font-weight:30
 .work-desc{font-family:'Playfair Display',serif;font-size:1.1rem;color:#fff;font-weight:400;line-height:1.3;font-style:italic}
 .work-label{position:absolute;bottom:28px;left:36px;font-size:0.68rem;letter-spacing:0.1em;color:rgba(255,255,255,0.4);font-weight:300;transition:opacity 0.3s}
 .work-item:hover .work-label{opacity:0}
-/* Work item bg colors */
 .w1{background:linear-gradient(135deg,#1e2020 0%,#2d3232 100%)}
 .w2{background:linear-gradient(135deg,#20201e 0%,#322f2d 100%)}
 .w3{background:linear-gradient(135deg,#1e201e 0%,#2d322d 100%)}
 .w4{background:linear-gradient(135deg,#1e1e22 0%,#2d2d35 100%)}
 .w5{background:linear-gradient(135deg,#221e1e 0%,#352d2d 100%)}
-
-/* ABOUT */
 .about{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid #ddd;margin:0 48px}
 .about-image{background:#e8e4de;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;min-height:480px}
 .about-monogram{font-family:'Playfair Display',serif;font-size:14rem;color:rgba(0,0,0,0.05);font-style:italic;line-height:1;user-select:none;font-weight:400;position:absolute}
 .about-image-tag{position:absolute;top:28px;left:28px;font-size:0.6rem;letter-spacing:0.18em;text-transform:uppercase;color:#aaa;font-weight:400}
-.about-image-note{position:absolute;bottom:28px;right:28px;font-size:0.62rem;color:#bbb;font-style:italic;font-weight:300}
 .about-content{padding:80px 0 80px 72px;display:flex;flex-direction:column;justify-content:center}
 .about-title{font-family:'Playfair Display',serif;font-size:2.4rem;font-weight:400;line-height:1.15;margin-bottom:32px;color:#111}
 .about-title em{font-style:italic}
 .about-body{font-size:0.82rem;color:#666;line-height:1.95;font-weight:300;margin-bottom:14px}
 .about-cta{display:inline-flex;align-items:center;gap:10px;margin-top:36px;font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:#111;text-decoration:none;border-bottom:1px solid #111;padding-bottom:3px;font-weight:400;transition:opacity 0.25s;width:fit-content}
 .about-cta:hover{opacity:0.45}
-
-/* CLIENTS */
 .clients{padding:80px 48px 100px;border-top:1px solid #ddd}
 .clients-row{display:flex;flex-wrap:wrap;gap:0;margin-top:40px}
 .client{font-family:'Playfair Display',serif;font-size:clamp(1.6rem,3vw,2.4rem);font-weight:400;color:#d0ccc6;padding:12px 48px 12px 0;letter-spacing:-0.01em;transition:color 0.3s;cursor:default;font-style:italic}
 .client:hover{color:#111}
-
-/* CONTACT */
 .contact{padding:120px 48px 100px;border-top:1px solid #ddd;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start}
 .contact-title{font-family:'Playfair Display',serif;font-size:clamp(2.4rem,5vw,4.5rem);font-weight:400;line-height:1.05;color:#111}
 .contact-title em{font-style:italic}
@@ -125,23 +87,18 @@ body{background:#f5f3ef;color:#111;font-family:'Inter',sans-serif;font-weight:30
 .contact-socials{display:flex;gap:24px;margin-top:32px}
 .contact-socials a{font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:#999;text-decoration:none;border-bottom:1px solid transparent;padding-bottom:2px;transition:border-color 0.25s,color 0.25s;font-weight:400}
 .contact-socials a:hover{color:#111;border-color:#111}
-
-/* FOOTER */
 footer{padding:28px 48px;border-top:1px solid #ddd;display:flex;justify-content:space-between;align-items:center}
 .footer-copy{font-size:0.68rem;color:#bbb;letter-spacing:0.05em;font-weight:300}
 .footer-logo{font-family:'Playfair Display',serif;font-size:0.95rem;color:#ccc;font-style:italic;font-weight:400}
-
-/* FADE ANIMATIONS */
 .fade-up{opacity:0;transform:translateY(28px);transition:opacity 0.9s ease,transform 0.9s ease}
 .fade-up.visible{opacity:1;transform:none}
 .delay-1{transition-delay:0.1s}
 .delay-2{transition-delay:0.2s}
-
-/* RESPONSIVE */
 @media(max-width:900px){
   .nav{padding:20px 24px}
-  .hero-content{padding:0 24px 48px}
-  .intro{padding:80px 24px}
+  .hero-text{padding:100px 24px 36px}
+  .hero-video{margin:0 24px}
+  .intro{padding:72px 24px 60px}
   .services{padding:0 24px 80px}
   .services-grid{grid-template-columns:1fr}
   .service{border-right:none;border-bottom:1px solid #ddd;padding:40px 0!important}
@@ -160,7 +117,6 @@ footer{padding:28px 48px;border-top:1px solid #ddd;display:flex;justify-content:
 </head>
 <body>
 
-<!-- NAV -->
 <nav class="nav">
   <a class="nav-logo" href="#">Malik Motion</a>
   <ul class="nav-links">
@@ -170,48 +126,29 @@ footer{padding:28px 48px;border-top:1px solid #ddd;display:flex;justify-content:
   </ul>
 </nav>
 
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-video-bg">
-    <video autoplay muted loop playsinline disablepictureinpicture disableremoteplayback style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;">
-      <source src="hero.mp4" type="video/mp4">
-    </video>
-  </div>
-  <div class="hero-grid"></div>
-  <div class="hero-noise"></div>
-  <div class="hero-overlay"></div>
-  <div class="hero-content">
-    <div class="hero-label">Videoproduktion · Motion Design · Randers, Danmark</div>
-    <h1 class="hero-title">
-      Film der<br>
-      <em>mærkes</em>
-    </h1>
-    <div class="hero-bottom">
-      <p class="hero-desc">Autentisk og cinematisk videoproduktion til brands og marketingteams der vil mærkes — ikke bare ses.</p>
-      <div class="hero-scroll">
-        <div class="hero-scroll-line"></div>
-        <span>Scroll</span>
-      </div>
-    </div>
-  </div>
-</section>
+<div class="hero-text">
+  <div class="hero-label">Videoproduktion · Motion Design · Randers, Danmark</div>
+  <h1 class="hero-title">Film der<br><em>mærkes</em></h1>
+  <p class="hero-desc">Autentisk og cinematisk videoproduktion til brands og marketingteams der vil mærkes — ikke bare ses.</p>
+</div>
 
-<!-- INTRO -->
+<div class="hero-video">
+  <video autoplay muted loop playsinline disablepictureinpicture disableremoteplayback>
+    <source src="hero.mp4" type="video/mp4">
+  </video>
+</div>
+
 <section class="intro fade-up">
   <div class="section-tag">Tilgang</div>
-  <p class="intro-text">
-    Skab resonans og resultater med film der kan <em>mærkes</em> — fra første konceptmøde til leveret produkt.
-  </p>
+  <p class="intro-text">Skab resonans og resultater med film der kan <em>mærkes</em> — fra første konceptmøde til leveret produkt.</p>
 </section>
 
-<!-- SERVICES -->
 <section class="services">
   <div class="services-grid">
-
     <div class="service fade-up">
       <div class="service-num">01</div>
       <h3 class="service-title">Video&shy;<em>produktion</em></h3>
-      <p class="service-body">Cinematisk og dokumentarisk tilgang til brandfilm og contentproduktion. Jeg skaber trygge rum foran kameraet, så autenticiteten skinne igennem.</p>
+      <p class="service-body">Cinematisk og dokumentarisk tilgang til brandfilm og contentproduktion. Jeg skaber trygge rum foran kameraet, så autenticiteten skinner igennem.</p>
       <ul class="service-list">
         <li>Brandfilm & kampagner</li>
         <li>Eventfilm</li>
@@ -220,7 +157,6 @@ footer{padding:28px 48px;border-top:1px solid #ddd;display:flex;justify-content:
         <li>Dronefilm</li>
       </ul>
     </div>
-
     <div class="service fade-up delay-1">
       <div class="service-num">02</div>
       <h3 class="service-title">Motion <em>Design</em></h3>
@@ -233,7 +169,6 @@ footer{padding:28px 48px;border-top:1px solid #ddd;display:flex;justify-content:
         <li>Titelsekvenser</li>
       </ul>
     </div>
-
     <div class="service fade-up delay-2">
       <div class="service-num">03</div>
       <h3 class="service-title"><em>Post</em>produktion</h3>
@@ -245,23 +180,15 @@ footer{padding:28px 48px;border-top:1px solid #ddd;display:flex;justify-content:
         <li>VFX & compositing</li>
       </ul>
     </div>
-
   </div>
 </section>
 
-<!-- WORK -->
 <section class="work" id="work">
   <div class="work-header">
     <h2 class="work-title">Udvalgte projekter</h2>
-    <a class="work-link" href="/cdn-cgi/l/email-protection#c1a9a4adadae81aca0ada8aaacaeb5a8aeafefa5aa">Se alle projekter →</a>
+    <a class="work-link" href="mailto:hello@malikmotion.dk">Se alle projekter →</a>
   </div>
-
-  <!--
-    TIP: Erstat .work-bg farverne med rigtige baggrundsbilleder:
-    style="background-image:url('projekt1.jpg');background-size:cover;background-position:center"
-  -->
   <div class="work-grid">
-
     <div class="work-item">
       <div class="work-bg w1"></div>
       <div class="work-overlay"></div>
@@ -271,7 +198,6 @@ footer{padding:28px 48px;border-top:1px solid #ddd;display:flex;justify-content:
         <div class="work-desc">Kampagnefilm til sæsonoptakt med DBU-dommere som fortælleramme</div>
       </div>
     </div>
-
     <div class="work-item">
       <div class="work-bg w2"></div>
       <div class="work-overlay"></div>
@@ -281,7 +207,6 @@ footer{padding:28px 48px;border-top:1px solid #ddd;display:flex;justify-content:
         <div class="work-desc">Årsafslutningsvideo med tidsrejse som kreativt koncept</div>
       </div>
     </div>
-
     <div class="work-item">
       <div class="work-bg w3"></div>
       <div class="work-overlay"></div>
@@ -291,7 +216,6 @@ footer{padding:28px 48px;border-top:1px solid #ddd;display:flex;justify-content:
         <div class="work-desc">Motion graphics og animation til dansk fodbolds digitale platforme</div>
       </div>
     </div>
-
     <div class="work-item">
       <div class="work-bg w4"></div>
       <div class="work-overlay"></div>
@@ -301,7 +225,6 @@ footer{padding:28px 48px;border-top:1px solid #ddd;display:flex;justify-content:
         <div class="work-desc">Cinematisk brandfilm med dokumentarisk tilgang og emotionel resonans</div>
       </div>
     </div>
-
     <div class="work-item">
       <div class="work-bg w5"></div>
       <div class="work-overlay"></div>
@@ -311,20 +234,14 @@ footer{padding:28px 48px;border-top:1px solid #ddd;display:flex;justify-content:
         <div class="work-desc">2D animation og motion design til digital kampagne</div>
       </div>
     </div>
-
   </div>
 </section>
 
-<!-- ABOUT -->
 <section class="about fade-up" id="om">
   <div class="about-image">
     <div class="about-image-tag">Randers, Danmark</div>
-    <!--
-      Erstat med dit portræt:
-      <img src="portrait.jpg" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0" alt="Tobias Vermehren Malik">
-    -->
+    <!-- Erstat med dit portræt: <img src="portrait.jpg" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0" alt="Tobias Vermehren"> -->
     <div class="about-monogram">TV</div>
-    <div class="about-image-note">Indsæt portræt her</div>
   </div>
   <div class="about-content">
     <div class="section-tag">Om Malik Motion</div>
@@ -336,23 +253,20 @@ footer{padding:28px 48px;border-top:1px solid #ddd;display:flex;justify-content:
   </div>
 </section>
 
-<!-- CLIENTS -->
 <section class="clients fade-up">
   <div class="section-tag">Klienter</div>
   <div class="clients-row">
     <div class="client">Louis Nielsen</div>
     <div class="client">DBU</div>
-    <!-- Tilføj flere klienter her -->
   </div>
 </section>
 
-<!-- CONTACT -->
 <section class="contact fade-up" id="kontakt">
   <div>
     <h2 class="contact-title">Har du et<br>projekt <em>i tankerne?</em></h2>
   </div>
   <div>
-    <a class="contact-email" href="/cdn-cgi/l/email-protection#ea828f868685aa878b86838187859e838584c48e81"><span class="__cf_email__" data-cfemail="b4dcd1d8d8dbf4d9d5d8dddfd9dbc0dddbda9ad0df">[email&#160;protected]</span></a>
+    <a class="contact-email" href="mailto:hello@malikmotion.dk">hello@malikmotion.dk</a>
     <div class="contact-info">
       Malik Motion — Tobias Vermehren<br>
       Randers, Danmark<br>
@@ -366,10 +280,16 @@ footer{padding:28px 48px;border-top:1px solid #ddd;display:flex;justify-content:
   </div>
 </section>
 
-<!-- FOOTER -->
 <footer>
   <span class="footer-copy">© 2026 Malik Motion — Tobias Vermehren. CVR: xxxxxxxx</span>
   <span class="footer-logo">Malik Motion</span>
 </footer>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><sc
+<script>
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible') });
+}, {threshold: 0.08});
+document.querySelectorAll('.fade-up').forEach(el => obs.observe(el));
+</script>
+</body>
+</html>
