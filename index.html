@@ -59,7 +59,7 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stro
 #plot [data-h]{cursor:pointer}
 #plot [data-h="focus"]{cursor:move}
 #plot [data-h="plug"]{cursor:crosshair}
-#plot [data-h="beamw"]{cursor:grab}
+#plot [data-h="beamw"],#plot [data-h="sunw"]{cursor:grab}
 #plot.grabbing [data-h="beamw"]{cursor:grabbing}
 #plot.aiming{cursor:crosshair}
 #plot.panning,#plot.panning .it{cursor:grab}
@@ -69,6 +69,10 @@ svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stro
 .aimhint i{width:9px;height:9px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 4px var(--accent-soft);display:block;flex:none}
 .aimhint span{color:var(--muted)}
 .aimhint b{color:var(--ink);font-weight:600}
+.timepop{position:fixed;z-index:30;display:flex;align-items:center;gap:8px;padding:8px 8px 8px 12px;box-shadow:var(--shadow-lg);font-size:12.5px;font-weight:600;color:var(--muted);transform:translate(-50%,0)}
+.timepop:not([hidden]){animation:popIn .16s ease-out}
+@keyframes popIn{from{opacity:0;transform:translate(-50%,-4px)}to{opacity:1;transform:translate(-50%,0)}}
+.timepop .fi{width:auto;min-width:112px;height:32px}
 .aimhint:not([hidden]){animation:hintIn .18s ease-out}
 @keyframes hintIn{from{opacity:0;transform:translate(-50%,-6px)}to{opacity:1;transform:translate(-50%,0)}}
 body.noguide #extHint,body.noguide #aimHint{display:none!important}
@@ -386,6 +390,10 @@ input.kelvin::-moz-range-track{background:linear-gradient(90deg,#e8752c,#f2b25c 
 .lp-head b{flex:1;font-size:15px;font-weight:700}
 .lp-head .ib{width:30px;height:30px}
 .lp-head .ib svg{width:17px;height:17px}
+.lp-viewrow{padding:0 14px 10px}
+.lp-viewrow + .lp-list{border-top:1px solid var(--line)}
+.lp-view{display:flex;width:100%}
+.lp-view button{flex:1}
 .lp-opts{display:flex;flex-direction:column;gap:6px;padding:0 14px 10px;border-bottom:1px solid var(--line)}
 .lp-chk{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--muted)}
 .lp-note{font-size:11.5px;color:var(--faint);margin:-2px 0 0 26px}
@@ -404,6 +412,14 @@ input.kelvin::-moz-range-track{background:linear-gradient(90deg,#e8752c,#f2b25c 
 .tb.chev svg{width:13px;height:13px;transition:transform .12s}
 .tb.chev.open svg{transform:rotate(90deg)}
 .tb.chev:disabled{visibility:hidden}
+.lr.locked .lr-name,.li.locked .li-name{color:var(--muted)}
+.lr.locked [data-lact=lock]:not(.off),.lr.locked [data-lact=tlock]:not(.off),.li.locked [data-lact=ilock]:not(.off),.lr.obj.locked [data-lact=lock]{color:var(--accent)}
+.lockbar{display:flex;align-items:center;gap:8px;margin:0 16px 4px;padding:8px 8px 8px 10px;border-radius:10px;background:var(--field);font-size:12px;color:var(--muted)}
+.lockbar svg.i{width:16px;height:16px;color:var(--accent);flex:none}
+.lockbar span{flex:1;min-width:0}
+.lockbar b{color:var(--ink);font-weight:650;margin-right:4px}
+.lr-kind{display:grid;place-items:center;width:22px;flex:none;color:var(--muted)}
+.lr-kind svg{width:15px;height:15px}
 .lr-ic{display:grid;place-items:center;width:18px;color:var(--muted)}
 .lr-ic svg{width:15px;height:15px}
 .lr-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-left:2px}
@@ -421,11 +437,27 @@ input.kelvin::-moz-range-track{background:linear-gradient(90deg,#e8752c,#f2b25c 
 .scene-rename{position:fixed;z-index:60;transform:translateX(-50%);min-width:140px;max-width:300px;font:600 13px var(--sans);text-align:center;padding:5px 10px;border:1.5px solid var(--accent);border-radius:9px;background:var(--card);color:var(--ink);box-shadow:var(--shadow-lg);outline:none}
 .lr-edit{flex:1;min-width:0;font:inherit;border:1px solid var(--accent);border-radius:6px;padding:2px 6px;background:var(--card);color:var(--ink)}
 .lr.dragging,.li.dragging{opacity:.4}
+.li.drop-before{box-shadow:inset 0 2px 0 var(--accent)}
+.li.drop-after{box-shadow:inset 0 -2px 0 var(--accent)}
+#layersPanel .ib.drop-into{background:var(--accent-soft);color:var(--accent);box-shadow:inset 0 0 0 1.5px var(--accent)}
 .lr.drop-before{box-shadow:inset 0 2px 0 var(--accent)}
 .lr.drop-after{box-shadow:inset 0 -2px 0 var(--accent)}
 .lr.drop-into{background:var(--accent-soft);box-shadow:inset 0 0 0 1.5px var(--accent)}
 body.lp-dragging{cursor:grabbing}
 .lp-foot{display:flex;flex-wrap:wrap;gap:6px;padding:8px 10px;border-top:1px solid var(--line)}
+/* layers open: the panel takes the left edge and the left toolbar moves to its right */
+@media (min-width:761px){
+  .layers{left:max(16px,env(safe-area-inset-left,0px))}
+  body.layers-on #rail{left:calc(max(16px,env(safe-area-inset-left,0px)) + 298px)}
+  body.layers-on .fly:not(.fly-r):not(.at){left:calc(max(16px,env(safe-area-inset-left,0px)) + 378px)}
+  /* desktop: the panel and the toolbar beside it are moved together from JS, see toggleLayers */
+}
+@media (max-width:760px){
+  .layers:not([hidden]){animation:lpIn .26s cubic-bezier(.2,.8,.2,1)}
+  .layers.closing{animation:lpOut .24s cubic-bezier(.5,0,.75,0) forwards;pointer-events:none}
+  @keyframes lpIn{from{transform:translateY(calc(100% + 120px))}to{transform:none}} @keyframes lpOut{from{transform:none}to{transform:translateY(calc(100% + 120px))}}
+}
+@media (prefers-reduced-motion:reduce){ .layers:not([hidden]),.layers.closing{animation:none} }
 @media (max-width:760px){ .layers{left:max(16px,env(safe-area-inset-left,0px));right:max(16px,env(safe-area-inset-right,0px));width:auto;top:auto;bottom:calc(98px + env(safe-area-inset-bottom,0px));height:52vh} }
 svg.dupkey .it{cursor:copy}
 .angread{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
@@ -552,9 +584,16 @@ body.placing #plot,body.placing #cards .bc{cursor:copy!important}
 .modal textarea{width:min(560px,80vw);height:260px;font-family:var(--mono);font-size:12px;background:var(--field);border:0;border-radius:9px;padding:10px}
 .kbd{font-family:var(--mono);font-size:11px;border-radius:5px;padding:1px 5px;background:var(--field);color:var(--muted)}
 
+#lockOv{position:fixed;inset:0;pointer-events:none;z-index:3}   /* same level as the cards, just after them */
+.bc.locked .c-plus,.bc.locked .rz,.bc.locked .c-acts{display:none!important}
+.lkb{position:absolute;width:18px;height:18px;border-radius:50%;border:1.4px solid;display:grid;place-items:center;box-sizing:border-box}
+.lkb svg.i{width:12px;height:12px;stroke-width:2.2}
 #cards{position:fixed;left:0;top:0;width:0;height:0;transform-origin:0 0;z-index:3;pointer-events:none}
 .bc{position:absolute;pointer-events:auto;background:var(--card);color:var(--ink);border-radius:8px;box-shadow:0 1px 2px rgba(20,24,30,.08),0 6px 18px -6px rgba(20,24,30,.2);font-family:var(--sans);font-size:14px;line-height:1.45;cursor:grab;-webkit-user-select:none;user-select:none}
 .bc.locked{pointer-events:none}
+.bc.locked.sel{box-shadow:0 1px 2px rgba(20,24,30,.08),0 6px 18px -6px rgba(20,24,30,.2)!important;outline:calc(2px*var(--inv,1)) dashed var(--accent);outline-offset:calc(3px*var(--inv,1))}
+.bc:not(.sel):not(.locked):hover{box-shadow:0 0 0 calc(1.5px*var(--inv,1)) color-mix(in srgb,var(--accent) 60%,transparent),0 1px 2px rgba(20,24,30,.08),0 6px 18px -6px rgba(20,24,30,.2)}
+body.placing .bc:hover{box-shadow:0 1px 2px rgba(20,24,30,.08),0 6px 18px -6px rgba(20,24,30,.2)}
 .bc.sel{box-shadow:0 0 0 calc(2.5px*var(--inv,1)) var(--accent),0 0 0 calc(7px*var(--inv,1)) color-mix(in srgb,var(--accent) 22%,transparent),0 6px 18px -6px rgba(20,24,30,.2)!important}
 .bc.sel{box-shadow:0 0 0 2px var(--accent),0 6px 18px -6px rgba(20,24,30,.2)}
 .bc textarea,.bc input:not([type=checkbox]):not([type=color]){display:block;width:100%;border:0;background:transparent;color:inherit;font:inherit;outline:none;resize:none;cursor:inherit;padding:0;margin:0;min-width:0}
@@ -648,6 +687,8 @@ body.setup-dragging #crShoot,body.setup-dragging #crPath .crumb-btn,body.setup-d
 .tg{width:18px;align-self:stretch;position:relative;flex:none}
 .tg.v::before,.tg.t::before,.tg.l::before{content:"";position:absolute;left:8px;top:0;bottom:0;border-left:1.5px solid color-mix(in srgb,var(--muted) 45%,transparent)}
 .tg.l::before{bottom:50%}
+.lp-list .tg{width:24px}
+.lp-list .tg::before,.lp-list .tg::after{left:12px}
 .tg.t::after,.tg.l::after{content:"";position:absolute;left:8px;right:0;top:50%;border-top:1.5px solid color-mix(in srgb,var(--muted) 45%,transparent)}
 .mvrow span{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .mvrow em{font-style:normal;font-size:11.5px;color:var(--muted)}
@@ -710,7 +751,7 @@ body.insp-open .rail-r{right:calc(max(16px,env(safe-area-inset-right,0px)) + 332
 </style>
 
 <svg id="plot" xmlns="http://www.w3.org/2000/svg" aria-label="Lighting diagram"></svg>
-<div class="boardcards" id="cards"></div>
+<div class="boardcards" id="cards"></div><div id="lockOv" aria-hidden="true"></div>
 
 <div class="ui">
   <div class="top">
@@ -768,6 +809,7 @@ body.insp-open .rail-r{right:calc(max(16px,env(safe-area-inset-right,0px)) + 332
   <div class="card extmenu" id="extMenu" hidden role="menu"></div>
   <div class="card connmenu" id="connMenu" hidden role="menu"></div>
   <div class="card aimhint drawbar" id="drawBar" hidden role="toolbar" aria-label="Pen"><b>Pen</b><div class="pc" id="penColors"></div><span class="vsep"></span><div class="pc" id="penWidths"></div><button class="btn sm primary" id="drawDone">Done</button></div>
+  <div class="card timepop" id="timePop" hidden role="dialog" aria-label="Time of day"><label for="timePopIn">Time of day</label><input class="fi" type="time" id="timePopIn"><button class="btn sm primary" id="timePopOk">Set</button></div>
   <div class="card aimhint" id="aimHint" hidden role="status"><i></i><b>Aim</b><span>Click a spot or an object, or drag the dot · hold Shift for 45° steps</span><button class="btn sm primary" id="aimDone">Done</button></div>
 
   <div class="card boardpop" id="boardPop" hidden role="dialog" aria-label="Board">
@@ -863,6 +905,7 @@ const TYPES = {
   measure: {cat:'Notes',name:'Distance',z:9,w:2,h:.2,label:'',resize:'w',noFront:true,p:{}},
   angle:   {cat:'Notes',name:'Angle',z:9,w:.3,h:.3,label:'',noFront:true,p:{ax:1.2,ay:0,bx:.6,by:-1}},
   sketch:  {cat:'Notes',name:'Pen',z:8,w:.5,h:.5,label:'',noFront:true,p:{pts:[],color:'note',width:.035}},
+  compass: {cat:'Notes',name:'Compass',z:9,w:1.2,h:1.2,label:'',resize:'s',noFront:true,p:{}},
   note:    {cat:'Board',card:true,name:'Note',z:20,w:220,h:0,label:'',noFront:true,p:{text:''}},
   todo:    {cat:'Board',card:true,name:'To-do',z:20,w:240,h:0,label:'',noFront:true,p:{title:'To-do',items:[]}},
   comment: {cat:'Board',card:true,name:'Comment',z:20,w:230,h:0,label:'',noFront:true,p:{text:''}},
@@ -953,6 +996,7 @@ function shape(it,Q,k){
       const d=smoothPath(pts);
       return `<path d="${d}" fill="none" stroke="transparent" stroke-width="${f(Math.max(sw2,14*k))}" stroke-linecap="round" stroke-linejoin="round"/><path d="${d}" fill="none" stroke="${col}" stroke-width="${f(sw2)}" stroke-linecap="round" stroke-linejoin="round"/>`; }
     case 'angle': return angleSVG(it.p,Q,k,it.rot,true);
+    case 'compass': return compassSVG(hw,Q,k);
     case 'measure': { const flip = Math.cos(it.rot*D2R)<0; const tx=`${f(w)} m`.replace(/(\.\d)\d+/, '$1');
       return `<path d="M${f(-hw)} 0L${f(hw)} 0M${f(-hw)} ${f(-.08)}L${f(-hw)} ${f(.08)}M${f(hw)} ${f(-.08)}L${f(hw)} ${f(.08)}" stroke="${Q.muted}" stroke-width="${f(1.2*k)}"/>`+
       `<text x="0" y="${f(-6*k)}" font-size="${f(11*k)}" font-family="${FONT}" font-weight="600" fill="${Q.muted}" text-anchor="middle" ${flip?`transform="rotate(180)" dy="${f(14*k)}"`:''}>${w.toFixed(2)} m</text>`; }
@@ -1017,6 +1061,7 @@ const beamHalf=p=>clamp(beamDeg(p)/2,.25,80)*D2R;
 function beamGeo(it){ const p=it.p||{}, hw=it.w/2, hh=it.h/2, half=beamHalf(p), L=+p.throw||2.5;
   const b=(it.type==='softbox'||it.type==='octa'||it.type==='panel')?hh*.9:Math.min(hh*.6,.12), off=b/Math.tan(half), ax=hw-off, R=L+off;
   return {hw,b,half,ax,R,F:{x:hw,y:b},C:{x:ax+R*Math.cos(half),y:R*Math.sin(half)}}; }
+const sunSpan=it=>{ const v=+((it.p||{}).span); return v>0?v:it.h*1.1; };   // width of the sun's parallel rays
 const beamAdjustable=it=>!!(it&&TYPES[it.type]&&TYPES[it.type].light&&!TYPES[it.type].omni&&!TYPES[it.type].sun&&it.on!==false);
 var beamHover=null;
 function beamHoverId(){ if(drag&&drag.mode==='beamw') return drag.it.id; return beamHover; }
@@ -1032,8 +1077,8 @@ function beam(it,Q,k,defs,pre){
   const c=tintOf(it), L=+p.throw||2.5, op=.18+.32*clamp((+p.power||0)/100,0,1);
   if(t.sun){
     defs.push(`<linearGradient id="${gid}" gradientUnits="userSpaceOnUse" x1="${f(hw)}" y1="0" x2="${f(hw+L)}" y2="0"><stop offset="0" stop-color="${c}" stop-opacity="${f(op)}"/><stop offset="1" stop-color="${c}" stop-opacity="0"/></linearGradient>`);
-    let ar=''; for(let i=-1;i<=1;i++){ const y=i*hh*.7; ar+=`<path d="M${f(hw+.1)} ${f(y)}L${f(hw+L*.8)} ${f(y)}" stroke="${c}" stroke-width="${f(1.6*k)}" stroke-dasharray="${f(6*k)} ${f(4*k)}"/><path d="M${f(hw+L*.8+.12)} ${f(y)}L${f(hw+L*.8)} ${f(y-.06)}L${f(hw+L*.8)} ${f(y+.06)}Z" fill="${c}"/>`; }
-    return `<rect x="${f(hw)}" y="${f(-hh*1.1)}" width="${f(L)}" height="${f(it.h*1.1)}" fill="url(#${gid})"/>`+ar;
+    const sp=sunSpan(it), nr=clamp(Math.round(sp/.7),1,4); let ar=''; for(let i=-nr;i<=nr;i++){ const y=i*(sp/2*.82)/nr; ar+=`<path d="M${f(hw+.1)} ${f(y)}L${f(hw+L*.8)} ${f(y)}" stroke="${c}" stroke-opacity=".28" stroke-width="${f(1.1*k)}" stroke-dasharray="${f(6*k)} ${f(5*k)}"/>`; }
+    return `<rect x="${f(hw)}" y="${f(-sp/2)}" width="${f(L)}" height="${f(sp)}" fill="url(#${gid})"/>`;
   }
   if(t.omni){
     defs.push(`<radialGradient id="${gid}" gradientUnits="userSpaceOnUse" cx="0" cy="0" r="${f(L)}"><stop offset="0" stop-color="${c}" stop-opacity="${f(op)}"/><stop offset="1" stop-color="${c}" stop-opacity="0"/></radialGradient>`);
@@ -1100,7 +1145,7 @@ function bounceGlow(items,Q,k,defs,pre){
       if(P.refl!==2){ const sr=Math.sign((P.ref.x-P.a.x)*nx+(P.ref.y-P.a.y)*ny)||1; if(side!==sr*P.refl) return; }
       const N=24; let first=-1, last=-1, cnt=0, dsum=0;
       for(let i=0;i<=N;i++){ const sI=i/N, w={x:P.a.x+tx*sI, y:P.a.y+ty*sI}, q=toLocal(L,w.x,w.y); let inside, d;
-        if(t.sun){ inside=q.x>L.w/2 && Math.abs(q.y)<=L.h*.55 && q.x<L.w/2+reach; d=q.x-L.w/2; }
+        if(t.sun){ inside=q.x>L.w/2 && Math.abs(q.y)<=sunSpan(L)/2 && q.x<L.w/2+reach; d=q.x-L.w/2; }
         else { const dx=q.x-org.x, dy=q.y-org.y; d=Math.hypot(dx,dy); inside=d>.05 && d<=reach && Math.abs(Math.atan2(dy,dx))<=half; }
         if(!inside) continue;
         const from=t.sun?{x:w.x-dir.x*reach,y:w.y-dir.y*reach}:S;
@@ -1166,7 +1211,7 @@ function opAttr(it,withOff,lop){ const v=itemOp(it)*(lop==null?1:lop)*(withOff&&
 function extentY(it){ const r=it.rot*D2R; let hw=it.w/2, hh=it.h/2; if(it.type==='door') hh+=it.w/2; return Math.abs(Math.sin(r))*hw+Math.abs(Math.cos(r))*hh; }
 function specLines(it){
   const t=TYPES[it.type], p=it.p||{};
-  if(t.light){ if(it.type==='sun') return [`${p.cct}K${p.gel?' · '+p.gel:''}`];
+  if(t.light){ if(it.type==='sun') return [`${p.time?p.time+' · ':''}${p.cct}K${p.gel?' · '+p.gel:''}`];
     const a=[p.fixture,p.modifier].filter(Boolean).join(' + ');
     const b=[p.cct?p.cct+'K':'', (p.power!==''&&p.power!=null)?p.power+'%':'', p.gel].filter(Boolean).join(' · ');
     return [a,b].filter(Boolean); }
@@ -1218,9 +1263,12 @@ function plotMarkup(items,Q,o){
         let s=`<path d="M${f(ga.ax)} ${f(ga.ay)}L0 0L${f(ga.bx)} ${f(ga.by)}" fill="none" stroke="${Q.accent}" stroke-opacity=".3" stroke-width="${f(7*k)}" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/><circle r="${f(8*k)}" fill="${Q.accent}" fill-opacity=".14" stroke="${Q.accent}" stroke-width="${f(1.5*k)}" pointer-events="none"/>`;
         if(o.sel.size===1 && o.handles) s+=[['angA',ga.ax,ga.ay],['angB',ga.bx,ga.by]].map(([h,x,y])=>`<circle data-h="${h}" cx="${f(x)}" cy="${f(y)}" r="${f(r)}" fill="#ffffff" stroke="${Q.accent}" stroke-width="${f(1.8*k)}"><title>Drag to move this point</title></circle>`).join('');
         over += `<g transform="${tr}">${s}</g>`; return; }
-      let g = `<rect x="${f(-hw)}" y="${f(-hh)}" width="${f(hw*2)}" height="${f(hh*2)}" rx="${f(4*k)}" fill="none" stroke="${Q.accent}" stroke-opacity=".22" stroke-width="${f(7*k)}" pointer-events="none"/>`+
-        `<rect x="${f(-hw)}" y="${f(-hh)}" width="${f(hw*2)}" height="${f(hh*2)}" rx="${f(4*k)}" fill="${Q.accent}" fill-opacity=".12" stroke="${Q.accent}" stroke-width="${f(2.2*k)}" pointer-events="none"/>`;
-      if(o.sel.size>1 && it.id===[...o.sel][0]) g+=`<rect x="${f(-hw-3*k)}" y="${f(-hh-3*k)}" width="${f(hw*2+6*k)}" height="${f(hh*2+6*k)}" rx="${f(6*k)}" fill="none" stroke="${Q.accent}" stroke-width="${f(2.6*k)}" pointer-events="none"/>`;
+      const srx = t.resize==='s' ? hw : 4*k;   // round things get a round outline
+      const SA = o.pre ? Q.accent : selCol(it.id,Q.accent);
+      if(!o.pre && LF.lock(it)){ over+=`<g transform="${tr}" pointer-events="none"><rect x="${f(-hw)}" y="${f(-hh)}" width="${f(hw*2)}" height="${f(hh*2)}" rx="${f(srx)}" fill="${SA}" fill-opacity=".06" stroke="${SA}" stroke-width="${f(1.8*k)}" stroke-dasharray="${f(5*k)} ${f(3.5*k)}"/></g>`; return; }   // locked: dashed, no handles
+      let g = `<rect x="${f(-hw)}" y="${f(-hh)}" width="${f(hw*2)}" height="${f(hh*2)}" rx="${f(srx)}" fill="none" stroke="${SA}" stroke-opacity=".22" stroke-width="${f(7*k)}" pointer-events="none"/>`+
+        `<rect x="${f(-hw)}" y="${f(-hh)}" width="${f(hw*2)}" height="${f(hh*2)}" rx="${f(srx)}" fill="${SA}" fill-opacity=".12" stroke="${SA}" stroke-width="${f(2.2*k)}" pointer-events="none"/>`;
+      if(o.sel.size>1 && it.id===[...o.sel][0]) g+=`<rect x="${f(-hw-3*k)}" y="${f(-hh-3*k)}" width="${f(hw*2+6*k)}" height="${f(hh*2+6*k)}" rx="${f(6*k)}" fill="none" stroke="${SA}" stroke-width="${f(2.6*k)}" pointer-events="none"/>`;
       if(o.sel.size===1 && o.handles){
         const r=6*k;
         g += `<line x1="0" y1="${f(-hh)}" x2="0" y2="${f(-hh-20*k)}" stroke="${Q.accent}" stroke-width="${f(1.3*k)}" pointer-events="none"/><circle data-h="rot" cy="${f(-hh-20*k)}" r="${f(r)}" fill="#ffffff" stroke="${Q.accent}" stroke-width="${f(1.8*k)}"/>`;
@@ -1228,7 +1276,7 @@ function plotMarkup(items,Q,o){
           g += [-1,1].map(sg=>`<rect data-h="${sg<0?'end1':'end2'}" x="${f(sg*ex-r)}" y="${f(-r)}" width="${f(2*r)}" height="${f(2*r)}" rx="${f(2.5*k)}" fill="#ffffff" stroke="${Q.accent}" stroke-width="${f(1.8*k)}"/>`).join('');
           if(EXT_TYPES.has(it.type) && !extMode){ const R=8.5*k, off=ex+24*k;
             g += [-1,1].map(sg=>`<g data-h="${sg<0?'add1':'add2'}" transform="translate(${f(sg*off)} 0)"><title>Add a wall, window or door from this end</title><line x1="${f(-sg*(off-ex-r))}" y1="0" x2="${f(-sg*R)}" y2="0" stroke="${Q.accent}" stroke-width="${f(1.2*k)}" stroke-dasharray="${f(2*k)} ${f(2*k)}" pointer-events="none"/><circle r="${f(R)}" fill="${Q.accent}"/><path d="M${f(-R*.45)} 0H${f(R*.45)}M0 ${f(-R*.45)}V${f(R*.45)}" stroke="#ffffff" stroke-width="${f(1.8*k)}" stroke-linecap="round"/></g>`).join(''); } }
-        else if(t.resize){ const hx = t.resize==='h'?0:hw, hy = t.resize==='w'?0:hh;
+        else if(t.resize){ const hx = t.resize==='h'?0:t.resize==='s'?hw*Math.SQRT1_2:hw, hy = t.resize==='w'?0:t.resize==='s'?hh*Math.SQRT1_2:hh;
           g += `<rect data-h="size" x="${f(hx-r)}" y="${f(hy-r)}" width="${f(2*r)}" height="${f(2*r)}" rx="${f(2.5*k)}" fill="#ffffff" stroke="${Q.accent}" stroke-width="${f(1.8*k)}"/>`; }
         if((t.light||t.cam) && it.type!=='sun'){ const L=+it.p.throw||2.5, tx = t.omni? L : it.w/2+L;
           g += `<path data-h="throw" d="M${f(tx)} ${f(-r*1.2)}L${f(tx+r*1.2)} 0L${f(tx)} ${f(r*1.2)}L${f(tx-r*1.2)} 0Z" fill="${Q.paper}" stroke="${Q.accent}" stroke-width="${f(1.6*k)}"/>`; }
@@ -1238,7 +1286,9 @@ function plotMarkup(items,Q,o){
             + `<path d="M${f(G.ax+ar*Math.cos(ah))} ${f(-ar*Math.sin(ah))}A${f(ar)} ${f(ar)} 0 0 1 ${f(G.ax+ar*Math.cos(ah))} ${f(ar*Math.sin(ah))}" fill="none" stroke="${Q.accent}" stroke-opacity=".7" stroke-width="${f(1.1*k)}" stroke-dasharray="${f(3*k)} ${f(3*k)}" pointer-events="none"/>`
             + [1,-1].map(sg=>`<circle data-h="beamw" cx="${f(G.C.x)}" cy="${f(sg*G.C.y)}" r="${f(r)}" fill="#ffffff" stroke="${Q.accent}" stroke-width="${f(1.8*k)}"><title>Drag to widen or narrow the beam · Shift for 15° steps</title></circle>`).join('');
           const lw=fromLocal(it,front+16*k,0); beamLbl=`<text x="${f(lw.x)}" y="${f(lw.y+4*k)}" font-size="${f(11.5*k)}" font-family="${FONT}" font-weight="700" fill="${Q.accent}" text-anchor="middle" stroke="${Q.paper}" stroke-width="${f(3.5*k)}" paint-order="stroke" pointer-events="none">${Math.round(beamDeg(it.p))}°</text>`; }
-        if(it.type==='sun'){ const L=+it.p.throw||3, tx=it.w/2+L; g += `<path data-h="throw" d="M${f(tx)} ${f(-r*1.2)}L${f(tx+r*1.2)} 0L${f(tx)} ${f(r*1.2)}L${f(tx-r*1.2)} 0Z" fill="${Q.paper}" stroke="${Q.accent}" stroke-width="${f(1.6*k)}"/>`; }
+        if(it.type==='sun'){ const L=+it.p.throw||3, tx=it.w/2+L; g += `<path data-h="throw" d="M${f(tx)} ${f(-r*1.2)}L${f(tx+r*1.2)} 0L${f(tx)} ${f(r*1.2)}L${f(tx-r*1.2)} 0Z" fill="${Q.paper}" stroke="${Q.accent}" stroke-width="${f(1.6*k)}"/>`;
+          const sy=sunSpan(it)/2, sx=it.w/2+Math.max(.35,(+it.p.throw||2.5)*.45), bw=16*k, bh=6*k;   // width handles on both edges of the rays
+          g += [1,-1].map(sg=>`<g data-h="sunw"><title>Drag to widen or narrow the sun's rays</title><rect x="${f(sx-bw)}" y="${f(sg*sy-9*k)}" width="${f(bw*2)}" height="${f(18*k)}" fill="transparent"/><rect x="${f(sx-bw/2)}" y="${f(sg*sy-bh/2)}" width="${f(bw)}" height="${f(bh)}" rx="${f(bh/2)}" fill="#ffffff" stroke="${Q.accent}" stroke-width="${f(1.6*k)}"/></g>`).join(''); }
       }
       over += `<g transform="${tr}">${g}</g>`+beamLbl; beamLbl='';
     });
@@ -1371,7 +1421,7 @@ let detailsOpen=false, flyCat=null;
 let W=1,H=1;
 const svg = $('#plot');
 const CAT_IC = {Lights:'lights',Grip:'grip',Camera:'camera',Talent:'talent',Set:'set',Notes:'notes'};
-const CAT_DESC = {Lights:'Drag onto the plot or tap to drop in the middle.',Grip:'Frames, bounce and negative fill.',Camera:'Cameras show their field of view from lens and sensor.',Talent:'Whatever the camera is pointed at: people, products and floor marks.',Set:'Walls, openings, furniture and power outlets.',Notes:'Text, arrows, distances, angles and a freehand pen (P).'};
+const CAT_DESC = {Lights:'Drag onto the plot or tap to drop in the middle.',Grip:'Frames, bounce and negative fill.',Camera:'Cameras show their field of view from lens and sensor.',Talent:'Whatever the camera is pointed at: people, products and floor marks.',Set:'Walls, openings, furniture and power outlets.',Notes:'Text, arrows, distances, angles, a compass and a freehand pen (P).'};
 
 try{ Object.assign(opts, JSON.parse(localStorage.getItem('setplot-opts')||'{}')); }catch(e){}
 function saveOpts(){ try{ localStorage.setItem('setplot-opts',JSON.stringify(opts)); }catch(e){} }
@@ -1422,14 +1472,15 @@ function renderPlot(){
   const vw=W/view.s, vh=H/view.s, x0=view.x-vw/2, y0=view.y-vh/2;
   svg.setAttribute('viewBox',`${f(x0)} ${f(y0)} ${f(vw)} ${f(vh)}`);
   const k=1/view.s;
-  const m = plotMarkup(cur?cur.items:[],P,{pxm:view.s,beams:opts.beams,specs:opts.specs&&view.s>=50,sel,handles:!readOnly,layers:cur&&cur.layers,plug:plugIds(),cable:cableIds(),cableSel,beamH:beamHoverId()});
+  cardBadges=[];
+  const m = plotMarkup(cur?cur.items:[],P,{pxm:view.s,beams:opts.beams,specs:opts.specs&&view.s>=50,sel,handles:!readOnly && ![...sel].some(id=>{ const it=itemById(id); return it && LFc().lock(it); }),layers:cur&&cur.layers,plug:plugIds(),cable:cableIds(),cableSel,beamH:beamHoverId()});
   const g = patternMarkup(P,x0,y0,vw,vh,k,view.s,'pv');
-  svg.innerHTML = `<defs>${g.defs}${m.defs}</defs>${g.body}<g>${m.beams}</g><g>${m.body}</g><g>${m.labels}</g>${linksSVG(cur?cur.items:[],P,k,cur&&cur.layers,true)}${conDragMarkup(k)}${plugDragMarkup(k)}${plugSnapMarkup(k)}<g>${m.over}</g><g>${cur&&sel.size&&!extMode?originMarkup(k):''}</g>${extMarkup(k)}${camDropMarkup(k)}${angModeMarkup(k)}${rotModeMarkup(k)}${wallLine&&drag?(w=>w?`<g pointer-events="none" transform="translate(${f(w.x)} ${f(w.y)}) rotate(${f(w.rot)})"><rect x="${f(-w.w/2)}" y="${f(-w.h/2-4*k)}" width="${f(w.w)}" height="${f(w.h+8*k)}" rx="${f(3*k)}" fill="${P.accent}" fill-opacity=".12" stroke="${P.accent}" stroke-opacity=".6" stroke-width="${f(1.2*k)}" stroke-dasharray="${f(4*k)} ${f(3*k)}"/></g>`:'')(itemById(wallLine)):''}${snapMark&&drag?`<g pointer-events="none"><circle cx="${f(snapMark.x)}" cy="${f(snapMark.y)}" r="${f(9*k)}" fill="${P.accent}" fill-opacity=".15" stroke="${P.accent}" stroke-width="${f(1.6*k)}"/><circle cx="${f(snapMark.x)}" cy="${f(snapMark.y)}" r="${f(2.5*k)}" fill="${P.accent}"/></g>`:''}${drag&&drag.mode==='draw'?`<path d="${drag.pts.length>1?smoothPath(drag.pts):`M${f(drag.pts[0][0])} ${f(drag.pts[0][1])}l0 0`}" fill="none" stroke="${penColor(penOpts.color,P)}" stroke-width="${f(Math.max(penOpts.width,1.2*k))}" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>`:''}<g>${cur&&!readOnly?focusMarkup(k):''}</g>${drag&&drag.mode==='box'&&drag.cur?`<rect x="${f(Math.min(drag.start.x,drag.cur.x))}" y="${f(Math.min(drag.start.y,drag.cur.y))}" width="${f(Math.abs(drag.cur.x-drag.start.x))}" height="${f(Math.abs(drag.cur.y-drag.start.y))}" rx="${f(3*k)}" fill="${P.accent}" fill-opacity=".08" stroke="${P.accent}" stroke-width="${f(1.2*k)}" pointer-events="none"/>`:''}`;
-  renderCards();
+  svg.innerHTML = `<defs>${g.defs}${m.defs}</defs>${g.body}<g>${m.beams}</g><g>${m.body}</g><g>${m.labels}</g>${linksSVG(cur?cur.items:[],P,k,cur&&cur.layers,true)}${conDragMarkup(k)}${plugDragMarkup(k)}${plugSnapMarkup(k)}<g>${m.over}</g>${lockSelMarkup(k)}${hoverMarkup(k)}${lockFlashMarkup(k)}<g>${cur&&sel.size&&!extMode?originMarkup(k):''}</g>${extMarkup(k)}${camDropMarkup(k)}${angModeMarkup(k)}${rotModeMarkup(k)}${wallLine&&drag?(w=>w?`<g pointer-events="none" transform="translate(${f(w.x)} ${f(w.y)}) rotate(${f(w.rot)})"><rect x="${f(-w.w/2)}" y="${f(-w.h/2-4*k)}" width="${f(w.w)}" height="${f(w.h+8*k)}" rx="${f(3*k)}" fill="${P.accent}" fill-opacity=".12" stroke="${P.accent}" stroke-opacity=".6" stroke-width="${f(1.2*k)}" stroke-dasharray="${f(4*k)} ${f(3*k)}"/></g>`:'')(itemById(wallLine)):''}${snapMark&&drag?`<g pointer-events="none"><circle cx="${f(snapMark.x)}" cy="${f(snapMark.y)}" r="${f(9*k)}" fill="${P.accent}" fill-opacity=".15" stroke="${P.accent}" stroke-width="${f(1.6*k)}"/><circle cx="${f(snapMark.x)}" cy="${f(snapMark.y)}" r="${f(2.5*k)}" fill="${P.accent}"/></g>`:''}${drag&&drag.mode==='draw'?`<path d="${drag.pts.length>1?smoothPath(drag.pts):`M${f(drag.pts[0][0])} ${f(drag.pts[0][1])}l0 0`}" fill="none" stroke="${penColor(penOpts.color,P)}" stroke-width="${f(Math.max(penOpts.width,1.2*k))}" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>`:''}<g>${cur&&!readOnly?focusMarkup(k):''}</g>${drag&&drag.mode==='box'&&drag.cur?`<rect x="${f(Math.min(drag.start.x,drag.cur.x))}" y="${f(Math.min(drag.start.y,drag.cur.y))}" width="${f(Math.abs(drag.cur.x-drag.start.x))}" height="${f(Math.abs(drag.cur.y-drag.start.y))}" rx="${f(3*k)}" fill="${P.accent}" fill-opacity=".08" stroke="${P.accent}" stroke-width="${f(1.2*k)}" pointer-events="none"/>`:''}`;
+  renderCards(); renderCardBadges();
   $('#zoomLbl').textContent = Math.round(view.s/70*100)+'%';
   const cands=[.25,.5,1,2,5,10]; let L=1; for(const c of cands){ if(c*view.s>=36){ L=c; break; } }
   $('#scaleI').style.width=(L*view.s)+'px'; $('#scaleT').textContent=(L<1?(L*100)+' cm':L+' m');
-  $('#empty').hidden = !(mode!=='loading' && !readOnly && (!cur || cur.items.length===0) && $('#drawer').hidden);
+  $('#empty').hidden = !(mode!=='loading' && !readOnly && (!cur || cur.items.length===0) && $('#drawer').hidden && !(cur && blankChosen===cur.id));
 }
 
 /* ================= coordinate frame: A cam is the origin ================= */
@@ -1451,7 +1502,7 @@ function relText(x,y,F){ F=F||frameOf(); const q=toRel(x,y,F); if(!F.cam) return
 
 /* ================= aim / focus ================= */
 let focusMode=false, focusPt=null, focusHover=null, focusGuide=null;
-const NO_AIM = new Set(['wall','window','door','text','measure','dolly','table','sketch','angle','note','todo','comment','color','grid','outlet']);
+const NO_AIM = new Set(['compass','wall','window','door','text','measure','dolly','table','sketch','angle','note','todo','comment','color','grid','outlet']);
 const canAim = it=>it && !NO_AIM.has(it.type);
 function aimAt(it){ const f0=it.focus; if(!f0) return; const dx=f0.x-it.x, dy=f0.y-it.y; if(Math.hypot(dx,dy)<.05) return; it.rot=Math.round(Math.atan2(dy,dx)/D2R*10)/10; }
 function reaimAll(){
@@ -1847,7 +1898,9 @@ function placeExt(pt,shift,free){
   touch(); draw();
 }
 svg.addEventListener('pointermove',e=>{ hoverWorld=toWorld(e.clientX,e.clientY); lastClient={x:e.clientX,y:e.clientY}; svg.classList.toggle('dupkey',dupKey(e)); });
-svg.addEventListener('pointerleave',()=>{ hoverWorld=null; });
+svg.addEventListener('pointerleave',()=>{ hoverWorld=null; if(hoverPick.id||hoverPick.lock){ hoverPick={id:null,lock:null}; draw(); } });
+svg.addEventListener('pointermove',e=>updHoverPick(e));
+addEventListener('pointermove',e=>{ if((hoverPick.id||hoverPick.lock) && !svg.contains(e.target)){ hoverPick={id:null,lock:null}; draw(); } },true);   // left the plot (onto a card, panel or toolbar)
 svg.addEventListener('pointermove',e=>{ if(!rotMode) return; if(!rotMode.pivot){ rotMode.hover=rotPick(e); draw(); } else rotFollow(e); });
 svg.addEventListener('pointermove',e=>{   // the ⚡ plug handle shows while the cursor is over the back of a light
   if(drag||readOnly||!cur||e.pointerType==='touch'||rotMode||angMode||extMode||drawMode||focusMode) return;
@@ -1885,10 +1938,76 @@ function extMarkup(k){
 }
 
 /* ================= canvas interaction ================= */
+/* what a click on the plot picks when objects overlap: the one already selected (so it can be dragged),
+   otherwise the smallest object under the cursor, so a backdrop or table drawn on top never hides the product or light under it */
+function lockedCardAt(pt){ if(!cur||!pt) return null; const L=LFc();
+  return cur.items.filter(isCard).reverse().find(it=>{ if(!L.lock(it)||!L.vis(it)) return false; const r=cardRect(it); return pt.x>=r.x&&pt.x<=r.x+r.w&&pt.y>=r.y&&pt.y<=r.y+r.h; })||null; }
+function pickItemEl(e){
+  const L=LFc(), t=e.target.closest&&e.target.closest('[data-id]'), ti=t&&itemById(t.dataset.id); if(ti && sel.has(ti.id) && !L.lock(ti)) return t;   // a selected (movable) object keeps the click
+  const seen=new Set(), c=[];
+  document.elementsFromPoint(e.clientX,e.clientY).forEach((el,ix)=>{ const o=el.closest&&el.closest('#plot [data-id]'); if(!o||seen.has(o.dataset.id)) return; seen.add(o.dataset.id);
+    const it=itemById(o.dataset.id); if(it && TYPES[it.type] && L.vis(it)) c.push({o,it,ix,a:(it.w||.2)*(it.h||.2),lk:L.lock(it)?1:0}); });
+  if(!c.length) return t;
+  c.sort((p,q)=>p.lk-q.lk || p.a-q.a || TYPES[q.it.type].z-TYPES[p.it.type].z || p.ix-q.ix);
+  return c[0].o; }
+/* hover preview: outline what a click would select; locked things under the cursor get a lock badge */
+var hoverPick={id:null,lock:null};
+function updHoverPick(e){
+  let id=null, lock=null;
+  const busy=!e||drag||placing||extMode||rotMode||angMode||drawMode||focusMode||readOnly||!cur||e.buttons;
+  if(!busy && !(e.target.closest&&e.target.closest('[data-h]'))){
+    const L=LFc(), t=e.target.closest&&e.target.closest('[data-id]'), ti=t&&itemById(t.dataset.id), pk=pickItemEl(e), pi=pk&&itemById(pk.dataset.id);
+    if(pi && !L.lock(pi) && L.vis(pi)) id=pi.id;
+    if(ti && L.lock(ti)) lock=ti.id;
+    if(!id && !lock && hoverWorld){ const c=cur.items.filter(isCard).reverse().find(it=>{ if(!L.lock(it)||!L.vis(it)) return false; const r=cardRect(it); return hoverWorld.x>=r.x&&hoverWorld.x<=r.x+r.w&&hoverWorld.y>=r.y&&hoverWorld.y<=r.y+r.h; }); if(c) lock=c.id; }
+  }
+  if(id!==hoverPick.id||lock!==hoverPick.lock){ hoverPick={id,lock}; draw(); } }
+/* lock / unlock flash: the badge pops in at each changed object, the outline breathes out, then both fade */
+var lockFlashes=[];
+const FLASH_LOCK='#f08c2e', FLASH_UNLOCK='#2fb36b';
+// while an object flashes after a lock / unlock, its selection outline takes the flash colour and eases back to blue
+function selCol(id,base){ const x=lockFlashes.find(q=>q.id===id); if(!x) return base; const t=(performance.now()-x.t0)/1100; if(t>=1) return base;
+  try{ return mixHex(cssHex(base), x.locked?FLASH_LOCK:FLASH_UNLOCK, t<.6?1:1-(t-.6)/.4); }catch(e){ return base; } }
+function flashLock(ids,locked){ if(matchMedia('(prefers-reduced-motion: reduce)').matches) return; const t0=performance.now(); lockFlashes=lockFlashes.filter(x=>!ids.includes(x.id)).concat(ids.map(id=>({id,locked,t0}))); draw(); }
+function lockFlashMarkup(k){
+  if(!lockFlashes.length||!cur) return ''; const now=performance.now(), D=1100; lockFlashes=lockFlashes.filter(x=>now-x.t0<D); if(!lockFlashes.length) return '';
+  let o=''; lockFlashes.forEach(x=>{ const it=itemById(x.id); if(!it) return; const t=(now-x.t0)/D;
+    const pop=t<.16? .4+ (t/.16)*.85 : t<.28? 1.25-((t-.16)/.12)*.25 : 1, fade=t<.6?1:1-(t-.6)/.4, col=x.locked?FLASH_LOCK:FLASH_UNLOCK;   // orange for locking, green for unlocking; both read apart from the blue selection
+    const grow=4*k, lo=.4*(t<.15?t/.15:1)*fade;   // the outline (and a light tint of the object) fades in softly and out again
+    if(isCard(it)){ const r=cardRect(it); o+=`<rect x="${f(r.x-grow)}" y="${f(r.y-grow)}" width="${f(r.w+2*grow)}" height="${f(r.h+2*grow)}" rx="${f(8/PXM0+grow)}" fill="${col}" fill-opacity="${f(lo*.35)}" stroke="${col}" stroke-opacity="${f(lo)}" stroke-width="${f(1.2*k)}"${x.locked?` stroke-dasharray="${f(5*k)} ${f(3.5*k)}"`:''}/>`; }
+    else { const hw=it.w/2+grow, hh=it.h/2+grow, rx=TYPES[it.type].resize==='s'?hw:5*k; o+=`<g transform="translate(${f(it.x)} ${f(it.y)}) rotate(${f(it.rot||0)})"><rect x="${f(-hw)}" y="${f(-hh)}" width="${f(hw*2)}" height="${f(hh*2)}" rx="${f(rx)}" fill="${col}" fill-opacity="${f(lo*.35)}" stroke="${col}" stroke-opacity="${f(lo)}" stroke-width="${f(1.2*k)}"${x.locked?` stroke-dasharray="${f(5*k)} ${f(3.5*k)}"`:''}/></g>`; }
+    const b=badgeAt(it,k); o+=lockBadge(it,b.x,b.y,k,col,pop,fade,x.locked?'lock':'unlock'); });
+  requestAnimationFrame(()=>draw());
+  return `<g pointer-events="none">${o}</g>`; }
+// the lock badge sits in the middle of the object; cards draw above the plot, so theirs go into an HTML overlay
+var cardBadges=[];
+function lockBadge(it,cx,cy,k,col,sc,op,icon){ sc=sc==null?1:sc; op=op==null?1:op; icon=icon||'lock';
+  if(isCard(it)){ cardBadges.push({cx,cy,col,sc,op,icon}); return ''; }
+  const R=9*k*sc, s=12*k*sc;
+  return `<g pointer-events="none"${op<1?` opacity="${f(op)}"`:''}><circle cx="${f(cx)}" cy="${f(cy)}" r="${f(R)}" fill="${P.paper}" stroke="${col}" stroke-width="${f(1.4*k)}"/><svg x="${f(cx-s/2)}" y="${f(cy-s/2)}" width="${f(s)}" height="${f(s)}" viewBox="0 0 24 24" fill="none" stroke="${col}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">${IC[icon]}</svg></g>`; }
+function badgeAt(it,k){ if(isCard(it)){ const r=cardRect(it); return {x:r.x+r.w/2, y:r.y+r.h/2}; } return {x:it.x, y:it.y}; }
+function renderCardBadges(){ const ov=$('#lockOv'); if(!ov) return; const h=cardBadges.map(b=>`<span class="lkb" style="left:${Math.round((b.cx-view.x)*view.s+W/2)}px;top:${Math.round((b.cy-view.y)*view.s+H/2)}px;color:${b.col};border-color:${b.col};background:${P.paper};opacity:${b.op};transform:translate(-50%,-50%) scale(${b.sc})">${ic(b.icon)}</span>`).join(''); if(ov.innerHTML!==h) ov.innerHTML=h; }
+// selected but locked: the same lock badge, in blue
+function lockSelMarkup(k){ if(!cur||!sel.size) return ''; const L=LFc(); let o='';
+  [...sel].map(itemById).forEach(it=>{ if(!it||!L.lock(it)||!L.vis(it)) return; const b=badgeAt(it,k); o+=lockBadge(it,b.x,b.y,k,selCol(it.id,P.accent)); }); return o; }
+function hoverMarkup(k){
+  if(!cur||(!hoverPick.id&&!hoverPick.lock)||drag||placing) return '';
+  const L=LFc();   // re-check at draw time: a lock, unlock or selection since the last mouse move changes what is shown
+  const pad=4*k, box=(it,col,dash,fo)=>{ const da=dash?` stroke-dasharray="${f(4*k)} ${f(3*k)}"`:'';
+      if(isCard(it)){ const r=cardRect(it); return `<rect x="${f(r.x-pad)}" y="${f(r.y-pad)}" width="${f(r.w+2*pad)}" height="${f(r.h+2*pad)}" rx="${f(8/PXM0+pad)}" fill="none" stroke="${col}" stroke-width="${f(1.5*k)}"${da}/>`; }
+      const hw=it.w/2, hh=it.h/2, rx=TYPES[it.type].resize==='s'?hw+pad:5*k;
+      return `<g transform="translate(${f(it.x)} ${f(it.y)}) rotate(${f(it.rot||0)})"><rect x="${f(-hw-pad)}" y="${f(-hh-pad)}" width="${f(it.w+2*pad)}" height="${f(it.h+2*pad)}" rx="${f(rx)}" fill="${col}" fill-opacity="${fo}" stroke="${col}" stroke-opacity=".7" stroke-width="${f(1.5*k)}"${da}/></g>`; };
+  let o='';
+  const hi=hoverPick.id&&!sel.has(hoverPick.id)&&itemById(hoverPick.id); if(hi && !isCard(hi) && !L.lock(hi) && L.vis(hi)) o+=box(hi,P.accent,false,.05);
+  const lk0=hoverPick.lock&&itemById(hoverPick.lock), lk=lk0 && !sel.has(lk0.id) && L.lock(lk0) && L.vis(lk0) ? lk0 : null;
+  if(lk){ o+=box(lk,P.muted,true,0);
+    const b=badgeAt(lk,k); o+=lockBadge(lk,b.x,b.y,k,P.muted); }
+  return `<g pointer-events="none">${o}</g>`; }
 function toWorld(cx,cy){ return {x:view.x+(cx-W/2)/view.s, y:view.y+(cy-H/2)/view.s}; }
 const itemById = id=>cur && cur.items.find(i=>i.id===id);
 const ptrs = new Map(); let drag=null, pinch=null;
-svg.addEventListener('contextmenu',e=>{ e.preventDefault(); const c=e.target.closest('[data-conn]'); if(c && !readOnly){ const [aid,cid]=c.dataset.conn.split('|'); openConnMenu(aid,cid,e.clientX,e.clientY); } });
+svg.addEventListener('contextmenu',e=>{ e.preventDefault(); const c=e.target.closest('[data-conn]'); if(c && !readOnly){ const [aid,cid]=c.dataset.conn.split('|'); openConnMenu(aid,cid,e.clientX,e.clientY); return; }
+  const o=e.target.closest('[data-id]'), it=o&&itemById(o.dataset.id); if(it && !readOnly && !placing){ if(!sel.has(it.id)){ sel=new Set([it.id]); renderInspector(); draw(); } openLayerCtx(e.clientX,e.clientY); } });
 svg.addEventListener('pointerdown',()=>{ lastArea='scene'; },true);
 var lastTap=null;
 svg.addEventListener('pointerup',e=>{
@@ -1907,9 +2026,9 @@ svg.addEventListener('pointerdown',e=>{
   try{ svg.setPointerCapture(e.pointerId); }catch(err){}
   if(ptrs.size===2){ const [a,b]=[...ptrs.values()]; pinch={d:Math.hypot(a.x-b.x,a.y-b.y), s:view.s, mid:{x:(a.x+b.x)/2,y:(a.y+b.y)/2}, vx:view.x, vy:view.y}; drag=null; return; }
   const pt=toWorld(e.clientX,e.clientY);
-  const hEl=e.target.closest('[data-h]'); let iEl=e.target.closest('[data-id]');
+  const hEl=e.target.closest('[data-h]'); let iEl=pickItemEl(e);
   if(cableSel && !e.target.closest('[data-cable],[data-h="cmid"]')){ cableSel=null; draw(); }
-  if(iEl){ const li=itemById(iEl.dataset.id); if(li && LFc().lock(li)) iEl=null; }
+  let lockedPick=null; if(iEl){ const li=itemById(iEl.dataset.id); if(li && LFc().lock(li)){ lockedPick=li; iEl=null; } }
   if(e.button===1 || spaceDown || !cur){ drag={mode:'pan',sx:e.clientX,sy:e.clientY,vx:view.x,vy:view.y}; svg.classList.add('grabbing'); return; }
   if(extMode && !readOnly){ placeExt(pt,e.shiftKey,e.altKey); return; }
   if(angMode && !readOnly){ placeAngle(e); return; }
@@ -1932,12 +2051,14 @@ svg.addEventListener('pointerdown',e=>{
   }
   if(hEl && hEl.dataset.h==='focus' && !readOnly){ checkpoint(); const f0=aimables().find(i=>i.focus); focusPt=f0?Object.assign({},f0.focus):null; drag={mode:'focus',last:pt,snap:opts.snap && !e.altKey}; return; }
   if(hEl && !readOnly && sel.size===1){ const it=itemById([...sel][0]); if(!it) return; checkpoint(); drag={mode:hEl.dataset.h,it}; return; }
+  if(!iEl && !hEl && !readOnly){ const lk=lockedPick||lockedCardAt(pt);
+    if(lk){ if(e.shiftKey){ sel.has(lk.id)?sel.delete(lk.id):sel.add(lk.id); } else sel=new Set([lk.id]); renderInspector(); syncCardSel(); renderLayersSoon(); draw(); return; } }
   if(iEl && !readOnly){
     const id=iEl.dataset.id;
     if(e.shiftKey){ sel.has(id)?sel.delete(id):sel.add(id); } else if(!sel.has(id)) sel=new Set([id]);
     let dup=null;
     if(dupKey(e) && !e.shiftKey && sel.size){ checkpoint(); const prev=new Set(sel), copies=cloneInto(cur.items.filter(i=>sel.has(i.id)),0,0); sel=new Set(copies.map(c=>c.id)); dup={prev,ids:new Set(sel)}; }
-    const orig=new Map(); sel.forEach(i=>{ const it=itemById(i); if(it) orig.set(i,{x:it.x,y:it.y,rot:it.rot}); });
+    const orig=new Map(), LKd=LFc(); sel.forEach(i=>{ const it=itemById(i); if(it && !LKd.lock(it)) orig.set(i,{x:it.x,y:it.y,rot:it.rot}); });   // locked ones stay put
     drag={mode:'move',start:pt,orig,moved:false,sx:e.clientX,sy:e.clientY,dup};
     renderInspector(); draw(); return;
   }
@@ -2004,7 +2125,8 @@ svg.addEventListener('pointermove',e=>{
     L=Math.max(.1,L);
     it.w=Math.round(L*1000)/1000; it.x=F.x+s2*u.x*L/2; it.y=F.y+s2*u.y*L/2;
   }
-  else if(drag.mode==='size'){ const sn=v=>snapOn?Math.round(v*20)/20:v; if(t.resize==='w'||t.resize==='wh') it.w=Math.max(.1,sn(2*Math.abs(lx))); if(t.resize==='h'||t.resize==='wh') it.h=Math.max(.1,sn(2*Math.abs(ly))); }
+  else if(drag.mode==='size'){ const sn=v=>snapOn?Math.round(v*20)/20:v; if(t.resize==='w'||t.resize==='wh') it.w=Math.max(.1,sn(2*Math.abs(lx))); if(t.resize==='h'||t.resize==='wh') it.h=Math.max(.1,sn(2*Math.abs(ly)));
+    if(t.resize==='s'){ const d=Math.max(.3,sn(2*Math.hypot(lx,ly))); it.w=it.h=d; } }
   else if(drag.mode==='angA'||drag.mode==='angB'){
     let x=lx, y=ly;
     if(e.shiftKey){ const L=Math.hypot(x,y), a=Math.round(Math.atan2(y,x)/D2R/15)*15*D2R; x=Math.cos(a)*L; y=Math.sin(a)*L; }
@@ -2012,6 +2134,7 @@ svg.addEventListener('pointermove',e=>{
     const n=drag.mode==='angA'?'a':'b'; it.p[n+'x']=Math.round(x*1000)/1000; it.p[n+'y']=Math.round(y*1000)/1000;
   }
   else if(drag.mode==='beamw'){ it.p.beam=beamFrom(it,lx,ly,e.shiftKey); }
+  else if(drag.mode==='sunw'){ let v=2*Math.abs(ly); if(snapOn) v=Math.round(v*20)/20; it.p.span=Math.round(clamp(v,.2,40)*1000)/1000; }
   else if(drag.mode==='throw'){
     // free lights and cameras turn to follow the handle as well; aimed ones (and all-round sources) only change throw
     let dist=lx;
@@ -2026,11 +2149,11 @@ function endPtr(e){
     else if(!cableHintShown && !guideOn){ cableHintShown=true; toast('Cable selected · press Delete to unplug'); } draw(); return; }
   if(drag && drag.mode==='move' && drag.dup && !drag.moved && ptrs.size===0){ const d=drag.dup; cur.items=cur.items.filter(i=>!d.ids.has(i.id)); sel=d.prev; restoreLast(); drag=null; renderInspector(); draw(); return; }   // a click with the modifier, no drag: no copy
   if(drag && drag.mode==='draw'){ const pts=drag.pts; drag=null; if(ptrs.size===0||e.type==='pointerup') finishStroke(pts); draw(); return; }
-  if(drag && ptrs.size===0){ const wasFocus=drag.mode==='focus', wasBox=drag.mode==='box', boxMoved=wasBox&&drag.cur; if(wasBox){ if(!boxMoved && !drag.add && sel.size) sel.clear(); renderInspector(); } svg.classList.remove('grabbing'); const changed=(drag.mode==='move'&&drag.moved)||['rot','size','throw','focus','end1','end2','angA','angB','grot','beamw'].includes(drag.mode)||(drag.mode==='cmid'&&drag.moved); snapMark=null; wallLine=null; drag=null; focusHover=null; focusGuide=null; if(wasBox||wasFocus) draw(); if(wasFocus){ if(focusMode){ focusMode=false; focusPt=null; updAimUI(); } else focusPt=null; } if(changed){ touch(); renderInspector(); } }
+  if(drag && ptrs.size===0){ const wasFocus=drag.mode==='focus', wasBox=drag.mode==='box', boxMoved=wasBox&&drag.cur; if(wasBox){ if(!boxMoved && !drag.add){ if(sel.size) sel.clear(); if(activeLayer){ activeLayer=null; renderLayersSoon(); } } renderInspector(); } svg.classList.remove('grabbing'); const changed=(drag.mode==='move'&&drag.moved)||['rot','size','throw','focus','end1','end2','angA','angB','grot','beamw','sunw'].includes(drag.mode)||(drag.mode==='cmid'&&drag.moved); snapMark=null; wallLine=null; drag=null; focusHover=null; focusGuide=null; if(wasBox||wasFocus) draw(); if(wasFocus){ if(focusMode){ focusMode=false; focusPt=null; updAimUI(); } else focusPt=null; } if(changed){ touch(); renderInspector(); } }
 }
 svg.addEventListener('pointerup',endPtr); svg.addEventListener('pointercancel',endPtr);
 svg.addEventListener('lostpointercapture',e=>{ if(ptrs.has(e.pointerId)) endPtr(e); });
-function endDragState(){ if(drag && ['move','rot','size','throw','focus','end1','end2','angA','angB','grot'].includes(drag.mode) && (drag.mode!=='move'||drag.moved)) touch(); focusGuide=null; svg.classList.remove('grabbing'); }
+function endDragState(){ if(drag && ['move','rot','size','throw','focus','end1','end2','angA','angB','grot','sunw'].includes(drag.mode) && (drag.mode!=='move'||drag.moved)) touch(); focusGuide=null; svg.classList.remove('grabbing'); }
 addEventListener('blur',()=>{ ptrs.clear(); pinch=null; if(drag){ endDragState(); drag=null; draw(); } });
 /* trackpad: two-finger drag pans, pinch zooms. mouse wheel zooms (Shift pans sideways). ⌘/Ctrl + scroll always zooms.
    The device is decided at the start of each gesture so momentum scrolling can't flip it halfway. */
@@ -2297,12 +2420,12 @@ function targetLayerFor(it){
 }
 function ensureLayers(d){
   if(!d) return;
-  if(!Array.isArray(d.layers) || !d.layers.length) d.layers=LAYER_KINDS.map(([k,n])=>newLayer(n,{kind:k}));
-  if(d.layerAuto==null) d.layerAuto=true;
+  if(!Array.isArray(d.layers)) d.layers=[];
+  d.layerAuto=false;   // new objects always get their own layer at the top (the Type view does the sorting)
   const ids=new Set(d.layers.map(l=>l.id));
   d.layers.forEach(l=>{ if(l.parent && (!ids.has(l.parent) || l.parent===l.id)) l.parent=null; });
   (d.items||[]).forEach(it=>{ const l=it.layer&&d.layers.find(x=>x.id===it.layer); if(!l || l.type!=='layer') it.layer=(d===cur?targetLayerFor(it):layerForKind(d,kindOf(it))).id; });
-  const used=new Set((d.items||[]).map(i=>i.layer)); if(d.layers.some(l=>l.solo&&!used.has(l.id))){ d.layers=d.layers.filter(l=>!l.solo||used.has(l.id)); if(d===cur && activeLayer && !d.layers.some(l=>l.id===activeLayer)) activeLayer=null; }
+  const used=new Set((d.items||[]).map(i=>i.layer)); if(d.layers.some(l=>(l.solo||l.kind)&&!used.has(l.id))){ d.layers=d.layers.filter(l=>!(l.solo||l.kind)||used.has(l.id)); if(d===cur && activeLayer && !d.layers.some(l=>l.id===activeLayer)) activeLayer=null; }
 }
 function flatLayers(layers,withGroups){   // panel order, top to bottom
   const kids=new Map(); (layers||[]).forEach(l=>{ const p=l.parent||''; if(!kids.has(p)) kids.set(p,[]); kids.get(p).push(l); });
@@ -2318,60 +2441,109 @@ function layerFns(layers){
            visId:id=>info(id).vis, lockId:id=>info(id).lock };
 }
 const LFc = ()=>layerFns(cur&&cur.layers);
-function dropHiddenFromSel(){ const L=LFc(); let ch=false; [...sel].forEach(id=>{ const it=itemById(id); if(!it || !L.vis(it) || L.lock(it)){ sel.delete(id); ch=true; } }); return ch; }
+function dropHiddenFromSel(){ const L=LFc(); let ch=false; [...sel].forEach(id=>{ const it=itemById(id); if(!it || !L.vis(it)){ sel.delete(id); ch=true; } }); return ch; }
 
 /* ---- panel ---- */
-var layersOpen=false, openL=new Set(), closedG=new Set(), lpT=0;
+var layersOpen=false, openL=new Set(), closedG=new Set(), lpT=0, openT=new Set();
+// two ways to look at the panel: Type (automatic, by kind) or Layers (your own layers and groups)
+var layerView='type'; try{ layerView=localStorage.getItem('setplot-lview')==='layers'?'layers':'type'; }catch(e){}
+const TV_KINDS=[['cards','Cards'],['notes','Notes'],['camera','Cameras'],['subjects','Subjects'],['lights','Lights'],['grip','Grip'],['set','Set']];
+const TTL=k=>(TV_KINDS.find(x=>x[0]===k)||[,''])[1];
+const tvKind=it=>isCard(it)?'cards':kindOf(it);
+const KIND_IC={cards:'note',notes:'notes',camera:'camera',subjects:'talent',lights:'lights',grip:'grip',set:'set'};
+const kindTag=(k,title)=>k?`<span class="lr-kind" title="${esc(title||'')}">${ic(KIND_IC[k]||'notes')}</span>`:'<span class="lr-kind"></span>';
 try{ layersOpen=localStorage.getItem('setplot-layers')==='1'; }catch(e){}
-function renderLayersSoon(){ if(!layersOpen||lpT) return; lpT=requestAnimationFrame(()=>{ lpT=0; renderLayers(); }); }
-function toggleLayers(on){ layersOpen = on==null ? !layersOpen : on; try{ localStorage.setItem('setplot-layers',layersOpen?'1':'0'); }catch(e){} $('#layersPanel').hidden=!layersOpen; document.body.classList.toggle('layers-on',layersOpen); renderRail(); if(layersOpen){ closeFloating(); renderLayers(); } }
+var lpHold=0;
+function renderLayersSoon(){ if(!layersOpen||lpT||performance.now()<lpHold) return; lpT=requestAnimationFrame(()=>{ lpT=0; renderLayers(); }); }
+var lpCloseT=0, lpAnims=[];
+function toggleLayers(on){ layersOpen = on==null ? !layersOpen : on; try{ localStorage.setItem('setplot-layers',layersOpen?'1':'0'); }catch(e){}
+  const el=$('#layersPanel'), rail=$('#rail'), wasHidden=el.hidden; clearTimeout(lpCloseT); el.classList.remove('closing'); lpAnims.forEach(a=>{ try{ a.cancel(); }catch(e){} }); lpAnims=[];
+  const calm=matchMedia('(prefers-reduced-motion: reduce)').matches, phone=innerWidth<=760;
+  if(phone || calm){   // phones slide the sheet with CSS; reduced motion just switches
+    if(layersOpen) el.hidden=false; else if(!el.hidden){ if(calm) el.hidden=true; else { el.classList.add('closing'); lpCloseT=setTimeout(()=>{ el.hidden=true; el.classList.remove('closing'); },240); } }
+  } else {
+    // desktop: the panel slides off the left edge and the toolbar beside it travels the same distance at the same time, so the gap between them never changes
+    const x0=rail.getBoundingClientRect().left;
+    if(layersOpen) el.hidden=false;
+    document.body.classList.toggle('layers-on',layersOpen);
+    const D=Math.round(rail.getBoundingClientRect().left-x0), rb='translateY(-50%)';   // how far the toolbar moves (+ when opening); rb keeps its vertical centring
+    if(layersOpen && wasHidden){ const T={duration:260,easing:'cubic-bezier(.2,.8,.2,1)'};
+      lpAnims=[el.animate([{transform:`translateX(${-D}px)`},{transform:'none'}],T), rail.animate([{transform:`translateX(${-D}px) ${rb}`},{transform:rb}],T)]; }
+    else if(!layersOpen && !wasHidden){ const T={duration:240,easing:'cubic-bezier(.5,0,.75,0)',fill:'forwards'}, d=-D;   // d = the distance it travels back
+      lpAnims=[el.animate([{transform:'none'},{transform:`translateX(${-d}px)`}],T), rail.animate([{transform:`translateX(${d}px) ${rb}`},{transform:rb}],{duration:240,easing:'cubic-bezier(.5,0,.75,0)'})];
+      el.style.pointerEvents='none'; lpCloseT=setTimeout(()=>{ el.hidden=true; el.style.pointerEvents=''; lpAnims.forEach(a=>{ try{ a.cancel(); }catch(e){} }); lpAnims=[]; },240); }
+    renderRail(); if(layersOpen){ closeFloating(); renderLayers(); } return; }
+  document.body.classList.toggle('layers-on',layersOpen); renderRail(); if(layersOpen){ closeFloating(); renderLayers(); } }
 function itemName(it){ const t=TYPES[it.type]; if(t.card) return (it.type==='note'&&it.p&&it.p.text? it.p.text.split('\n')[0].slice(0,28) : t.name)||t.name; return it.label || (it.type==='text'&&it.p&&it.p.text) || t.name; }
 function renderLayers(){
   const el=$('#layersPanel'); if(!el||!layersOpen) return;
   if(document.activeElement && document.activeElement.classList.contains('lr-edit') && el.contains(document.activeElement)) return;   // don't wipe a name being typed
   if(!cur){ el.innerHTML=`<div class="lp-head"><b>Layers</b><button class="ib" data-lact="close" aria-label="Close">${ic('close')}</button></div><p class="muted" style="padding:0 14px">Open a setup to see its layers.</p>`; return; }
   ensureLayers(cur);
+  const viewSeg=`<div class="lp-viewrow"><span class="pwseg lp-view" role="group" aria-label="Layers view"><button data-lact="lview" data-v="type" class="${layerView==='type'?'on':''}">Type</button><button data-lact="lview" data-v="layers" class="${layerView==='layers'?'on':''}">Layers</button></span></div>`;
+  if(layerView==='type'){ el.innerHTML=typeViewHTML(viewSeg); return; }
   const L=cur.layers, LF=LFc(), byLayer=new Map(); cur.items.forEach(it=>{ if(!byLayer.has(it.layer)) byLayer.set(it.layer,[]); byLayer.get(it.layer).push(it); });
   const kids=new Map(); L.forEach(l=>{ const p=l.parent||''; if(!kids.has(p)) kids.set(p,[]); kids.get(p).push(l); });
   const countIn=l=> l.type==='group' ? (kids.get(l.id)||[]).reduce((a,c)=>a+countIn(c),0) : (byLayer.get(l.id)||[]).length;
   const tb=(act,icon,on,title)=>`<button class="tb ${on?'':'off'}" data-lact="${act}" title="${title}" aria-label="${title}" ${readOnly?'disabled':''}>${ic(icon)}</button>`;
   let rows='';
-  const walk=(p,d)=>(kids.get(p)||[]).forEach(l=>{
+  const tgs=(g,last)=>g?g.map(v=>`<i class="tg${v?' v':''}"></i>`).join('')+`<i class="tg ${last?'l':'t'}"></i>`:'';   // file-tree lines like the Shoots list
+  const walk=(p,g)=>{ const list=kids.get(p)||[]; list.forEach((l,ix)=>{ const d=0, last=ix===list.length-1, pre=tgs(g,last), sub=g?g.concat(!last):[];
     const grp=l.type==='group', n=countIn(l), dim=!LF.visId(l.id), its0=byLayer.get(l.id)||[], solo=!grp && l.solo && its0.length===1;
     if(solo){ const it=its0[0];
-      rows+=`<div class="lr obj ${sel.has(it.id)?'on':''} ${activeLayer===l.id&&!sel.has(it.id)?'act':''} ${dim||it.hidden?'dim':''}" data-lid="${l.id}" style="--d:${d}">`+
+      rows+=`<div class="lr obj ${sel.has(it.id)?'on':''} ${dim||it.hidden?'dim':''} ${LF.lockId(l.id)||it.locked?'locked':''}" data-lid="${l.id}" style="--d:${d}">${pre}`+
         `<span class="tb chev" style="visibility:hidden"></span>`+
         tb('eye',l.visible!==false?'eye':'eyeoff',l.visible!==false,'Show / hide · Alt-click to show only this')+
-        tb('lock',l.locked?'lock':'unlock',!!l.locked,l.locked?'Unlock':'Lock')+
-        `<span class="lr-ic obj">${iconSVG(it.type)}</span><span class="lr-name" data-lact="rename" title="Double-click to rename">${esc(l.renamed?l.name:itemName(it))}</span>`+
-        `<button class="tb del" data-lact="del" title="Delete object" aria-label="Delete object" ${readOnly?'disabled':''}>${ic('trash')}</button></div>`;
+        tb('lock',l.locked?'lock':'unlock',!!l.locked,(l.locked?'Unlock':'Lock')+' · '+keyLabel(keyOf('lock')))+
+        `<span class="lr-ic"></span><span class="lr-name" data-lact="rename" title="Double-click to rename">${esc(l.renamed?l.name:itemName(it))}</span>`+
+        `<button class="tb del" data-lact="del" title="Delete object" aria-label="Delete object" ${readOnly?'disabled':''}>${ic('trash')}</button>${kindTag(tvKind(it),TYPES[it.type].name)}</div>`;
       return; }
     const open=grp?!closedG.has(l.id):openL.has(l.id);
-    rows+=`<div class="lr ${grp?'group':''} ${activeLayer===l.id?'on':''} ${dim?'dim':''}" data-lid="${l.id}" style="--d:${d}">`+
+    rows+=`<div class="lr ${grp?'group':''} ${activeLayer===l.id?'on':''} ${dim?'dim':''} ${LF.lockId(l.id)?'locked':''}" data-lid="${l.id}" style="--d:${d}">${pre}`+
       `<button class="tb chev ${open?'open':''}" data-lact="fold" ${grp||n?'':'disabled'} aria-label="Expand">${ic('chev')}</button>`+
       tb('eye',l.visible!==false?'eye':'eyeoff',l.visible!==false,'Show / hide · Alt-click to show only this')+
-      tb('lock',l.locked?'lock':'unlock',!!l.locked,l.locked?'Unlock':'Lock')+
+      tb('lock',l.locked?'lock':'unlock',!!l.locked,(l.locked?'Unlock':'Lock')+' · '+keyLabel(keyOf('lock')))+
       `<span class="lr-ic">${grp?ic('folder'):''}</span><span class="lr-name" data-lact="rename" title="Double-click to rename">${esc(l.name)}</span>`+
       `${l.kind&&cur.layerAuto!==false?'<span class="lr-auto" title="New objects of this kind land here">auto</span>':''}<span class="lr-n">${n}</span>`+
-      `<button class="tb del" data-lact="del" title="${grp?'Ungroup':'Delete layer (objects move to the layer below)'}" aria-label="Delete" ${readOnly?'disabled':''}>${ic(grp?'ungroup':'trash')}</button></div>`;
-    if(grp){ if(open) walk(l.id,d+1); }
+      `<button class="tb del" data-lact="del" title="${grp?'Ungroup':'Delete layer (objects move to the layer below)'}" aria-label="Delete" ${readOnly?'disabled':''}>${ic(grp?'ungroup':'trash')}</button>${grp?'<span class="lr-kind"></span>':(()=>{ const ks=[...new Set(its0.map(tvKind))]; return kindTag(ks.length===1?ks[0]:null,ks.length===1?TTL(ks[0]):''); })()}</div>`;
+    if(grp){ if(open) walk(l.id,sub); }
     else if(open){ const its=(byLayer.get(l.id)||[]).slice().sort((a,b)=>TYPES[b.type].z-TYPES[a.type].z || cur.items.indexOf(b)-cur.items.indexOf(a));
-      its.forEach(it=>{ rows+=`<div class="li ${sel.has(it.id)?'on':''} ${!LF.vis(it)?'dim':''}" data-iid="${it.id}" style="--d:${d+1}">`+
-        `<button class="tb ${it.hidden?'off':''}" data-lact="ieye" title="Show / hide" ${readOnly?'disabled':''}>${ic(it.hidden?'eyeoff':'eye')}</button>`+
-        `<button class="tb ${it.locked?'':'off'}" data-lact="ilock" title="${it.locked?'Unlock':'Lock'}" ${readOnly?'disabled':''}>${ic(it.locked?'lock':'unlock')}</button>`+
-        `<span class="li-name">${esc(itemName(it))}</span><span class="li-type">${esc(TYPES[it.type].name)}</span></div>`; }); }
-  });
-  walk('',0);
+      its.forEach((it,j)=>{ rows+=liRow(it,0,LF,tgs(sub,j===its.length-1)).replace(/<\/div>$/,kindTag(tvKind(it),TYPES[it.type].name)+'</div>'); }); }
+  }); };
+  walk('',null);
   const act=activeLayer&&layerById(activeLayer), selN=[...sel].filter(id=>itemById(id)).length;
   el.innerHTML=`<div class="lp-head"><b>Layers</b>`+
-    `<button class="ib" data-lact="newgroup" title="New group (puts the active layer in it)" aria-label="New group" ${readOnly?'disabled':''}>${ic('foldplus')}</button>`+
+    `<button class="ib" data-lact="newgroup" title="Group the selection (${esc(keyLabel(keyOf('group')))}) · or drag layers onto this" aria-label="Group" ${readOnly?'disabled':''}>${ic('foldplus')}</button>`+
     `<button class="ib" data-lact="newlayer" title="New layer" aria-label="New layer" ${readOnly?'disabled':''}>${ic('plus')}</button>`+
-    `<button class="ib" data-lact="close" aria-label="Close layers">${ic('close')}</button></div>`+
-    `<div class="lp-opts"><label class="lp-chk"><input type="checkbox" data-lact="auto" ${cur.layerAuto!==false?'checked':''} ${readOnly?'disabled':''}> Sort new objects into layers by type</label>`+(cur.layerAuto===false?`<span class="lp-note">Each new object gets its own layer at the top.</span>`:'')+
-    `<div class="lp-op ${act?'':'off'}"><span>${act&&act.type==='group'?'Group':'Layer'} opacity</span>${rng('lop',act?(act.opacity==null?100:act.opacity):100,0,100,5,'%').replace(/<input /g,act&&!readOnly?'<input ':'<input disabled ')}</div></div>`+
+    `<button class="ib" data-lact="close" aria-label="Close layers">${ic('close')}</button></div>`+viewSeg+
     `<div class="lp-list" id="lpList">${rows}</div>`+
-    `<div class="lp-foot">`+(act&&act.type==='layer'&&!(act.solo&&cur.items.filter(i=>i.layer===act.id).length===1)?`<button class="btn sm" data-lact="selall">Select all in “${esc(act.name)}”</button>`+(selN&&!readOnly?`<button class="btn sm" data-lact="movesel">Move ${selN} selected here</button>`:''):`<span class="muted" style="font-size:12px">Click a layer to make it active. Drag rows to reorder or drop into a group; drag objects onto another layer.</span>`)+`</div>`;
+    `<div class="lp-foot">`+(act&&act.type==='layer'&&!(act.solo&&cur.items.filter(i=>i.layer===act.id).length===1)?`<button class="btn sm" data-lact="selall">Select all in “${esc(act.name)}”</button>`+(selN&&!readOnly?`<button class="btn sm" data-lact="movesel">Move ${selN} selected here</button>`:''):`<span class="muted" style="font-size:12px">New objects get their own layer at the top. Drag rows to reorder, into or out of groups; drag objects onto another layer.</span>`)+`</div>`;
 }
+function liRow(it,d,LF,pre){ return `<div class="li ${sel.has(it.id)?'on':''} ${!LF.vis(it)?'dim':''} ${LF.lock(it)?'locked':''}" data-iid="${it.id}" style="--d:${d}">${pre||''}`+
+  `<button class="tb ${it.hidden?'off':''}" data-lact="ieye" title="Show / hide" ${readOnly?'disabled':''}>${ic(it.hidden?'eyeoff':'eye')}</button>`+
+  `<button class="tb ${it.locked?'':'off'}" data-lact="ilock" title="${it.locked?'Unlock':'Lock'}" ${readOnly?'disabled':''}>${ic(it.locked?'lock':'unlock')}</button>`+
+  `<span class="li-name">${esc(itemName(it))}</span><span class="li-type">${esc(TYPES[it.type].name)}</span></div>`; }
+// Type view reorder: A goes above or below B (same type). Same layer: swap order in the list; otherwise A's own layer moves next to B's.
+function tvMove(aId,bId,where){ const A=itemById(aId), B=itemById(bId); if(!A||!B||A===B) return;
+  layerOp(()=>{
+    if(A.layer===B.layer){ const arr=cur.items; arr.splice(arr.indexOf(A),1); const bi=arr.indexOf(B); arr.splice(where==='before'?bi+1:bi,0,A); return; }
+    let la=layerById(A.layer); const solo=la && la.type==='layer' && cur.items.filter(i=>i.layer===la.id).length===1;
+    if(!solo){ la=newLayer(itemName(A),{solo:true}); cur.layers.unshift(la); A.layer=la.id; }
+    const lb=layerById(B.layer), L=cur.layers; if(!lb) return; L.splice(L.indexOf(la),1); la.parent=lb.parent||null; L.splice(L.indexOf(lb)+(where==='after'?1:0),0,la); }); }
+function typeViewHTML(viewSeg){
+  const LF=LFc(), by=new Map(); cur.items.forEach(it=>{ const k=tvKind(it); if(!by.has(k)) by.set(k,[]); by.get(k).push(it); });
+  const tb=(act,icon,on,title)=>`<button class="tb ${on?'':'off'}" data-lact="${act}" title="${title}" aria-label="${title}" ${readOnly?'disabled':''}>${ic(icon)}</button>`;
+  let rows='';
+  TV_KINDS.forEach(([k,name])=>{ const its=by.get(k)||[]; if(!its.length) return;
+    const open=openT.has(k), hid=its.every(i=>i.hidden), lok=its.every(i=>i.locked), anySel=its.some(i=>sel.has(i.id));
+    rows+=`<div class="lr tv ${hid?'dim':''} ${lok?'locked':''} ${anySel&&!open?'act':''}" data-kind="${k}" style="--d:0">`+
+      `<button class="tb chev ${open?'open':''}" data-lact="tfold" aria-label="Expand">${ic('chev')}</button>`+
+      tb('teye',hid?'eyeoff':'eye',!hid,'Show / hide all '+name.toLowerCase())+tb('tlock',lok?'lock':'unlock',lok,(lok?'Unlock all ':'Lock all ')+name.toLowerCase())+
+      `<span class="lr-ic">${ic(KIND_IC[k])}</span><span class="lr-name">${name}</span><span class="lr-n">${its.length}</span></div>`;
+    if(open) its.slice().sort((a,b)=>LF.rank(b)-LF.rank(a) || TYPES[b.type].z-TYPES[a.type].z || cur.items.indexOf(b)-cur.items.indexOf(a)).forEach((it,j,arr)=>{ rows+=liRow(it,0,LF,`<i class="tg ${j===arr.length-1?'l':'t'}"></i>`).replace('<div class="li ','<div data-kind="'+k+'" class="li '); }); });
+  return `<div class="lp-head"><b>Layers</b><button class="ib" data-lact="close" aria-label="Close layers">${ic('close')}</button></div>`+viewSeg+
+    `<div class="lp-list" id="lpList">${rows||'<p class="muted" style="padding:6px 14px;font-size:12.5px">Nothing on this setup yet.</p>'}</div>`+
+    `<div class="lp-foot"><span class="muted" style="font-size:12px">Sorted by type automatically. Click a type to select all of it. Drag objects to change which sits on top; double-click to rename.</span></div>`; }
 function pinBtn(){ return canHover.matches ? `<button class="ib pin ${inspPinned?'on':''}" data-act="pin" title="${inspPinned?'Unpin: tuck settings away while you work':'Pin settings open'}" aria-label="Pin settings">${ic('pin')}</button>` : ''; }
 function layerPicker(its){
   ensureLayers(cur);
@@ -2380,13 +2552,15 @@ function layerPicker(its){
     ? `<option disabled>${' '.repeat(l.depth)}${esc(l.name)}</option>`
     : `<option value="${l.id}" ${l.id===same?'selected':''}>${' '.repeat(l.depth)}${esc(l.name)}${l.locked?' (locked)':''}</option>`).join('')}</select>`;
 }
-function layerOp(fn){ if(readOnly||!cur) return; checkpoint(); fn(); ensureLayers(cur); if(dropHiddenFromSel()) renderInspector(); touch(); renderLayers(); renderInspector(); draw(); }
-function descendants(id){ const out=new Set([id]); let grew=true; while(grew){ grew=false; cur.layers.forEach(l=>{ if(l.parent&&out.has(l.parent)&&!out.has(l.id)){ out.add(l.id); grew=true; } }); } return out; }
+function layerOp(fn){ if(readOnly||!cur) return; const L0=LFc(), was=new Map(cur.items.map(it=>[it.id,L0.lock(it)])); checkpoint(); fn(); ensureLayers(cur);
+  { const L1=LFc(), on=[], off=[]; cur.items.forEach(it=>{ const a=was.get(it.id), b=L1.lock(it); if(a!==undefined && a!==b && L1.vis(it)) (b?on:off).push(it.id); }); if(on.length) flashLock(on,true); if(off.length) flashLock(off,false); }   // show on the plot what just got locked or unlocked
+  if(dropHiddenFromSel()) renderInspector(); touch(); renderLayers(); renderInspector(); draw(); }
+function layerDescendants(id){ const out=new Set([id]); let grew=true; while(grew){ grew=false; cur.layers.forEach(l=>{ if(l.parent&&out.has(l.parent)&&!out.has(l.id)){ out.add(l.id); grew=true; } }); } return out; }
 function moveLayerNode(id,targetId,where){
   const L=cur.layers, n=layerById(id), t=layerById(targetId); if(!n||!t||n===t) return false;
   if(where==='into' && t.type!=='group') return false;
   const newParent = where==='into' ? t.id : (t.parent||null);
-  if(newParent && descendants(n.id).has(newParent)) return false;   // no group inside itself
+  if(newParent && layerDescendants(n.id).has(newParent)) return false;   // no group inside itself
   layerOp(()=>{
     L.splice(L.indexOf(n),1); n.parent=newParent;
     if(where==='into'){ const first=L.findIndex(x=>x.parent===t.id); L.splice(first<0?L.indexOf(t)+1:first,0,n); if(closedG.has(t.id)) closedG.delete(t.id); }
@@ -2394,7 +2568,87 @@ function moveLayerNode(id,targetId,where){
   });
   return true;
 }
-function moveItemsToLayer(ids,lid){ const l=layerById(lid); if(!l||l.type!=='layer') return; layerOp(()=>{ ids.forEach(id=>{ const it=itemById(id); if(it) it.layer=lid; }); }); toast(`Moved ${ids.length} to “${l.name}”`); }
+// several selected layers dragged together keep their order and land side by side
+function moveLayerNodes(ids,targetId,where){
+  if(ids.length<2) return moveLayerNode(ids[0],targetId,where);
+  const L=cur.layers, t=layerById(targetId); if(!t || ids.includes(targetId)) return false; if(where==='into' && t.type!=='group') return false;
+  const newParent = where==='into' ? t.id : (t.parent||null), set=new Set(ids);
+  const under=n=>{ let q=n.parent&&layerById(n.parent); while(q){ if(set.has(q.id)) return true; q=q.parent&&layerById(q.parent); } return false; };
+  const order=flatLayers(L,true).map(x=>x.id), nodes=ids.map(id=>layerById(id)).filter(n=>n && !under(n) && !(newParent && layerDescendants(n.id).has(newParent))).sort((a,b)=>order.indexOf(a.id)-order.indexOf(b.id));
+  if(!nodes.length) return false;
+  layerOp(()=>{
+    nodes.forEach(n=>{ L.splice(L.indexOf(n),1); n.parent=newParent; });
+    let at = where==='into' ? (()=>{ const f=L.findIndex(x=>x.parent===t.id); return f<0?L.indexOf(t)+1:f; })() : L.indexOf(t)+(where==='after'?1:0);
+    nodes.forEach(n=>{ L.splice(at++,0,n); });
+    if(where==='into') closedG.delete(t.id);
+  });
+  return true;
+}
+/* Group the selection (or the active layer) into a new group, like Photoshop's ⌘G */
+function groupSelection(){
+  if(readOnly||!cur) return; ensureLayers(cur);
+  const ids=[...sel].filter(id=>itemById(id)), act=activeLayer&&layerById(activeLayer);
+  if(!ids.length && !act){ toast('Select something to group'); return; }
+  let g=null;
+  layerOp(()=>{
+    const L=cur.layers, nodes=new Set();
+    if(ids.length){ const byL=new Map(); ids.forEach(id=>{ const it=itemById(id); if(!byL.has(it.layer)) byL.set(it.layer,[]); byL.get(it.layer).push(it); });
+      byL.forEach((its,lid)=>{ const l=layerById(lid); if(!l) return;
+        if(cur.items.filter(i=>i.layer===lid).length===its.length) nodes.add(l);   // the whole layer is selected: group the layer
+        else its.forEach(it=>{ const nl=newLayer(itemName(it),{solo:true,parent:l.parent||null}); L.splice(L.indexOf(l),0,nl); it.layer=nl.id; nodes.add(nl); }); }); }
+    else nodes.add(act);
+    const under=n=>{ let q=n.parent&&layerById(n.parent); while(q){ if(nodes.has(q)) return true; q=q.parent&&layerById(q.parent); } return false; };
+    const order=flatLayers(L,true).map(x=>x.id), list=[...nodes].filter(n=>!under(n)).sort((a,b)=>order.indexOf(a.id)-order.indexOf(b.id));
+    if(!list.length) return;
+    g=newLayer('Group '+(L.filter(x=>x.type==='group').length+1),{type:'group',parent:list[0].parent||null});
+    L.splice(L.indexOf(list[0]),0,g);
+    list.forEach(n=>{ L.splice(L.indexOf(n),1); n.parent=g.id; });
+    let at=L.indexOf(g)+1; list.forEach(n=>L.splice(at++,0,n));
+  });
+  if(g){ activeLayer=g.id; closedG.delete(g.id); renderLayers(); toast(`Grouped into “${g.name}”`+(layerView==='type'&&layersOpen?' · see it in the Layers view':'')); }
+}
+var lastLocked=[];
+function toggleLockSel(){
+  if(readOnly||!cur) return; ensureLayers(cur);
+  const selIts=[...sel].map(itemById).filter(Boolean), L0=LFc();
+  if(selIts.length){   // objects: lock just these objects, never their neighbours on a shared layer
+    const lock=!selIts.some(it=>L0.lock(it)), selSet=new Set(selIts.map(i=>i.id)), was=new Map(cur.items.map(it=>[it.id,L0.lock(it)]));
+    layerOp(()=>{
+      if(lock){ const byL=new Map(); selIts.forEach(it=>{ if(!byL.has(it.layer)) byL.set(it.layer,[]); byL.get(it.layer).push(it); });
+        byL.forEach((its,lid)=>{ const l=layerById(lid), all=cur.items.filter(i=>i.layer===lid); if(l && its.length===all.length) l.locked=true; else its.forEach(it=>{ it.locked=true; }); }); }
+      else { selIts.forEach(it=>{ delete it.locked; let q=layerById(it.layer); while(q){ q.locked=false; q=q.parent&&layerById(q.parent); } });
+        const L1=LFc(); cur.items.forEach(it=>{ if(!selSet.has(it.id) && was.get(it.id) && !L1.lock(it)) it.locked=true; }); }   // anything that was locked by a shared layer or group stays locked
+    });
+    lastLocked=[];
+    toast((lock?'Locked ':'Unlocked ')+(selIts.length===1?`“${itemName(selIts[0])}”`:`${selIts.length} objects`)+(lock?` · ${keyLabel(keyOf('lock'))} again to unlock`:'')); return; }
+  // no objects selected: the highlighted layer or group
+  const ids=new Set(); if(activeLayer&&layerById(activeLayer)) ids.add(activeLayer);
+  if(!ids.size) lastLocked.forEach(id=>{ const l=layerById(id); if(l&&l.locked) ids.add(id); });   // ⌘L again unlocks what was just locked
+  const ls=[...ids].map(id=>layerById(id)).filter(Boolean); if(!ls.length){ toast('Select an object, layer or group to lock'); return; }
+  const lock=!ls.every(l=>l.locked);
+  layerOp(()=>{ ls.forEach(l=>{ l.locked=lock; }); });
+  lastLocked=lock?ls.map(l=>l.id):[];
+  toast((lock?'Locked ':'Unlocked ')+(ls.length===1?`“${ls[0].name}”`:`${ls.length} layers`)+(lock?` · ${keyLabel(keyOf('lock'))} again to unlock`:'')); }
+function groupToUngroup(){ const a=activeLayer&&layerById(activeLayer); if(a&&a.type==='group') return a;
+  const it=[...sel].map(itemById).find(Boolean), l=it&&layerById(it.layer), p=l&&l.parent&&layerById(l.parent); return p&&p.type==='group'?p:null; }
+function ungroupSelection(){ if(readOnly||!cur) return; const g=groupToUngroup(); if(!g){ toast('Nothing to ungroup'); return; } const nm=g.name; deleteLayerNode(g.id); toast(`Ungrouped “${nm}”`); }
+function openLayerCtx(x,y){ const m=$('#ctxMenu'); m.dataset.id=''; m.dataset.kind='layer'; const g=groupToUngroup(), n=[...sel].filter(id=>itemById(id)).length;
+  openCtx([{act:'lgroup',label:'Group',icon:'foldplus',hint:`Put ${n>1?'the '+n+' selected objects':n?'the selected object':'this layer'} in a new group · ${keyLabel(keyOf('group'))}`},
+    ...(g?[{act:'lungroup',label:'Ungroup',icon:'ungroup',hint:`Take everything out of “${g.name}” and remove the group · ${keyLabel(keyOf('ungroup'))}`}]:[])],x,y); }
+// objects dropped on a group: each goes to the top of the group on its own layer
+function itemsBeside(ids,lid,side){ const t=layerById(lid); if(!t) return;
+  layerOp(()=>{ const L=cur.layers;
+    ids.forEach(id=>{ const it=itemById(id); if(!it||it.layer===lid) return; let l=layerById(it.layer); const solo=l&&l.type==='layer'&&cur.items.filter(i=>i.layer===l.id).length===1;
+      if(solo) L.splice(L.indexOf(l),1); else { l=newLayer(itemName(it),{solo:true}); it.layer=l.id; }
+      l.parent=t.parent||null; L.splice(L.indexOf(t)+(side==='after'?1:0),0,l); }); }); }
+function itemsIntoGroup(ids,gid){ const g=layerById(gid); if(!g||g.type!=='group') return;
+  layerOp(()=>{ const L=cur.layers; let at=L.findIndex(x=>x.parent===gid); if(at<0) at=L.indexOf(g)+1;
+    ids.slice().reverse().forEach(id=>{ const it=itemById(id); if(!it) return; let l=layerById(it.layer); const solo=l&&l.type==='layer'&&cur.items.filter(i=>i.layer===l.id).length===1;
+      if(solo){ L.splice(L.indexOf(l),1); at=L.findIndex(x=>x.parent===gid); if(at<0) at=L.indexOf(g)+1; } else { l=newLayer(itemName(it),{solo:true}); it.layer=l.id; }
+      l.parent=gid; L.splice(at,0,l); });
+    closedG.delete(gid); });
+  toast(`Moved ${ids.length>1?ids.length+' objects':'“'+itemName(itemById(ids[0]))+'”'} into “${g.name}”`); }
+function moveItemsToLayer(ids,lid){ const l=layerById(lid); if(!l||l.type!=='layer') return; layerOp(()=>{ const moved=ids.map(id=>itemById(id)).filter(Boolean); moved.forEach(it=>{ it.layer=lid; cur.items.splice(cur.items.indexOf(it),1); }); cur.items.push(...moved); });   /* pushed to the end = top of the layer */ toast(`Moved ${ids.length} to “${l.name}”`); }
 function deleteLayerNode(id){
   const l=layerById(id); if(!l) return;
   if(l.type==='group'){ layerOp(()=>{ cur.layers.forEach(c=>{ if(c.parent===l.id) c.parent=l.parent||null; }); cur.layers.splice(cur.layers.indexOf(l),1); }); if(activeLayer===id) activeLayer=null; return; }
@@ -2433,6 +2687,7 @@ function startRename(row){
 }
 function renameInPanel(it){
   if(!layersOpen) return false;
+  if(layerView==='type') openT.add(tvKind(it));
   const l=layerById(it.layer);
   if(l && !(l.solo) && !openL.has(l.id)){ openL.add(l.id); }
   let a=l; while(a&&a.parent){ closedG.delete(a.parent); a=layerById(a.parent); }
@@ -2450,17 +2705,49 @@ function renameOnScene(it){
   inlineEdit(inp,getLabel(it),(ok,v)=>{ inp.remove(); if(ok) setLabel(it,v); });
 }
 var lastArea='scene';
+/* panel selection like Finder: click picks one, Shift-click picks everything between, Cmd/Ctrl-click adds or removes one */
+var lpAnchor=null;
+/* reorder animation: rows glide from where they were to where they land, and the dropped one flashes */
+function flipLayers(fn,dropKey){
+  const q=()=>[...document.querySelectorAll('#lpList .lr, #lpList .li')], before=new Map(q().map(r=>[rowKey(r),r.getBoundingClientRect().top]));
+  lpHold=performance.now()+120; if(lpT){ cancelAnimationFrame(lpT); lpT=0; }   // the drop already re-rendered the list; a second render would cut the glide short
+  fn();
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  let born=0;
+  q().forEach(r=>{ const k=rowKey(r), t0=before.get(k);
+    if(t0==null){ r.animate([{opacity:0,transform:'translateY(-6px)'},{opacity:1,transform:'none'}],{duration:240,delay:Math.min(born++,8)*28,easing:'cubic-bezier(.2,.8,.2,1)',fill:'backwards'}); return; }   // rows that just appeared (a group opening) fade and slide in
+    const dy=t0-r.getBoundingClientRect().top;
+    if(Math.abs(dy)>1) r.animate([{transform:`translateY(${dy}px)`},{transform:'none'}],{duration:220,easing:'cubic-bezier(.2,.8,.2,1)'});
+    if(k===dropKey){ const c=getComputedStyle(document.body).getPropertyValue('--accent-soft').trim()||'rgba(59,110,245,.14)'; r.animate([{backgroundColor:c,offset:0}],{duration:700,easing:'ease-out'}); } }); }
+const rowKey=r=>r.dataset.iid?'i'+r.dataset.iid:r.dataset.kind&&r.classList.contains('tv')?'t'+r.dataset.kind:'l'+r.dataset.lid;
+function rowItems(r){ const L=LFc(), ok=i=>L.vis(i)&&!L.lock(i);
+  if(r.dataset.iid) return itemById(r.dataset.iid)?[r.dataset.iid]:[];
+  if(r.classList.contains('tv')) return cur.items.filter(i=>tvKind(i)===r.dataset.kind&&ok(i)).map(i=>i.id);
+  const l=layerById(r.dataset.lid); if(!l||l.type!=='layer') return [];
+  const its=cur.items.filter(i=>i.layer===l.id); return (l.solo&&its.length===1?its:its.filter(ok)).map(i=>i.id); }
+function panelPick(row,e){
+  const rows=[...document.querySelectorAll('#lpList .lr, #lpList .li')], key=rowKey(row), mod=e.metaKey||e.ctrlKey;
+  const a=lpAnchor&&rows.findIndex(r=>rowKey(r)===lpAnchor), b=rows.indexOf(row);
+  if(e.shiftKey && a!=null && a>=0 && b>=0){ const [i0,i1]=a<b?[a,b]:[b,a], ids=new Set();
+    for(let i=i0;i<=i1;i++){ const r=rows[i]; if(r.classList.contains('tv') && i!==a && i!==b && rows.slice(i0,i1+1).some(x=>x.dataset.kind===r.dataset.kind&&x.classList.contains('li'))) continue; rowItems(r).forEach(id=>ids.add(id)); }
+    if(!mod) sel=new Set(); ids.forEach(id=>sel.add(id)); return; }
+  const ids=rowItems(row);
+  if(mod){ const all=ids.length&&ids.every(id=>sel.has(id)); ids.forEach(id=>all?sel.delete(id):sel.add(id)); }
+  else sel=new Set(ids);
+  lpAnchor=key; }
 (function wireLayers(){
   const el=$('#layersPanel');
   el.addEventListener('click',e=>{
-    if(lpDrag && lpDrag.moved) return;
+    if((lpDrag && lpDrag.moved) || (tvDrag && tvDrag.moved)) return;
     const b=e.target.closest('[data-lact]'), row=e.target.closest('.lr'), irow=e.target.closest('.li');
     const act=b&&b.dataset.lact;
     if(act==='close'){ toggleLayers(false); return; }
+    if(act==='lview'){ layerView=b.dataset.v==='layers'?'layers':'type'; try{ localStorage.setItem('setplot-lview',layerView); }catch(_){} renderLayers(); return; }
     if(act==='auto'){ layerOp(()=>{ cur.layerAuto=b.checked; }); return; }
     if(act==='newlayer'){ const a=activeLayer&&layerById(activeLayer), par=a?(a.type==='group'?a.id:a.parent||null):null, nl=newLayer('Layer '+(Math.max(0,...cur.layers.map(x=>{ const m=/^Layer (\d+)$/.exec(x.name); return m?+m[1]:0; }))+1),{parent:par});
       layerOp(()=>{ const at=a?(a.type==='group'?cur.layers.indexOf(a)+1:cur.layers.indexOf(a)):0; cur.layers.splice(at,0,nl); cur.layerAuto=false; });
       activeLayer=nl.id; renderLayers(); toast(`New objects go to “${nl.name}”`); return; }
+    if(act==='newgroup' && ([...sel].some(id=>itemById(id)) || activeLayer)){ groupSelection(); return; }
     if(act==='newgroup'){ const a=activeLayer&&layerById(activeLayer), g=newLayer('Group '+(cur.layers.filter(x=>x.type==='group').length+1),{type:'group',parent:a?a.parent||null:null});
       layerOp(()=>{ const at=a?cur.layers.indexOf(a):0; cur.layers.splice(at,0,g); if(a) a.parent=g.id; }); activeLayer=g.id; renderLayers(); return; }
     if(act==='selall'){ const a=layerById(activeLayer); if(!a) return; const L=LFc(); sel=new Set(cur.items.filter(it=>it.layer===a.id && L.vis(it) && !L.lock(it)).map(it=>it.id)); renderInspector(); syncCardSel(); renderLayers(); draw(); return; }
@@ -2468,26 +2755,34 @@ var lastArea='scene';
     if(irow){ const it=itemById(irow.dataset.iid); if(!it) return;
       if(act==='ieye'){ layerOp(()=>{ if(it.hidden) delete it.hidden; else it.hidden=true; }); return; }
       if(act==='ilock'){ layerOp(()=>{ if(it.locked) delete it.locked; else it.locked=true; }); return; }
-      if(e.shiftKey){ sel.has(it.id)?sel.delete(it.id):sel.add(it.id); } else sel=new Set([it.id]);
+      panelPick(irow,e);
+      renderInspector(); syncCardSel(); renderLayers(); draw(); return; }
+    if(row && row.classList.contains('tv')){ const k=row.dataset.kind, its=cur.items.filter(i=>tvKind(i)===k);
+      if(act==='tfold'){ flipLayers(()=>{ openT.has(k)?openT.delete(k):openT.add(k); renderLayers(); }); return; }
+      if(act==='teye'){ const show=its.every(i=>i.hidden); layerOp(()=>{ its.forEach(i=>{ if(show) delete i.hidden; else i.hidden=true; }); }); return; }
+      if(act==='tlock'){ const un=its.every(i=>i.locked); layerOp(()=>{ its.forEach(i=>{ if(un) delete i.locked; else i.locked=true; }); }); return; }
+      const L=LFc(), pick=its.filter(i=>L.vis(i)&&!L.lock(i)).map(i=>i.id);
+      panelPick(row,e);
       renderInspector(); syncCardSel(); renderLayers(); draw(); return; }
     if(!row) return; const l=layerById(row.dataset.lid); if(!l) return;
-    if(act==='fold'){ if(l.type==='group'){ closedG.has(l.id)?closedG.delete(l.id):closedG.add(l.id); } else { openL.has(l.id)?openL.delete(l.id):openL.add(l.id); } renderLayers(); return; }
+    if(act==='fold'){ flipLayers(()=>{ if(l.type==='group'){ closedG.has(l.id)?closedG.delete(l.id):closedG.add(l.id); } else { openL.has(l.id)?openL.delete(l.id):openL.add(l.id); } renderLayers(); }); return; }
     if(act==='eye'){
-      if(e.altKey){ const keep=descendants(l.id); let a=l; while(a&&a.parent){ keep.add(a.parent); a=layerById(a.parent); }
+      if(e.altKey){ const keep=layerDescendants(l.id); let a=l; while(a&&a.parent){ keep.add(a.parent); a=layerById(a.parent); }
         const solo=cur.layers.every(x=>keep.has(x.id)?x.visible!==false:x.visible===false);
         layerOp(()=>{ cur.layers.forEach(x=>{ x.visible = solo ? true : keep.has(x.id); }); }); return; }
       layerOp(()=>{ l.visible = l.visible===false; }); return; }
     if(act==='lock'){ layerOp(()=>{ l.locked=!l.locked; }); return; }
     const soloIt = l.solo ? cur.items.filter(i=>i.layer===l.id) : [];
     if(act==='del'){ if(soloIt.length===1){ const id=soloIt[0].id; layerOp(()=>{ cur.items=cur.items.filter(i=>i.id!==id); sel.delete(id); }); return; } deleteLayerNode(l.id); return; }
-    activeLayer = l.id;
-    if(soloIt.length===1 && (!b || act==='rename')){ const id=soloIt[0].id; if(e.shiftKey){ sel.has(id)?sel.delete(id):sel.add(id); } else sel=new Set([id]); renderInspector(); syncCardSel(); draw(); }
+    if(!(e.shiftKey||e.metaKey||e.ctrlKey)) activeLayer = l.id;
+    if((soloIt.length===1 && (!b || act==='rename')) || (!b && l.type==='layer' && (e.shiftKey||e.metaKey||e.ctrlKey))){ panelPick(row,e); renderInspector(); syncCardSel(); draw(); }
+    else if(!b) lpAnchor=rowKey(row);
     renderLayers();
   });
   let lastRowTap=null;
   el.addEventListener('pointerup',e=>{
     if(e.button!==0 || e.target.closest('button,input')){ lastRowTap=null; return; }
-    const row=e.target.closest('.lr,.li'); if(!row){ lastRowTap=null; return; }
+    const row=e.target.closest('.lr,.li'); if(!row || row.classList.contains('tv')){ lastRowTap=null; return; }
     const key=row.dataset.lid||('i'+row.dataset.iid), now=performance.now();
     if(lastRowTap && lastRowTap.key===key && now-lastRowTap.t<420){ lastRowTap=null;
       setTimeout(()=>{ const r=el.querySelector(row.dataset.iid?`.li[data-iid="${row.dataset.iid}"]`:`.lr[data-lid="${row.dataset.lid}"]`); if(r) startRename(r); },0); return; }
@@ -2496,9 +2791,21 @@ var lastArea='scene';
   el.addEventListener('pointerdown',()=>{ lastArea='panel'; },true);
   el.addEventListener('input',e=>{ if(e.target.dataset.k==='lop'){ const a=layerById(activeLayer); if(!a) return; const v=clamp(+e.target.value||0,0,100); a.opacity=v; el.querySelectorAll('[data-k="lop"]').forEach(o=>{ if(o!==e.target) o.value=v; }); touch(); draw(); } });
   el.addEventListener('focusin',e=>{ if(e.target.dataset&&e.target.dataset.k==='lop') checkpoint(); });
+  // Type view: drag an object up or down within its own type
+  let tvDrag=null;
+  el.addEventListener('pointerdown',e=>{ if(readOnly||e.button!==0||layerView!=='type') return; const r=e.target.closest('.li[data-kind]'); if(!r||e.target.closest('button,input')) return;
+    tvDrag={row:r, iid:r.dataset.iid, kind:r.dataset.kind, sx:e.clientX, sy:e.clientY, moved:false, target:null}; });
+  addEventListener('pointermove',e=>{ if(!tvDrag) return;
+    if(!tvDrag.moved){ if(Math.hypot(e.clientX-tvDrag.sx,e.clientY-tvDrag.sy)<5) return; tvDrag.moved=true; tvDrag.row.classList.add('dragging'); document.body.classList.add('lp-dragging'); }
+    el.querySelectorAll('.drop-before,.drop-after').forEach(x=>x.classList.remove('drop-before','drop-after')); tvDrag.target=null;
+    const over=document.elementFromPoint(e.clientX,e.clientY), r=over&&over.closest&&over.closest('#lpList .li[data-kind]');
+    if(!r || r===tvDrag.row || r.dataset.kind!==tvDrag.kind) return;   // stays inside its own type
+    const b=r.getBoundingClientRect(), where=e.clientY<b.top+b.height/2?'before':'after'; r.classList.add('drop-'+where); tvDrag.target={iid:r.dataset.iid,where}; });
+  addEventListener('pointerup',()=>{ if(!tvDrag) return; const d=tvDrag; setTimeout(()=>{ tvDrag=null; },0); document.body.classList.remove('lp-dragging');
+    if(!d.moved) return; d.row.classList.remove('dragging'); if(d.target){ sel=new Set([d.iid]); lpAnchor='i'+d.iid; flipLayers(()=>tvMove(d.iid,d.target.iid,d.target.where),'i'+d.iid); renderInspector(); syncCardSel(); draw(); } else renderLayers(); });
   // drag rows: layers/groups reorder or drop into a group; object rows drop onto a layer
   el.addEventListener('pointerdown',e=>{
-    if(readOnly||e.button!==0) return; const row=e.target.closest('.lr,.li'); if(!row || e.target.closest('button,input')) return;
+    if(readOnly||e.button!==0||layerView==='type') return; const row=e.target.closest('.lr,.li'); if(!row || e.target.closest('button,input')) return;
     lpDrag={row, lid:row.dataset.lid, iid:row.dataset.iid, sx:e.clientX, sy:e.clientY, moved:false, target:null};
   });
   addEventListener('pointermove',e=>{
@@ -2506,26 +2813,50 @@ var lastArea='scene';
     if(!lpDrag.moved){ if(Math.hypot(e.clientX-lpDrag.sx,e.clientY-lpDrag.sy)<5) return; lpDrag.moved=true; lpDrag.row.classList.add('dragging'); document.body.classList.add('lp-dragging'); }
     el.querySelectorAll('.drop-before,.drop-after,.drop-into').forEach(x=>x.classList.remove('drop-before','drop-after','drop-into'));
     const over=document.elementFromPoint(e.clientX,e.clientY), tr=over&&over.closest&&over.closest('#lpList .lr, #lpList .li');
-    lpDrag.target=null; if(!tr || tr===lpDrag.row) return;
+    lpDrag.target=null;
+    const gb=over&&over.closest&&over.closest('#layersPanel [data-lact="newgroup"]'); if(gb){ gb.classList.add('drop-into'); lpDrag.target={newgroup:true}; return; }
+    if(!tr || tr===lpDrag.row) return;
     const r=tr.getBoundingClientRect(), y=(e.clientY-r.top)/r.height;
     if(lpDrag.iid){   // objects go into the layer under the cursor
-      const lid = tr.dataset.lid || (itemById(tr.dataset.iid)||{}).layer, tl=layerById(lid); if(!tl||tl.type!=='layer') return;
+      const lid = tr.dataset.lid || (itemById(tr.dataset.iid)||{}).layer, tl=layerById(lid); if(tl && tl.type==='group'){ tr.classList.add('drop-into'); lpDrag.target={lid,where:'group'}; return; } if(!tl||tl.type!=='layer') return;
+      if(tr.classList.contains('obj')){ const w=y<.5?'before':'after'; tr.classList.add('drop-'+w); lpDrag.target={lid,where:'beside',side:w}; return; }   // a single-object row: the object goes beside it on its own layer
       const rowEl=el.querySelector(`.lr[data-lid="${lid}"]`); if(rowEl) rowEl.classList.add('drop-into'); lpDrag.target={lid,where:'item'}; return; }
     if(!tr.dataset.lid) return; const tl=layerById(tr.dataset.lid);
-    const where = tl.type==='group' && y>.28 && y<.72 ? 'into' : y<.5 ? 'before' : 'after';
-    tr.classList.add(where==='into'?'drop-into':where==='before'?'drop-before':'drop-after'); lpDrag.target={lid:tl.id,where};
+    // groups and folding layers (a layer holding several objects) both take a drop on their row: into the group, or merged into the layer
+    const dl=layerById(lpDrag.lid), folding=tl.type==='layer' && !tr.classList.contains('obj') && dl && dl.type==='layer';
+    const where = tl.type==='group' ? (y<.22 ? 'before' : 'into') : folding ? (y<.22 ? 'before' : y>.78 ? 'after' : 'merge') : y<.5 ? 'before' : 'after';
+    tr.classList.add(where==='into'||where==='merge'?'drop-into':where==='before'?'drop-before':'drop-after'); lpDrag.target={lid:tl.id,where};
   });
   addEventListener('pointerup',()=>{
     if(!lpDrag) return; const d=lpDrag; setTimeout(()=>{ lpDrag=null; },0); document.body.classList.remove('lp-dragging');
     if(!d.moved) return; d.row.classList.remove('dragging');
     if(!d.target){ renderLayers(); return; }
-    if(d.iid){ const ids=sel.has(d.iid)?[...sel].filter(id=>itemById(id)):[d.iid]; moveItemsToLayer(ids,d.target.lid); return; }
-    if(!moveLayerNode(d.lid,d.target.lid,d.target.where)) renderLayers();
+    if(d.target.newgroup){ const ids=rowItems(d.row); if(d.row.dataset.lid && (layerById(d.row.dataset.lid)||{}).type==='group'){ sel=new Set(); activeLayer=d.row.dataset.lid; } else if(!ids.some(id=>sel.has(id))) sel=new Set(ids);
+      groupSelection(); renderInspector(); syncCardSel(); draw(); return; }
+    if(d.iid && d.target.where==='beside'){ const ids=sel.has(d.iid)?[...sel].filter(id=>itemById(id)):[d.iid]; sel=new Set(ids); flipLayers(()=>itemsBeside(ids,d.target.lid,d.target.side),'i'+d.iid); renderInspector(); syncCardSel(); draw(); return; }
+    if(d.iid && d.target.where==='group'){ const ids=sel.has(d.iid)?[...sel].filter(id=>itemById(id)):[d.iid]; sel=new Set(ids); flipLayers(()=>itemsIntoGroup(ids,d.target.lid),'l'+d.target.lid); renderInspector(); syncCardSel(); draw(); return; }
+    if(d.iid){ const ids=sel.has(d.iid)?[...sel].filter(id=>itemById(id)):[d.iid]; sel=new Set(ids); lpAnchor='i'+d.iid; flipLayers(()=>moveItemsToLayer(ids,d.target.lid),'l'+d.target.lid); renderInspector(); syncCardSel(); draw(); return; }
+    if(d.target.where==='merge'){ const src=layerById(d.lid), ids=src?cur.items.filter(i=>i.layer===src.id).map(i=>i.id):[];   // a layer dropped on a folding layer: its objects join that layer
+      if(ids.length){ sel=new Set(ids); openL.add(d.target.lid); flipLayers(()=>{ moveItemsToLayer(ids,d.target.lid); },'l'+d.target.lid); renderInspector(); syncCardSel(); draw(); } return; }
+    const moving=(()=>{ const mine=rowItems(d.row); if(!mine.length||!mine.every(id=>sel.has(id))) return [d.lid];   // dragging part of a multi-selection moves all of it
+      const ls=new Set([d.lid]); [...sel].forEach(id=>{ const it=itemById(id), l=it&&layerById(it.layer); if(l && cur.items.filter(i=>i.layer===l.id).every(i=>sel.has(i.id))) ls.add(l.id); }); return [...ls]; })();
+    { const l=layerById(d.lid), its=l?cur.items.filter(i=>i.layer===l.id):[]; activeLayer=d.lid; lpAnchor='l'+d.lid; if(moving.length<2 && l && l.solo && its.length===1) sel=new Set([its[0].id]); }   // the moved layer ends up selected
+    flipLayers(()=>{ if(!moveLayerNodes(moving,d.target.lid,d.target.where)) renderLayers(); },'l'+d.lid); renderInspector(); syncCardSel(); draw();
   });
 })();
 var lpDrag=null;
 
 /* ================= rail + flyout ================= */
+// compass rose: north points up the plan at 0°, turn it to match the real location
+function compassSVG(R,Q,k){   // minimal: a thin black ring, four ticks, a slim needle with a red north
+  const C=Q.ink, red='#e5484d', sw=1.4*k, tk=Math.min(R*.12,7*k), px=R/k, words=px>=30;
+  let o=`<circle r="${f(R)}" fill="transparent" stroke="${C}" stroke-width="${f(sw)}"/>`;
+  for(let i=0;i<4;i++){ const a=i*90*D2R, c=Math.sin(a), d=-Math.cos(a); if(i===0 && words) continue;
+    o+=`<line x1="${f(c*R)}" y1="${f(d*R)}" x2="${f(c*(R-tk))}" y2="${f(d*(R-tk))}" stroke="${C}" stroke-width="${f(sw)}" stroke-linecap="round"/>`; }
+  const fs=Math.max(9*k,Math.min(R*.17,13*k)), n=words?R-fs*1.7:R*.66, wd=Math.max(n*.09,2.2*k);
+  o+=`<path d="M0 ${f(-n)}L${f(wd)} 0L${f(-wd)} 0Z" fill="${red}"/><path d="M0 ${f(n)}L${f(wd)} 0L${f(-wd)} 0Z" fill="${C}"/>`;
+  if(words) o+=`<text x="0" y="${f(-R+fs*1.05)}" font-size="${f(fs)}" font-family="${FONT}" font-weight="700" fill="${red}" text-anchor="middle">N</text>`;
+  return o; }
 function iconSVG(type){
   const t=TYPES[type]; const it=mk(type,0,0,0);
   let vbw=Math.max(it.w,it.h)*1.25+.1, vbh=vbw*.72, oy=0, ox=0;
@@ -2804,6 +3135,7 @@ function addItem(type,x,y){
   if((type==='window'||type==='door') && dropped){ const h=hostOnWall(it,x,y,it.rot,null); if(h){ it.x=h.x; it.y=h.y; it.rot=h.rot; } }
   if(type==='outlet' && dropped){ const h=outletOnWall(it,x,y,it.rot,null); if(h){ it.x=h.x; it.y=h.y; it.rot=h.rot; } }
   cur.items.push(it); sel=new Set([it.id]); touch(); renderInspector(); draw();
+  if(type==='sun') setTimeout(()=>{ if(!(placing && placing.ids.includes(it.id))) askSunTime(it.id); },0);
   return it;
 }
 
@@ -2855,6 +3187,7 @@ function renderInspector(){ renderLayersSoon(); if(flyCat==='Align' && !$('#fly'
     let a='';
     if(it.type!=='text'&&it.type!=='sketch') a+=row('Label',txt('label',it.label,`list="${t.light?'dlRole':''}" placeholder="${esc(t.name)}" ${dis}`));
     if(t.light && it.type!=='sun'){ a+=row('Fixture',txt('p.fixture',p.fixture,`list="dlFix" ${dis}`)); a+=row('Modifier',txt('p.modifier',p.modifier,`list="dlMod" ${dis}`)); }
+    if(it.type==='sun') a+=row('Time of day',`<input class="fi" type="time" data-k="p.time" value="${esc(p.time||'')}" ${dis} aria-label="Time of day">`);
     if(t.light) a+=`<div class="toggle"><span>Light is on</span><label class="sw"><input type="checkbox" data-k="on" ${it.on===false?'':'checked'} ${dis} aria-label="Light is on"><span></span></label></div>`;
     if(it.type==='camera'){ const others=new Map(cur.items.filter(o=>o!==it&&o.type==='camera'&&o.p&&o.p.letter).map(o=>[o.p.letter,o]));
       a+=row('Letter',`<select data-k="p.letter" ${dis}>${[...LETTERS].map(l=>`<option value="${l}" ${p.letter===l?'selected':''}>${l}${others.has(l)?` · swap with ${esc(others.get(l).label||l+' cam')}`:''}</option>`).join('')}</select>`); }
@@ -2884,6 +3217,7 @@ function renderInspector(){ renderLayersSoon(); if(flyCat==='Align' && !$('#fly'
     if(it.type==='text'){ a+=`<textarea class="fi" data-k="p.text" ${dis}>${esc(p.text)}</textarea>`; a+=row('Size',`<select data-k="p.size" ${dis}>${[['.18','Small'],['.25','Medium'],['.4','Large'],['.6','Heading']].map(([v,n])=>`<option value="${v}" ${Math.abs(+v-p.size)<.001?'selected':''}>${n}</option>`).join('')}</select>`); }
     a+=row('Layer',layerPicker([it]));
     a+=row('Opacity',rng('op',it.op==null?100:it.op,10,100,5,'%'));
+    if(LFc().lock(it)) h+=`<div class="lockbar">${ic('lock')}<span><b>Locked</b> can't be moved on the plot</span><button class="btn sm" data-act="unlock" title="Unlock · ${esc(keyLabel(keyOf('lock')))}" ${readOnly?'disabled':''}>Unlock</button></div>`;
     h+=sec('',a);
     if(it.type==='outlet') h+=sec('Power',outletPowerHTML(it,dis));
     if(t.light){
@@ -2897,6 +3231,7 @@ function renderInspector(){ renderLayersSoon(); if(flyCat==='Align' && !$('#fly'
       let c='';
       if(!t.omni&&!t.sun) c+=row('Beam',rng('p.beam',p.beam,0,160,1,'°'));
       c+=row(t.sun?'Rays':'Throw',rng('p.throw',p.throw,.3,12,.1,'m'));
+      if(t.sun) c+=row('Width',rng('p.span',Math.round(sunSpan(it)*100)/100,.2,20,.05,'m'));
       if(!t.sun) c+=row('Stand',`<div class="rng">${numf('p.height',p.height,`min="0" max="12" step="0.1" ${dis}`)}<span class="unit">m high</span></div>`);
       h+=sec('Beam',c);
       if(it.type!=='sun') h+=sec('Power',lightPowerHTML(it,dis));
@@ -2905,6 +3240,7 @@ function renderInspector(){ renderLayersSoon(); if(flyCat==='Align' && !$('#fly'
     if(t.sizes) h+=sec('Rigging',row('Height',`<div class="rng">${numf('p.height',p.height,`min="0" max="12" step="0.1" ${dis}`)}<span class="unit">m</span></div>`));
     let d='';
     if(t.resize&&!t.sizes){
+      if(t.resize==='s') d+=row('Size',`<div class="rng">${numf('w',it.w.toFixed(2),`min="0.3" max="20" step="0.05" ${dis}`)}<span class="unit">m</span></div>`);
       if(t.resize.includes('w')) d+=row(it.type==='backdrop'?'Depth':'Length',`<div class="rng">${numf('w',it.w.toFixed(2),`min="0.1" max="40" step="0.05" ${dis}`)}<span class="unit">m</span></div>`);
       if(t.resize.includes('h')) d+=row(it.type==='backdrop'?'Width':(it.type==='panel'||it.type==='tube')?'Length':'Width',`<div class="rng">${numf('h',it.h.toFixed(2),`min="0.05" max="40" step="0.05" ${dis}`)}<span class="unit">m</span></div>`);
     }
@@ -2967,6 +3303,7 @@ function applyField(el){
   else if(k==='rx'||k==='rf'){ /* handled below */ }
   else it[k]=v;
   if(k==='w'||k==='h') it[k]=Math.max(.05,it[k]);
+  if(k==='w' && TYPES[it.type].resize==='s'){ it.w=Math.max(.3,it.w); it.h=it.w; }
   if(k==='x'||k==='y'){ reaimAll(); syncInspector(); }
   if(k==='rx'||k==='rf'){ const q=toRel(it.x,it.y); if(k==='rx') q.r=v; else q.f=v; const w=fromRel(q.r,q.f); it.x=Math.round(w.x*1000)/1000; it.y=Math.round(w.y*1000)/1000; delete it.rx; delete it.rf; reaimAll(); }
   if(el.type==='range'||el.type==='number') insp.querySelectorAll(`[data-k="${k}"]`).forEach(o=>{ if(o!==el) o.value=el.value; });
@@ -3009,6 +3346,7 @@ insp.addEventListener('click',e=>{
   else if(act==='grot'){ rotMode?commitRot():enterRot(); }
   else if(act==='unaim'){ checkpoint(); aimables().forEach(i=>delete i.focus); exitFocus(); touch(); renderInspector(); draw(); }
   else if(act==='join-square'||act==='join-bevel'){ joinWalls(act==='join-square'?'square':'bevel'); }
+  else if(act==='unlock'){ if(!LFc().lock(itemById([...sel][0])||{})) return; const it=itemById([...sel][0]); if(it.locked){ checkpoint(); delete it.locked; if(!LFc().lock(it)) flashLock([it.id],false); touch(); renderLayers(); renderInspector(); draw(); } if(LFc().lock(it)) toggleLockSel(); }
   else if(act==='autotint'){ checkpoint(); const it=itemById([...sel][0]); it.p.tint = it.p.tint ? '' : rgbHex(tintOf(it)); touch(); renderInspector(); draw(); }
   else if(act==='copygear') copyText(gearText(),'Gear list copied');
   else if(act==='powerbudget') openPower();
@@ -3084,8 +3422,21 @@ function stepPlace(now){ const P=placing; if(!P) return; P.animRaf=0; if(!P.anim
   const u=Math.min(1,(now-P.anim.t0)/PLACE_MS), k=1-Math.pow(1-u,3);
   if(u>=1){ P.anim=null; applyPlace(1); return; }
   applyPlace(k); P.animRaf=requestAnimationFrame(stepPlace); }
+/* time-of-day popup for a new sun: pick a time, or click away to leave it empty */
+let timePopId=null;
+function askSunTime(id){ const it=itemById(id), el=$('#timePop'); if(!it||readOnly||!el) return;
+  timePopId=id; const inp=$('#timePopIn'); inp.value=(it.p&&it.p.time)||'';
+  el.hidden=false; const sx=(it.x-view.x)*view.s+W/2, sy=(it.y-view.y)*view.s+H/2, r=Math.max(it.w,it.h)/2*view.s;
+  const h=el.offsetHeight, w=el.offsetWidth; let top=sy+r+12; if(top+h>innerHeight-12) top=sy-r-12-h;
+  el.style.left=Math.round(clamp(sx,w/2+12,innerWidth-w/2-12))+'px'; el.style.top=Math.round(clamp(top,12,innerHeight-h-12))+'px';
+  setTimeout(()=>{ try{ inp.focus(); }catch(e){} },0); }
+function closeSunTime(save){ const el=$('#timePop'); if(!el||el.hidden) return; el.hidden=true; const it=timePopId&&itemById(timePopId), v=$('#timePopIn').value; timePopId=null;
+  if(save && it && /^\d\d:\d\d/.test(v||'')){ it.p.time=v.slice(0,5); touch(); renderInspector(); draw(); } }
+$('#timePopOk').onclick=()=>closeSunTime(true);
+$('#timePopIn').addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); e.stopPropagation(); closeSunTime(true); } else if(e.key==='Escape'){ e.preventDefault(); e.stopPropagation(); closeSunTime(false); } });
+document.addEventListener('pointerdown',e=>{ if(timePopId && !e.target.closest('#timePop')) closeSunTime(true); },true);
 function endPlace(){ placing=null; wallLine=null; document.body.classList.remove('placing'); $('#extHint').hidden=true; $('#extDone').hidden=false; $('#extHint span').textContent=EXT_HINT; }
-function commitPlace(){ if(!placing) return; if(placing.anim){ placing.anim=null; applyPlace(1); } endPlace(); touch(); renderInspector(); syncCardSel(); draw(); }
+function commitPlace(){ if(!placing) return; { const P=placing, one=P.fresh&&P.ids.length===1&&itemById(P.ids[0]); if(one&&one.type==='sun') setTimeout(()=>askSunTime(one.id),0); } if(placing.anim){ placing.anim=null; applyPlace(1); } endPlace(); touch(); renderInspector(); syncCardSel(); draw(); }
 function cancelPlace(){ if(!placing) return; const ids=new Set(placing.ids), fresh=placing.fresh; placing.anim=null; endPlace();
   cur.items=cur.items.filter(i=>!ids.has(i.id)); sel=new Set(); restoreLast(); pruneOrphanSetups(); touch(); renderInspector(); syncCardSel(); draw(); toast(fresh?'Cancelled':'Copy cancelled'); }
 addEventListener('pointermove',e=>{ if(placing){ hoverWorld=toWorld(e.clientX,e.clientY); movePlace(hoverWorld,e.shiftKey); } },true);
@@ -3119,7 +3470,7 @@ function pasteClip(){
 // [group, id, label, default]. Combos: optional mod (⌘/Ctrl), alt, shift, then the key, joined by '+'.
 var KEY_ACTIONS=[
   ['Edit','undo','Undo','mod+z'], ['Edit','redo','Redo','mod+shift+z'], ['Edit','copy','Copy','mod+c'], ['Edit','cut','Cut','mod+x'],
-  ['Edit','paste','Paste','mod+v'], ['Edit','dup','Duplicate','mod+d'], ['Edit','del','Delete selected','backspace'], ['Edit','rename','Rename selected object','enter'],
+  ['Edit','paste','Paste','mod+v'], ['Edit','dup','Duplicate','mod+d'], ['Edit','group','Group','mod+g'], ['Edit','ungroup','Ungroup','mod+shift+g'], ['Edit','lock','Lock / unlock layer','mod+l'], ['Edit','del','Delete selected','backspace'], ['Edit','rename','Rename selected object','enter'],
   ['Objects','aim','Aim · rotate a group (several selected)','r'], ['Objects','rotl','Turn −15°','['], ['Objects','rotr','Turn +15°',']'],
   ['Tools','pen','Pen','p'], ['Tools','layers','Layers panel','l'],
   ['Left toolbar','c_board','Nested setup','0'], ['Left toolbar','g_shoots','Shoots',''], ['Left toolbar','g_lights','Lights','1'], ['Left toolbar','g_grip','Grip','2'], ['Left toolbar','g_camera','Camera','3'],
@@ -3160,11 +3511,12 @@ function saveKeys(){ try{ localStorage.setItem('setplot-keys',JSON.stringify(key
 function keyShort(c){ if(!c) return ''; const n={enter:'↵',backspace:'⌫',delete:'⌦',space:'␣',tab:'⇥',arrowup:'↑',arrowdown:'↓',arrowleft:'←',arrowright:'→'};
   return c.split('+').map(p=>p==='mod'?'<b>'+(IS_MAC_K?'⌘':'^')+'</b>':p==='alt'?'<b>⌥</b>':p==='shift'?'':esc(n[p]||p.toUpperCase())).join(''); }
 const RAIL_ACT={Lights:'g_lights',Grip:'g_grip',Camera:'g_camera',Talent:'g_subjects',Set:'g_set',Notes:'g_notes',Align:'g_align'};
-function railBadges(){ document.querySelectorAll('#rail .tool, #railR .tool').forEach(b=>{
+function railBadges(){ document.querySelectorAll('#rail .tool .tk, #railR .tool .tk').forEach(t=>t.remove()); return;   // toolbar shortcut numbers switched off (shortcuts still show in each button's tooltip)
+  document.querySelectorAll('#rail .tool, #railR .tool').forEach(b=>{
   const id=b.dataset.card?'c_'+b.dataset.card:b.dataset.cat?RAIL_ACT[b.dataset.cat]:b.dataset.layers?'g_layers':null; if(!id) return;
   const k=keyShort(keyOf(id)); let t=b.querySelector('.tk'); if(!k){ if(t) t.remove(); return; }
   if(!t){ t=document.createElement('span'); t.className='tk'; t.setAttribute('aria-hidden','true'); b.appendChild(t); } t.innerHTML=k; }); }
-const KEY_RESERVED=new Set(['escape','space','tab','arrowup','arrowdown','arrowleft','arrowright','mod+a','mod+r','mod+w','mod+t','mod+q','mod+l']);
+const KEY_RESERVED=new Set(['escape','space','tab','arrowup','arrowdown','arrowleft','arrowright','mod+a','mod+r','mod+w','mod+t','mod+q']);
 let keysEditing=false, keyCapture=null;
 function keysHTML(){
   const custom=Object.keys(keyCustom).length>0, groups=[...new Set(KEY_ACTIONS.map(a=>a[0]))];
@@ -3218,7 +3570,7 @@ document.addEventListener('keydown',e=>{
   if(drawMode && (e.key==='Escape'||e.key==='Enter') && !typing){ e.preventDefault(); exitDraw(); return; }
   if(focusMode && (e.key==='Escape'||e.key==='Enter') && !typing){ e.preventDefault(); exitFocus(); return; }
   if(cableSel && !typing && e.key==='Escape' && $('#modal').hidden){ cableSel=null; draw(); return; }
-  if(e.key==='Escape'){ if(!$('#modal').hidden){ $('#modal').hidden=true; return; } if(!$('#drawer').hidden){ closeDrawer(); return; } if(flyCat){ closeFloating(); return; } if(!typing){ sel.clear(); detailsOpen=false; setCardSel(null); renderInspector(); draw(); } return; }
+  if(e.key==='Escape'){ if(!$('#modal').hidden){ $('#modal').hidden=true; return; } if(!$('#drawer').hidden){ closeDrawer(); return; } if(flyCat){ closeFloating(); return; } if(!typing){ sel.clear(); activeLayer=null; renderLayersSoon(); detailsOpen=false; setCardSel(null); renderInspector(); draw(); } return; }
   if(flyCat==='Align' && !typing && !readOnly && !e.metaKey && !e.ctrlKey && !e.altKey && !e.shiftKey && /^(Digit|Numpad)[1-9]$/.test(e.code||'')){
     e.preventDefault(); const g=ALIGN_GRID[+e.code.slice(-1)-1], n=alignItems().length;
     if(n<g[3]) toast(g[3]===3?'Distribute needs three or more selected':'Select two or more objects to align'); else runAlign(g[0]); return; }
@@ -3239,6 +3591,9 @@ document.addEventListener('keydown',e=>{
   if(cableSel && (act==='del'||e.key==='Delete'||e.key==='Backspace')){ e.preventDefault(); unplugCable(cableSel); return; }
   if(act==='del' && sel.size){ e.preventDefault(); deleteSel(); }
   else if(act==='dup'){ e.preventDefault(); dupSel(); }
+  else if(act==='group'){ e.preventDefault(); groupSelection(); }
+  else if(act==='lock'){ e.preventDefault(); toggleLockSel(); }
+  else if(act==='ungroup'){ e.preventDefault(); ungroupSelection(); }
   else if(act==='copy' && sel.size && !String(getSelection&&getSelection()).trim()){ e.preventDefault(); copySel(false); }
   else if(act==='cut' && sel.size){ e.preventDefault(); copySel(true); }
   else if(act==='paste'){ e.preventDefault(); pasteClip(); }
@@ -3247,7 +3602,7 @@ document.addEventListener('keydown',e=>{
   else if(act==='pen'){ drawMode?exitDraw():enterDraw(); }
   else if(act==='aim'){ if(focusMode) exitFocus(); else if(rotItems().length>1) enterRot(); else if(sel.size){ enterFocus(); renderInspector(); } }
   else if((act==='rotl'||act==='rotr') && sel.size){ checkpoint(); sel.forEach(id=>{ const it=itemById(id); delete it.focus; it.rot=((it.rot+(act==='rotr'?15:-15)+540)%360)-180; }); touch(); renderInspector(); draw(); }
-  else if(e.key.startsWith('Arrow') && sel.size){ e.preventDefault(); checkpoint(); const s=e.shiftKey?.5:.1; sel.forEach(id=>{ const it=itemById(id); if(e.key==='ArrowLeft') it.x-=s; if(e.key==='ArrowRight') it.x+=s; if(e.key==='ArrowUp') it.y-=s; if(e.key==='ArrowDown') it.y+=s; it.x=Math.round(it.x*100)/100; it.y=Math.round(it.y*100)/100; }); reaimAll(); touch(); syncInspector(); draw(); }
+  else if(e.key.startsWith('Arrow') && sel.size){ e.preventDefault(); checkpoint(); const s=e.shiftKey?.5:.1, LKa=LFc(); sel.forEach(id=>{ const it=itemById(id); if(!it||LKa.lock(it)) return; if(e.key==='ArrowLeft') it.x-=s; if(e.key==='ArrowRight') it.x+=s; if(e.key==='ArrowUp') it.y-=s; if(e.key==='ArrowDown') it.y+=s; it.x=Math.round(it.x*100)/100; it.y=Math.round(it.y*100)/100; }); reaimAll(); touch(); syncInspector(); draw(); }
 });
 
 /* ================= helper bar: tips for whatever tool or drag is going on ================= */
@@ -3279,6 +3634,7 @@ function guideNow(){
       return {t:it.type==='wall'?'Wall length':'Length', s:opts.snap?(it.type==='wall'?'Snaps to 5 cm and onto other walls · hold Alt for a free length':'Snaps to 5 cm · hold Alt for a free length'):'Free length · press '+snapKey()+' to snap to 5 cm', lag}; }
     if(m==='size') return {t:'Resize', s:opts.snap?'Snaps to 5 cm · hold Alt for a free size':'Free size · press '+snapKey()+' to snap to 5 cm', lag};
     if(m==='angA'||m==='angB') return {t:'Angle', s:'Hold Shift for 15° steps · hold Alt to move freely', lag};
+    if(m==='sunw') return {t:'Sun width', s:opts.snap?'Drag to widen or narrow the parallel rays · snaps to 5 cm · hold Alt for free':'Drag to widen or narrow the parallel rays', lag};
     if(m==='beamw') return {t:'Beam width', s:'Drag the edge to widen or narrow the beam · hold Shift for 15° steps', lag};
     if(m==='throw'){ const om=it&&TYPES[it.type].omni; return {t:'Throw', s:om?'Drag to set how far the light reaches':'Drag to set the throw and direction · hold Shift for 15° steps', lag}; }
   }
@@ -3321,7 +3677,7 @@ function gearText(){
   const L=[`${cur.shoot||'Shoot'} — ${cur.title||'Setup'}`,[cur.client,cur.date,cur.location].filter(Boolean).join(' · ')].filter(Boolean);
   if(cur.crew) L.push('Crew: '+cur.crew);
   L.push('','LIGHTS');
-  cur.items.filter(i=>TYPES[i.type].light).forEach(i=>{ const p=i.p; L.push(`- ${i.label||TYPES[i.type].name}: ${[p.fixture,p.modifier].filter(Boolean).join(' + ')} · ${p.cct}K${i.type==='sun'?'':' · '+p.power+'%'}${p.gel?' · '+p.gel:''}${p.height?' · '+p.height+' m':''}${refCam()?' · '+relText(i.x,i.y)+' from '+(refCam().label||'A cam'):''}${i.on===false?' (off)':''}${p.notes?' — '+p.notes:''}`); });
+  cur.items.filter(i=>TYPES[i.type].light).forEach(i=>{ const p=i.p; L.push(`- ${i.label||TYPES[i.type].name}: ${[p.fixture,p.modifier].filter(Boolean).join(' + ')} · ${i.type==='sun'&&p.time?p.time+' · ':''}${p.cct}K${i.type==='sun'?'':' · '+p.power+'%'}${p.gel?' · '+p.gel:''}${p.height?' · '+p.height+' m':''}${refCam()?' · '+relText(i.x,i.y)+' from '+(refCam().label||'A cam'):''}${i.on===false?' (off)':''}${p.notes?' — '+p.notes:''}`); });
   const cams=cur.items.filter(i=>TYPES[i.type].cam); if(cams.length){ L.push('','CAMERA'); cams.forEach(i=>L.push(`- ${i.label}: ${i.p.lens}mm ${i.p.sensor}${i.p.settings?' · '+i.p.settings:''}${i.p.height?' · lens '+i.p.height+' m':''}`)); }
   const grip=cur.items.filter(i=>TYPES[i.type].cat==='Grip'); if(grip.length){ L.push('','GRIP'); grip.forEach(i=>{ const t=TYPES[i.type]; const sz=t.sizes&&t.sizes.find(s=>Math.abs(s[1]-i.h)<.01); L.push(`- ${i.label||t.name}: ${sz?sz[0]+' ':''}${t.name.toLowerCase()}${i.p.material?' · '+i.p.material:''}`); }); }
   if(cur.notes) L.push('','NOTES',cur.notes);
@@ -3340,7 +3696,7 @@ function sheetSVG(){
   const head=100, side=380, pad=32;
   const rows=[]; const add=(t,o)=>rows.push(Object.assign({t},o||{}));
   const lights=cur.items.filter(i=>TYPES[i.type].light);
-  if(lights.length){ add('LIGHTS',{h:1}); lights.forEach(i=>{ const p=i.p; add(i.label||TYPES[i.type].name,{b:1,dot:tintOf(i),off:i.on===false}); const s1=[p.fixture,p.modifier].filter(Boolean).join(' + '); if(s1) wrap(s1,50).forEach(l=>add(l,{m:1})); add([p.cct?p.cct+'K':'',i.type==='sun'?'':p.power+'%',p.gel,p.height?'stand '+p.height+' m':''].filter(Boolean).join(' · '),{m:1}); if(refCam()) add(relText(i.x,i.y),{m:1}); if(p.notes) wrap(p.notes,50).forEach(l=>add(l,{m:1,i:1})); add('',{sp:1}); }); }
+  if(lights.length){ add('LIGHTS',{h:1}); lights.forEach(i=>{ const p=i.p; add(i.label||TYPES[i.type].name,{b:1,dot:tintOf(i),off:i.on===false}); const s1=[p.fixture,p.modifier].filter(Boolean).join(' + '); if(s1) wrap(s1,50).forEach(l=>add(l,{m:1})); add([i.type==='sun'&&p.time?p.time:'',p.cct?p.cct+'K':'',i.type==='sun'?'':p.power+'%',p.gel,p.height?'stand '+p.height+' m':''].filter(Boolean).join(' · '),{m:1}); if(refCam()) add(relText(i.x,i.y),{m:1}); if(p.notes) wrap(p.notes,50).forEach(l=>add(l,{m:1,i:1})); add('',{sp:1}); }); }
   const cams=cur.items.filter(i=>TYPES[i.type].cam);
   if(cams.length){ add('CAMERA',{h:1}); cams.forEach(i=>{ add(i.label,{b:1}); add(`${i.p.lens}mm ${i.p.sensor}${i.p.settings?' · '+i.p.settings:''}`,{m:1}); }); add('',{sp:1}); }
   const grip={}; cur.items.forEach(i=>{ const t=TYPES[i.type]; if(t.cat==='Grip'){ const sz=t.sizes&&t.sizes.find(s=>Math.abs(s[1]-i.h)<.01); const key=(sz?sz[0]+' ':'')+t.name.toLowerCase()+(i.p.material?' · '+i.p.material:''); grip[key]=(grip[key]||0)+1; } });
@@ -3645,10 +4001,11 @@ $('#modal').addEventListener('click',e=>{
   const t=e.target.closest('[data-tpl]'); if(t){ $('#modal').hidden=true; createDiagram(t.dataset.tpl, t.dataset.kind==='inshoot'?pendingBase:null); return; }
   if(e.target.closest('[data-dupcur]')){ $('#modal').hidden=true; closeDrawer(); duplicateDiagram(); }
 });
+var blankChosen=null;
 $('#emptyTpls').innerHTML=tplCardsLite();
 function tplCardsLite(){ return Object.entries(TEMPLATES).map(([k,t],i)=>`<button class="sc" data-etpl="${k}"><span class="th">${thumbSVG(t.items(),'te'+i)}</span><span class="tx"><b>${esc(t.label)}</b><small>${esc(t.desc)}</small></span></button>`).join(''); }
 $('#emptyTpls').addEventListener('click',e=>{ const b=e.target.closest('[data-etpl]'); if(!b) return; const k=b.dataset.etpl;
-  if(cur && !cur.items.length){ if(k==='blank'){ flyCat='Lights'; renderRail(); renderFly(); $('#empty').hidden=true; return; } checkpoint(); cur.items=TEMPLATES[k].items(); touch(); fit(); }
+  if(cur && !cur.items.length){ if(k==='blank'){ blankChosen=cur.id; flyCat='Lights'; renderRail(); renderFly(); $('#empty').hidden=true; return; }   /* stays blank: the picker doesn't come back when the menu closes */ checkpoint(); cur.items=TEMPLATES[k].items(); touch(); fit(); }
   else createDiagram(k,null); });
 function setReadOnly(v){ readOnly=v; $('#rail').hidden=v; $('#railR').hidden=v; if(cur) cardsEl.innerHTML=''; if(v) closeFloating(); updUndo(); renderHeader(); renderInspector(); draw(); }
 function onTheme(){ readPalette(); applyBoard(); renderFly(); $('#emptyTpls').innerHTML=tplCardsLite(); if(!$('#drawer').hidden) renderDrawer(); renderInspector(); draw(); }
@@ -3852,7 +4209,7 @@ function openCtx(items,x,y){ const m=$('#ctxMenu');
   m.innerHTML=items.map(it=>it==='-'?'<hr>':`<button data-ctx="${it.act}" data-hint="${esc(it.hint||'')}"${it.danger?' class="danger"':''}>${ic(it.icon,'style="width:16px;height:16px"')}<span>${esc(it.label)}</span></button>`).join('')+`<div class="ctx-tip" hidden></div>`;
   m.hidden=false; const w=m.offsetWidth, h=m.offsetHeight; m.style.left=Math.round(clamp(x+4,8,innerWidth-w-8))+'px'; m.style.top=Math.round(clamp(y+4,8,innerHeight-h-8))+'px'; }
 function closeCtx(){ const m=$('#ctxMenu'); if(!m.hidden){ m.hidden=true; m.dataset.id=''; } }
-function openSetupCtx(id,x,y){ const d=all[id]; if(!d||readOnly) return; const m=$('#ctxMenu'); m.dataset.id=id;
+function openSetupCtx(id,x,y){ const d=all[id]; if(!d||readOnly) return; const m=$('#ctxMenu'); m.dataset.id=id; m.dataset.kind='';
   const nested=descendants(id).length, withKids=nested?` and the ${nested===1?'setup':nested+' setups'} nested in it`:'', undoable=!!(cur&&d.parent&&d.parent===cur.id&&id!==cur.id);
   openCtx([{act:'open',label:'Open',icon:'chev',hint:'Go into this setup.'},
     {act:'duplicate',label:'Duplicate',icon:'copy',hint:`Make a copy of this setup${withKids}, right next to the original.`},'-',
@@ -3864,6 +4221,7 @@ $('#ctxMenu').addEventListener('mouseover',e=>{ const b=e.target.closest('[data-
   const r=m.getBoundingClientRect(), right=r.right+8+t.offsetWidth<innerWidth-8; t.classList.toggle('left',!right); t.style.top=b.offsetTop+'px'; });
 $('#ctxMenu').addEventListener('mouseleave',()=>{ const t=$('#ctxMenu .ctx-tip'); if(t) t.hidden=true; });
 $('#ctxMenu').addEventListener('click',e=>{ const b=e.target.closest('[data-ctx]'); if(!b) return; const m=$('#ctxMenu'), id=m.dataset.id, a=b.dataset.ctx;
+  if(m.dataset.kind==='layer'){ closeCtx(); if(a==='lgroup') groupSelection(); else if(a==='lungroup') ungroupSelection(); return; }
   if(a==='delete' && !m.dataset.undo && !b.dataset.armed){ b.dataset.armed='1'; b.querySelector('span').textContent='Click again to delete'; b.classList.add('armed'); return; }
   closeCtx();
   if(a==='duplicate') duplicateSetupById(id); else if(a==='delete') deleteSetupById(id);
@@ -3871,8 +4229,13 @@ $('#ctxMenu').addEventListener('click',e=>{ const b=e.target.closest('[data-ctx]
   else if(a==='archive') archiveSetup(id); else if(a==='restore') restoreSetup(id); });
 document.addEventListener('pointerdown',e=>{ if(!e.target.closest('#ctxMenu')) closeCtx(); },true);
 document.addEventListener('keydown',e=>{ if(e.key==='Escape' && !$('#ctxMenu').hidden){ e.stopImmediatePropagation(); closeCtx(); } },true);
+$('#layersPanel').addEventListener('contextmenu',e=>{ const r=e.target.closest('#lpList .lr, #lpList .li'); if(!r||readOnly||!cur) return; e.preventDefault();
+  if(r.classList.contains('lr') && !r.classList.contains('tv') && !r.classList.contains('obj')){ const l=layerById(r.dataset.lid); if(l){ activeLayer=l.id; if(l.type==='group'||!rowItems(r).some(id=>sel.has(id))) sel=new Set(); } }
+  else { const ids=rowItems(r); if(!ids.some(id=>sel.has(id))){ sel=new Set(ids); lpAnchor=rowKey(r); } }
+  renderInspector(); syncCardSel(); renderLayers(); draw(); openLayerCtx(e.clientX,e.clientY); });
 $('#dbody').addEventListener('contextmenu',e=>{ const r=e.target.closest('[data-open]'); if(!r) return; e.preventDefault(); openSetupCtx(r.dataset.open,e.clientX,e.clientY); });
-cardsEl.addEventListener('contextmenu',e=>{ const c=e.target.closest('.bc-board'); if(!c) return; const it=itemById(c.dataset.cid); if(!it||!it.p.target||!all[it.p.target]) return; e.preventDefault(); openSetupCtx(it.p.target,e.clientX,e.clientY); });
+cardsEl.addEventListener('contextmenu',e=>{ const c0=e.target.closest('.bc'); if(c0 && !c0.classList.contains('bc-board') && !readOnly && !e.target.closest('textarea,input')){ e.preventDefault(); const it=itemById(c0.dataset.cid); if(it&&!sel.has(it.id)){ sel=new Set([it.id]); renderInspector(); syncCardSel(); draw(); } openLayerCtx(e.clientX,e.clientY); return; }
+  const c=e.target.closest('.bc-board'); if(!c) return; const it=itemById(c.dataset.cid); if(!it||!it.p.target||!all[it.p.target]) return; e.preventDefault(); openSetupCtx(it.p.target,e.clientX,e.clientY); });
 var archOpen=false; try{ archOpen=localStorage.getItem('setplot-arch')==='1'; }catch(e){}
 function ancestors(d){ const out=[], seen=new Set(); let p=d&&d.parent; while(p&&all[p]&&!seen.has(p)&&out.length<12){ seen.add(p); out.unshift(p); p=all[p].parent; } return out; }
 function descendants(id){ const out=[], q=[id], seen=new Set([id]); while(q.length){ const x=q.shift(); Object.entries(all).forEach(([k,d])=>{ if(d.parent===x&&!seen.has(k)){ seen.add(k); out.push(k); q.push(k); } }); } return out; }
@@ -4116,7 +4479,7 @@ cardsEl.addEventListener('pointerdown',e=>{
   let dragIt=it, dragEl=el, dup=null;
   if(!rz && dupKey(e)){ checkpoint(); const prev=new Set(sel), copies=cloneInto(cur.items.filter(i=>sel.has(i.id)),0,0), m=new Map(cur.items.filter(i=>prev.has(i.id)).map((o,ix)=>[o.id,copies[ix].id]));
     sel=new Set(copies.map(c=>c.id)); renderCards(); syncCardSel(); draw(); dragIt=itemById(m.get(it.id)); dragEl=cardsEl.querySelector(`.bc[data-cid="${dragIt.id}"]`)||el; dup={prev,ids:new Set(sel)}; }
-  const group = (inGroup||(dup&&sel.size>1)) && !rz ? new Map([...sel].map(id=>{ const o=itemById(id); return [id,{x:o.x,y:o.y}]; })) : null;
+  const group = (inGroup||(dup&&sel.size>1)) && !rz ? new Map([...sel].filter(id=>{ const o=itemById(id); return o && !LFc().lock(o); }).map(id=>{ const o=itemById(id); return [id,{x:o.x,y:o.y}]; })) : null;
   cdrag={mode:rz?'resize':'move',it:dragIt,el:dragEl,field:wasSolo&&!dup?field:null,group,sx:e.clientX,sy:e.clientY,ox:dragIt.x,oy:dragIt.y,ow:dragIt.w,moved:false,pid:e.pointerId,dup};
 });
 addEventListener('pointermove',e=>{
