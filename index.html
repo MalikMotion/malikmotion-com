@@ -4799,7 +4799,7 @@ addEventListener('pointermove',e=>{
   } else {
     const min = it.type==='grid'?220:it.type==='color'?130:it.type==='note'?120:it.type==='column'?220:160;
     it.w=Math.round(clamp(cdrag.ow+dx*PXM0/view.s,min,1400));
-    if(it.type==='note'){ if(cdrag.oh==null) cdrag.oh=cdrag.el.offsetHeight; it.nh=Math.round(clamp(cdrag.oh+dy*PXM0/view.s,46,2400)); }
+    if(it.type==='note'||it.type==='gdoc'){ if(cdrag.oh==null) cdrag.oh=cdrag.el.offsetHeight; it.nh=Math.round(clamp(cdrag.oh+dy*PXM0/view.s,it.type==='gdoc'?180:46,2400)); }   // notes and docs grow tall as well as wide
     cdrag.el.querySelectorAll('textarea').forEach(autoGrow);
   }
   draw();
