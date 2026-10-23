@@ -644,6 +644,35 @@ body.placing .bc:hover{box-shadow:0 1px 2px rgba(20,24,30,.08),0 6px 18px -6px r
 .c-name{padding:14px 18px 16px}
 .c-pick{position:absolute;left:12px;bottom:12px;width:1px;height:1px;opacity:0;pointer-events:none;border:0;padding:0}
 .bc-note{display:flex;flex-direction:column}
+.bc-gdoc{display:flex;flex-direction:column;overflow:hidden;border-radius:10px}
+.gd-head{display:flex;align-items:center;gap:8px;padding:10px 10px 10px 12px;border-bottom:1px solid var(--line);flex:none}
+.gd-ic{flex:none;width:28px;height:28px;border-radius:7px;display:grid;place-items:center;background:color-mix(in srgb,#3b78e7 14%,transparent);color:#3b78e7}
+.gd-ic svg{width:17px;height:17px}
+.gd-tt{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.25}
+.gd-tt b{font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gd-tt small{color:var(--muted);font-size:11.5px}
+.gd-btn{flex:none;width:28px;height:28px;border-radius:7px;display:grid;place-items:center;border:0;background:transparent;color:var(--muted);cursor:pointer;padding:0}
+.gd-btn:hover{background:var(--hover,color-mix(in srgb,var(--ink) 7%,transparent));color:var(--ink)}
+.gd-btn svg{width:16px;height:16px}
+.gd-body{flex:1 1 auto;min-height:0;overflow:auto;padding:12px 16px 16px;font-size:13px;line-height:1.55;overscroll-behavior:contain}
+.gd-doc h3{font-size:16px;margin:14px 0 6px;font-weight:700}.gd-doc h4{font-size:14.5px;margin:12px 0 4px;font-weight:700}.gd-doc h5,.gd-doc h6{font-size:13.5px;margin:10px 0 4px;font-weight:700}
+.gd-doc>:first-child{margin-top:0}
+.gd-doc p{margin:0 0 8px}.gd-doc ul,.gd-doc ol{margin:0 0 8px;padding-left:20px}
+.gd-doc a{color:var(--accent)}
+.gd-tw{overflow-x:auto;margin:0 0 10px}
+.gd-doc table{border-collapse:collapse;width:100%;font-size:12px}
+.gd-doc td{border:1px solid var(--line);padding:4px 6px;vertical-align:top}
+.gd-doc tr:first-child td{background:color-mix(in srgb,var(--ink) 4%,transparent)}
+.gd-msg,.gd-empty{color:var(--muted);font-size:13px;padding:6px 0}
+.gd-warn{font-size:12px;color:var(--muted);background:color-mix(in srgb,var(--ink) 5%,transparent);border-radius:6px;padding:6px 8px;margin-bottom:10px}
+.gd-allow{margin-top:8px}
+.gd-pick{display:flex;flex-direction:column;flex:1 1 auto;min-height:0;padding:10px 12px 12px;gap:8px}
+.bc .gd-q{border:1px solid var(--line)!important;border-radius:8px;padding:7px 10px!important;font-size:13px;background:var(--canvas)!important}
+.gd-list{flex:1 1 auto;min-height:0;overflow:auto;display:flex;flex-direction:column;gap:2px;overscroll-behavior:contain}
+.gd-row{display:flex;align-items:center;gap:10px;text-align:left;border:0;background:transparent;color:inherit;font:inherit;padding:7px 8px;border-radius:7px;cursor:pointer;width:100%}
+.gd-row:hover{background:color-mix(in srgb,var(--accent) 9%,transparent)}
+.gd-ric{flex:none;color:#3b78e7;display:grid;place-items:center}.gd-ric svg{width:18px;height:18px}
+.gd-rt{min-width:0;display:flex;flex-direction:column;line-height:1.25}.gd-rt b{font-weight:550;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.gd-rt small{color:var(--muted);font-size:11.5px}
 .bc-note .c-text{flex:1 1 auto}
 .c-plus,.col-plus{--s:calc(24px*var(--inv,1));--g:calc(10px*var(--inv,1));position:absolute;width:var(--s);height:var(--s);border-radius:50%;border:0;padding:0;display:grid;place-items:center;background:var(--accent);color:#fff;box-shadow:0 calc(2px*var(--inv,1)) calc(8px*var(--inv,1)) calc(-2px*var(--inv,1)) rgba(30,60,140,.45);cursor:pointer;opacity:0;visibility:hidden;transform:scale(.7);transition:opacity .15s .3s,transform .15s .3s,visibility 0s .45s;z-index:2}
 .c-plus svg,.col-plus svg{width:calc(14px*var(--inv,1));height:calc(14px*var(--inv,1));stroke-width:2.4}
@@ -805,10 +834,11 @@ body.insp-open .rail-r{right:calc(max(16px,env(safe-area-inset-right,0px)) + 332
 
   <aside class="card insp" id="insp" hidden></aside>
   <button class="insp-tab" id="inspTab" hidden aria-label="Show settings" title="Settings — move the cursor to the right edge"><svg viewBox="0 0 14 70" aria-hidden="true"><rect class="t-fill" x="4.5" y="6" width="5" height="58" rx="2.5"/><rect class="t-ring" x="1.5" y="3" width="11" height="64" rx="5.5" pathLength="100"/></svg></button>
-  <div class="card aimhint" id="extHint" hidden role="status"><i></i><b>Add wall</b><span>Click to place · Shift for 45° steps · Alt for free length · Esc to finish</span><button class="btn sm primary" id="extDone">Done</button></div>
+  <div class="card aimhint" id="extHint" hidden role="status"><i></i><b>Add wall</b><span>Click to place, or type a length + Enter · Shift for 45° steps · Alt for free length · Esc to finish</span><button class="btn sm primary" id="extDone">Done</button></div>
   <div class="card extmenu" id="extMenu" hidden role="menu"></div>
   <div class="card connmenu" id="connMenu" hidden role="menu"></div>
   <div class="card aimhint drawbar" id="drawBar" hidden role="toolbar" aria-label="Pen"><b>Pen</b><div class="pc" id="penColors"></div><span class="vsep"></span><div class="pc" id="penWidths"></div><button class="btn sm primary" id="drawDone">Done</button></div>
+  <div class="card timepop" id="lenPop" hidden role="dialog" aria-label="Wall length"><label for="lenPopIn">Length</label><input class="fi" type="text" inputmode="decimal" id="lenPopIn" style="min-width:72px;width:80px;text-align:right"><span class="muted">m</span><button class="btn sm primary" id="lenPopOk">Set</button></div>
   <div class="card timepop" id="timePop" hidden role="dialog" aria-label="Time of day"><label for="timePopIn">Time of day</label><input class="fi" type="time" id="timePopIn"><button class="btn sm primary" id="timePopOk">Set</button></div>
   <div class="card aimhint" id="aimHint" hidden role="status"><i></i><b>Aim</b><span>Click a spot or an object, or drag the dot · hold Shift for 45° steps</span><button class="btn sm primary" id="aimDone">Done</button></div>
 
@@ -912,7 +942,8 @@ const TYPES = {
   grid:    {cat:'Board',card:true,name:'Table',z:20,w:380,h:0,label:'',noFront:true,p:{cells:[['']]}},
   color:   {cat:'Board',card:true,name:'Colour',z:20,w:180,h:0,label:'',noFront:true,p:{hex:'#10A0A0',name:''}},
   board:   {cat:'Board',card:true,name:'Setup',z:20,w:240,h:0,label:'',noFront:true,p:{target:null}},
-  column:  {cat:'Board',card:true,name:'Column',z:19,w:300,h:0,label:'',noFront:true,p:{title:'New Column',items:[]}}
+  column:  {cat:'Board',card:true,name:'Column',z:19,w:300,h:0,label:'',noFront:true,p:{title:'New Column',items:[]}},
+  gdoc:    {cat:'Board',card:true,name:'Google Doc',z:20,w:380,h:0,label:'',noFront:true,p:{fileId:null,title:'',url:''}}
 };
 const CATS = ['Lights','Grip','Camera','Talent','Set'];
 const SENSORS = {S35:24.9, FF:36, APSC:23.3, MFT:17.3, 'Super 16':12.5};
@@ -1220,7 +1251,7 @@ function specLines(it){
   if(it.type==='outlet' && cur && cur.items.includes(it)){ const W=powerOf(cur); return [circName(W,circuitOf(it,W))]; }
   return [];
 }
-function labelSVG(it,Q,k,showSpec){
+function labelSVG(it,Q,k,showSpec){ if(it.type==='sketch') return '';   /* a line's name lives in the Layers panel, not on the plot */
   const lines = [];
   if(it.label) lines.push([it.label,12,700,Q.ink]);
   if(showSpec) specLines(it).forEach(s=>lines.push([s,10.5,500,Q.muted]));
@@ -1349,6 +1380,10 @@ const TEMPLATES = {
 
 /* ================= icons ================= */
 const IC = {
+  gdoc:'<path d="M6.5 3.5h7l4 4v12.5a.5.5 0 0 1-.5.5h-10.5a.5.5 0 0 1-.5-.5V4a.5.5 0 0 1 .5-.5z"/><path d="M13.5 3.5V8h4M9 12h6M9 15h6M9 18h3.5"/>',
+  ext:'<path d="M14 4.5h5.5V10M19.5 4.5 11 13M17 14v4.5a1 1 0 0 1-1 1H5.5a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1H10"/>',
+  swap:'<path d="M7 7.5h11.5M15.5 4.5l3 3-3 3M17 16.5H5.5M8.5 13.5l-3 3 3 3"/>',
+  refresh:'<path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3M19.5 4.5v4h-4"/>',
   al_left:'<path d="M4 3.5v17"/><rect x="7" y="6" width="12" height="4.5" rx="1.2"/><rect x="7" y="13.5" width="7.5" height="4.5" rx="1.2"/>',
   al_hc:'<path d="M12 3.5v17"/><rect x="5" y="6" width="14" height="4.5" rx="1.2"/><rect x="8" y="13.5" width="8" height="4.5" rx="1.2"/>',
   al_right:'<path d="M20 3.5v17"/><rect x="5" y="6" width="12" height="4.5" rx="1.2"/><rect x="9.5" y="13.5" width="7.5" height="4.5" rx="1.2"/>',
@@ -1475,7 +1510,7 @@ function renderPlot(){
   cardBadges=[];
   const m = plotMarkup(cur?cur.items:[],P,{pxm:view.s,beams:opts.beams,specs:opts.specs&&view.s>=50,sel,handles:!readOnly && ![...sel].some(id=>{ const it=itemById(id); return it && LFc().lock(it); }),layers:cur&&cur.layers,plug:plugIds(),cable:cableIds(),cableSel,beamH:beamHoverId()});
   const g = patternMarkup(P,x0,y0,vw,vh,k,view.s,'pv');
-  svg.innerHTML = `<defs>${g.defs}${m.defs}</defs>${g.body}<g>${m.beams}</g><g>${m.body}</g><g>${m.labels}</g>${linksSVG(cur?cur.items:[],P,k,cur&&cur.layers,true)}${conDragMarkup(k)}${plugDragMarkup(k)}${plugSnapMarkup(k)}<g>${m.over}</g>${lockSelMarkup(k)}${hoverMarkup(k)}${lockFlashMarkup(k)}<g>${cur&&sel.size&&!extMode?originMarkup(k):''}</g>${extMarkup(k)}${camDropMarkup(k)}${angModeMarkup(k)}${rotModeMarkup(k)}${wallLine&&drag?(w=>w?`<g pointer-events="none" transform="translate(${f(w.x)} ${f(w.y)}) rotate(${f(w.rot)})"><rect x="${f(-w.w/2)}" y="${f(-w.h/2-4*k)}" width="${f(w.w)}" height="${f(w.h+8*k)}" rx="${f(3*k)}" fill="${P.accent}" fill-opacity=".12" stroke="${P.accent}" stroke-opacity=".6" stroke-width="${f(1.2*k)}" stroke-dasharray="${f(4*k)} ${f(3*k)}"/></g>`:'')(itemById(wallLine)):''}${snapMark&&drag?`<g pointer-events="none"><circle cx="${f(snapMark.x)}" cy="${f(snapMark.y)}" r="${f(9*k)}" fill="${P.accent}" fill-opacity=".15" stroke="${P.accent}" stroke-width="${f(1.6*k)}"/><circle cx="${f(snapMark.x)}" cy="${f(snapMark.y)}" r="${f(2.5*k)}" fill="${P.accent}"/></g>`:''}${drag&&drag.mode==='draw'?`<path d="${drag.pts.length>1?smoothPath(drag.pts):`M${f(drag.pts[0][0])} ${f(drag.pts[0][1])}l0 0`}" fill="none" stroke="${penColor(penOpts.color,P)}" stroke-width="${f(Math.max(penOpts.width,1.2*k))}" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>`:''}<g>${cur&&!readOnly?focusMarkup(k):''}</g>${drag&&drag.mode==='box'&&drag.cur?`<rect x="${f(Math.min(drag.start.x,drag.cur.x))}" y="${f(Math.min(drag.start.y,drag.cur.y))}" width="${f(Math.abs(drag.cur.x-drag.start.x))}" height="${f(Math.abs(drag.cur.y-drag.start.y))}" rx="${f(3*k)}" fill="${P.accent}" fill-opacity=".08" stroke="${P.accent}" stroke-width="${f(1.2*k)}" pointer-events="none"/>`:''}`;
+  svg.innerHTML = `<defs>${g.defs}${m.defs}</defs>${g.body}${walkLineMarkup(k)}<g>${m.beams}</g><g>${m.body}</g><g>${m.labels}</g>${linksSVG(cur?cur.items:[],P,k,cur&&cur.layers,true)}${conDragMarkup(k)}${plugDragMarkup(k)}${plugSnapMarkup(k)}<g>${m.over}</g>${lockSelMarkup(k)}${hoverMarkup(k)}${lockFlashMarkup(k)}${walkMarkup(k)}<g>${cur&&sel.size&&!extMode?originMarkup(k):''}</g>${extMarkup(k)}${camDropMarkup(k)}${angModeMarkup(k)}${rotModeMarkup(k)}${wallLine&&drag?(w=>w?`<g pointer-events="none" transform="translate(${f(w.x)} ${f(w.y)}) rotate(${f(w.rot)})"><rect x="${f(-w.w/2)}" y="${f(-w.h/2-4*k)}" width="${f(w.w)}" height="${f(w.h+8*k)}" rx="${f(3*k)}" fill="${P.accent}" fill-opacity=".12" stroke="${P.accent}" stroke-opacity=".6" stroke-width="${f(1.2*k)}" stroke-dasharray="${f(4*k)} ${f(3*k)}"/></g>`:'')(itemById(wallLine)):''}${snapMark&&drag?`<g pointer-events="none"><circle cx="${f(snapMark.x)}" cy="${f(snapMark.y)}" r="${f(9*k)}" fill="${P.accent}" fill-opacity=".15" stroke="${P.accent}" stroke-width="${f(1.6*k)}"/><circle cx="${f(snapMark.x)}" cy="${f(snapMark.y)}" r="${f(2.5*k)}" fill="${P.accent}"/></g>`:''}${drag&&drag.mode==='draw'?`<path d="${drag.pts.length>1?smoothPath(drag.pts):`M${f(drag.pts[0][0])} ${f(drag.pts[0][1])}l0 0`}" fill="none" stroke="${penColor(penOpts.color,P)}" stroke-width="${f(Math.max(penOpts.width,1.2*k))}" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>`:''}<g>${cur&&!readOnly?focusMarkup(k):''}</g>${drag&&drag.mode==='box'&&drag.cur?`<rect x="${f(Math.min(drag.start.x,drag.cur.x))}" y="${f(Math.min(drag.start.y,drag.cur.y))}" width="${f(Math.abs(drag.cur.x-drag.start.x))}" height="${f(Math.abs(drag.cur.y-drag.start.y))}" rx="${f(3*k)}" fill="${P.accent}" fill-opacity=".08" stroke="${P.accent}" stroke-width="${f(1.2*k)}" pointer-events="none"/>`:''}`;
   renderCards(); renderCardBadges();
   $('#zoomLbl').textContent = Math.round(view.s/70*100)+'%';
   const cands=[.25,.5,1,2,5,10]; let L=1; for(const c of cands){ if(c*view.s>=36){ L=c; break; } }
@@ -1873,17 +1908,18 @@ function exitExt(){
   renderInspector(); draw();
 }
 const EXT_HINT=$('#extHint span').textContent;
-$('#extDone').onclick=()=>{ if(rotMode) commitRot(); else if(angMode) exitAngle(); else exitExt(); };
+$('#extDone').onclick=()=>{ if(walkMode) stopWalk(); else if(rotMode) commitRot(); else if(angMode) exitAngle(); else exitExt(); };
 function extGeom(pt,shift,free){
   const ex=extMode; let dx=pt.x-ex.sx, dy=pt.y-ex.sy, a=Math.atan2(dy,dx)/D2R, L=Math.hypot(dx,dy);
   if(shift){ a=ex.prevA+Math.round(angNorm(a-ex.prevA)/45)*45; const u0=unit(a); L=dx*u0.x+dy*u0.y; }
   else if(opts.snap && !free){ const rel=angNorm(a-ex.prevA), r5=Math.round(rel/5)*5; if(Math.abs(rel-r5)<1.5) a=ex.prevA+r5; }
   if(opts.snap && !free) L=Math.round(L*20)/20;
   L=Math.max(0,L);
+  const typedL=typedLen(ex); if(typedL) L=Math.max(.05,typedL-ex.prevH/2);   /* the new piece itself comes out exactly as long as typed */
   const u=unit(a), back=ex.prevH/2;
   // magnet: land the far end on another wall's end
   let snapped=null;
-  if(opts.snap && !free && !shift){ cur.items.forEach(o=>{ if(o.type!=='wall'||o.id===ex.from||extMode.made.includes(o.id)) return; wallEnds(o).forEach(c=>{ const ex2=ex.sx+u.x*L, ey2=ex.sy+u.y*L; if(Math.hypot(c.x-ex2,c.y-ey2)<.25){ snapped=c; } }); }); }
+  if(opts.snap && !free && !shift && !typedL){ cur.items.forEach(o=>{ if(o.type!=='wall'||o.id===ex.from||extMode.made.includes(o.id)) return; wallEnds(o).forEach(c=>{ const ex2=ex.sx+u.x*L, ey2=ex.sy+u.y*L; if(Math.hypot(c.x-ex2,c.y-ey2)<.25){ snapped=c; } }); }); }
   if(snapped){ dx=snapped.x-ex.sx; dy=snapped.y-ex.sy; a=Math.atan2(dy,dx)/D2R; L=Math.hypot(dx,dy); }
   const u2=unit(a);
   return {a, L, u:u2, start:{x:ex.sx-u2.x*back, y:ex.sy-u2.y*back}, Lt:L+back, end:{x:ex.sx+u2.x*L, y:ex.sy+u2.y*L}, snapped};
@@ -1895,8 +1931,26 @@ function placeExt(pt,shift,free){
   it.x=Math.round(it.x*1000)/1000; it.y=Math.round(it.y*1000)/1000;
   cur.items.push(it); extMode.made.push(it.id);
   extMode.sx=g.end.x; extMode.sy=g.end.y; extMode.prevA=g.a; extMode.prevH=it.h; extMode.from=it.id;
-  touch(); draw();
+  extMode.typed=''; updExtHint(); touch(); draw();
 }
+/* typing a length: in the + chain (each Enter places one piece and carries on) and while placing a new wall, window or door */
+const LEN_TYPES=new Set(['wall','window','door']);
+const typedLen=o=>{ const v=parseFloat(String((o&&o.typed)||'').replace(',','.')); return v>0 ? Math.min(v,100) : 0; };
+function lenTarget(){ if(extMode) return extMode; if(placing && placing.fresh && placing.ids.length===1){ const it=itemById(placing.ids[0]); if(it && LEN_TYPES.has(it.type)) return placing; } return null; }
+function updExtHint(){ if(!extMode) return; const t=extMode.typed; $('#extHint span').textContent = t ? `Length ${t} m · Enter to place · Backspace to fix · Esc to clear` : EXT_HINT; }
+function applyTyped(){ if(extMode){ updExtHint(); draw(); return; }
+  if(placing){ const it=itemById(placing.ids[0]), v=typedLen(placing); if(it){ if(placing.w0==null) placing.w0=it.w; it.w=v?Math.max(.1,v):placing.w0; } reaimAll(); draw(); guideSoon(); } }
+document.addEventListener('keydown',e=>{
+  const tg=lenTarget(); if(!tg) return;
+  const tag=(e.target.tagName||'').toLowerCase(); if(tag==='input'||tag==='textarea'||tag==='select'||e.target.isContentEditable) return;
+  if(e.metaKey||e.ctrlKey||e.altKey) return;
+  const k=e.key, t=tg.typed||'', stop=()=>{ e.preventDefault(); e.stopImmediatePropagation(); };
+  if(/^[0-9]$/.test(k) && t.replace(/[.,]/,'').length<6){ stop(); tg.typed=t+k; applyTyped(); return; }
+  if((k==='.'||k===',') && !/[.,]/.test(t)){ stop(); tg.typed=(t||'0')+'.'; applyTyped(); return; }
+  if(k==='Backspace' && t){ stop(); tg.typed=t.slice(0,-1); applyTyped(); return; }
+  if(k==='Enter' && t){ stop(); if(extMode){ const p=extMode.cur||(()=>{ const u=unit(extMode.prevA); return {x:extMode.sx+u.x,y:extMode.sy+u.y}; })(); if(typedLen(extMode)) placeExt(p,extMode.shift,extMode.free); } else commitPlace(); return; }
+  if(k==='Escape' && t && extMode){ stop(); extMode.typed=''; applyTyped(); return; }   // first Esc clears the number, the next one finishes
+},true);
 svg.addEventListener('pointermove',e=>{ hoverWorld=toWorld(e.clientX,e.clientY); lastClient={x:e.clientX,y:e.clientY}; svg.classList.toggle('dupkey',dupKey(e)); });
 svg.addEventListener('pointerleave',()=>{ hoverWorld=null; if(hoverPick.id||hoverPick.lock){ hoverPick={id:null,lock:null}; draw(); } });
 svg.addEventListener('pointermove',e=>updHoverPick(e));
@@ -1933,7 +1987,7 @@ function extMarkup(k){
   let out=`<g opacity=".7" transform="translate(${f(tmp.x)} ${f(tmp.y)}) rotate(${f(tmp.rot)})">${shape(tmp,P,k)}</g>`;
   if(extMode.shift){ const L=40; out+=`<line x1="${f(extMode.sx-g.u.x*L)}" y1="${f(extMode.sy-g.u.y*L)}" x2="${f(extMode.sx+g.u.x*L)}" y2="${f(extMode.sy+g.u.y*L)}" stroke="${A}" stroke-opacity=".35" stroke-width="${f(1*k)}"/>`; }
   out+=`<circle cx="${f(extMode.sx)}" cy="${f(extMode.sy)}" r="${f(4*k)}" fill="${A}"/><circle cx="${f(g.end.x)}" cy="${f(g.end.y)}" r="${f(g.snapped?7:4.5)*k}" fill="${g.snapped?A:'#ffffff'}" fill-opacity="${g.snapped?.25:1}" stroke="${A}" stroke-width="${f(1.6*k)}"/>`;
-  out+=`<text x="${f(mx+nx*off)}" y="${f(my+ny*off+4*k)}" font-size="${f(11*k)}" font-family="${FONT}" font-weight="700" fill="${A}" text-anchor="middle" stroke="${P.paper}" stroke-width="${f(3*k)}" paint-order="stroke">${g.L.toFixed(2)} m · ${rel>0?'+':''}${rel}°</text>`;
+  out+=`<text x="${f(mx+nx*off)}" y="${f(my+ny*off+4*k)}" font-size="${f(11*k)}" font-family="${FONT}" font-weight="700" fill="${A}" text-anchor="middle" stroke="${P.paper}" stroke-width="${f(3*k)}" paint-order="stroke">${extMode.typed?extMode.typed+' m (typed)':g.Lt.toFixed(2)+' m'} · ${rel>0?'+':''}${rel}°</text>`;
   return `<g pointer-events="none">${out}</g>`;
 }
 
@@ -1948,13 +2002,14 @@ function pickItemEl(e){
   document.elementsFromPoint(e.clientX,e.clientY).forEach((el,ix)=>{ const o=el.closest&&el.closest('#plot [data-id]'); if(!o||seen.has(o.dataset.id)) return; seen.add(o.dataset.id);
     const it=itemById(o.dataset.id); if(it && TYPES[it.type] && L.vis(it)) c.push({o,it,ix,a:(it.w||.2)*(it.h||.2),lk:L.lock(it)?1:0}); });
   if(!c.length) return t;
-  c.sort((p,q)=>p.lk-q.lk || p.a-q.a || TYPES[q.it.type].z-TYPES[p.it.type].z || p.ix-q.ix);
+  { const walker=c.some(x=>WALK_TYPES.has(x.it.type)); c.forEach(x=>{ x.pr=x.it.type==='sketch'?2:(walker&&x.it.type==='mark')?1:0; }); }   // a pen/walk line or a floor mark under the talent never steals the click from the talent
+  c.sort((p,q)=>p.lk-q.lk || p.pr-q.pr || p.a-q.a || TYPES[q.it.type].z-TYPES[p.it.type].z || p.ix-q.ix);
   return c[0].o; }
 /* hover preview: outline what a click would select; locked things under the cursor get a lock badge */
 var hoverPick={id:null,lock:null};
 function updHoverPick(e){
   let id=null, lock=null;
-  const busy=!e||drag||placing||extMode||rotMode||angMode||drawMode||focusMode||readOnly||!cur||e.buttons;
+  const busy=!e||walkMode||drag||placing||extMode||rotMode||angMode||drawMode||focusMode||readOnly||!cur||e.buttons;
   if(!busy && !(e.target.closest&&e.target.closest('[data-h]'))){
     const L=LFc(), t=e.target.closest&&e.target.closest('[data-id]'), ti=t&&itemById(t.dataset.id), pk=pickItemEl(e), pi=pk&&itemById(pk.dataset.id);
     if(pi && !L.lock(pi) && L.vis(pi)) id=pi.id;
@@ -1981,6 +2036,131 @@ function lockFlashMarkup(k){
   return `<g pointer-events="none">${o}</g>`; }
 // the lock badge sits in the middle of the object; cards draw above the plot, so theirs go into an HTML overlay
 var cardBadges=[];
+/* walk mode: steer a talent around the set with W A S D (Shift runs); the head follows the cursor */
+var walkMode=null; const WALK_TYPES=new Set(['person','seated','interviewer']), WALK_KEYS=new Set(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright']);
+function startWalk(){
+  const it=sel.size===1 && itemById([...sel][0]);
+  if(!it || !WALK_TYPES.has(it.type)){ toast('Select a talent or interviewer, then '+keyLabel(keyOf('walk'))+' to walk them'); return; }
+  if(readOnly || LFc().lock(it)){ toast('Unlock it first'); return; }
+  if(placing||extMode||rotMode||angMode||drawMode||focusMode) return;
+  const hadF=!!it.focus; if(hadF){ checkpoint(); delete it.focus; }
+  walkMode={id:it.id, keys:new Set(), shift:false, vx:0, vy:0, v:0, route:null, take:null, needCk:!hadF, last:performance.now(), trail:[], dist:0, side:1};
+  document.body.classList.add('walking'); walkMode.raf=requestAnimationFrame(walkStep); guideSoon(); draw(); }
+// floor marks for blocking: A where a walk starts, B where it ends, then C, D …
+function markLetter(){ const used=new Set(cur.items.filter(i=>i.type==='mark').map(i=>i.label)); for(let n=0;n<702;n++){ const L=n<26?String.fromCharCode(65+n):String.fromCharCode(64+Math.floor(n/26))+String.fromCharCode(65+n%26); if(!used.has(L)) return L; } return 'X'; }
+function markAt(x,y){ const near=cur.items.find(i=>i.type==='mark' && Math.hypot(i.x-x,i.y-y)<.2); if(near) return near;
+  const m=mk('mark',Math.round(x*100)/100,Math.round(y*100)/100,0,{label:markLetter()}); m.p.shape='x'; cur.items.push(m); ensureLayers(cur); return m; }
+/* a "take" is one path in walk mode: Enter places it (marks + line), Esc throws it away and they stay in walk mode */
+function endRewind(M,it){ const W=M&&M.rewind; if(!W) return; if(it){ it.x=W.tx; it.y=W.ty; it.rot=W.trot; } M.rewind=null; M.vx=M.vy=M.v=0; }
+function beginTake(M,it){ if(M.take) return M.take; const ck=M.needCk; if(ck){ checkpoint(); M.needCk=false; }   // each placed path is its own undo step
+  return M.take={x:it.x, y:it.y, rot:it.rot, marks:[], line:[[it.x,it.y]], ck}; }
+function takeMark(M,x,y){ const n=cur.items.length, m=markAt(x,y); if(cur.items.length>n && M.take) M.take.marks.push(m.id); return m; }
+function commitTake(){ const M=walkMode, it=M&&itemById(M.id); if(!M||!it) return;
+  if(M.route){ const R=M.route; for(let i=0;i<R.pts.length;i++) if(R.cum[i]>R.s) M.take.line.push(R.pts[i]); const e=R.nodes[R.nodes.length-1]; it.x=e.x; it.y=e.y; walkArrive(it); }   // mid-walk: finish the route right away
+  if(!M.take){ toast('Walk somewhere first'); return; }
+  M.vx=M.vy=M.v=0; keepWalkLine(M); M.take=null; M.needCk=true; M.trail=[]; touch(); renderLayersSoon(); reaimAll(); draw(); toast('Path placed'); }
+function discardTake(){ const M=walkMode, it=M&&itemById(M.id), T=M&&M.take; if(!T||!it) return false;
+  M.route=null; M.vx=M.vy=M.v=0; M.keys.clear(); M.trail=[];
+  const gone=new Set(T.marks), ghosts=cur.items.filter(i=>gone.has(i.id)); cur.items=cur.items.filter(i=>!gone.has(i.id)); ensureLayers(cur);
+  const back=Math.hypot(it.x-T.x,it.y-T.y);   // glide back to where the path began while the line and marks fade out
+  M.rewind={fx:it.x, fy:it.y, frot:it.rot||0, tx:T.x, ty:T.y, trot:T.rot||0, t0:performance.now(), dur:Math.min(750,Math.max(380,320+back*90)), line:smoothWalk(T.line.concat([[it.x,it.y]])), ghosts};
+  M.take=null; if(T.ck){ hist.pop(); updUndo(); M.needCk=true; } reaimAll(); renderLayersSoon(); draw(); toast('Path discarded'); return true; }
+/* click-to-walk: clicks queue up as waypoints; corners are rounded and speed eases in and out */
+function routeBuild(R){ const N=R.nodes, out=[[N[0].x,N[0].y]], at=[0];
+  for(let i=1;i<N.length;i++){ const w=N[i];
+    if(i===N.length-1 || !(w.r>.01)){ out.push([w.x,w.y]); at[i]=out.length-1; continue; }
+    const p=N[i-1], n=N[i+1], dp=Math.hypot(p.x-w.x,p.y-w.y), dn=Math.hypot(n.x-w.x,n.y-w.y), r=w.r,
+      ax=w.x+(p.x-w.x)/dp*r, ay=w.y+(p.y-w.y)/dp*r, bx=w.x+(n.x-w.x)/dn*r, by=w.y+(n.y-w.y)/dn*r;
+    out.push([ax,ay]); for(let j=1;j<=12;j++){ const t=j/12, u=1-t; out.push([u*u*ax+2*u*t*w.x+t*t*bx, u*u*ay+2*u*t*w.y+t*t*by]); if(j===6) at[i]=out.length-1; } }
+  const cum=[0]; for(let i=1;i<out.length;i++) cum.push(cum[i-1]+Math.hypot(out[i][0]-out[i-1][0],out[i][1]-out[i-1][1]));
+  R.pts=out; R.cum=cum; R.total=cum[cum.length-1]; R.sw=at.map(j=>cum[j]); }
+function routeAt(R,s){ const c=R.cum; let i=1; while(i<c.length-1 && c[i]<s) i++;
+  const a=R.pts[i-1], b=R.pts[i], L=c[i]-c[i-1]||1, t=Math.max(0,Math.min(1,(s-c[i-1])/L));
+  return {x:a[0]+(b[0]-a[0])*t, y:a[1]+(b[1]-a[1])*t, tx:(b[0]-a[0])/L, ty:(b[1]-a[1])/L}; }
+function walkTo(pt,run){ const M=walkMode, it=M&&itemById(M.id); if(!it) return; if(M.rewind) endRewind(M,it);
+  let R=M.route;
+  if(!R){ beginTake(M,it); const start=takeMark(M,it.x,it.y); M.v=Math.hypot(M.vx,M.vy); M.vx=M.vy=0;
+    R=M.route={nodes:[{x:it.x,y:it.y}], s:0, startLabel:start.label}; }
+  const last=R.nodes[R.nodes.length-1]; if(Math.hypot(pt.x-last.x,pt.y-last.y)<.08) return;
+  if(R.nodes.length>1){ const p=R.nodes[R.nodes.length-2], dp=Math.hypot(last.x-p.x,last.y-p.y), dn=Math.hypot(pt.x-last.x,pt.y-last.y);
+    last.r=Math.min(.5, dp*.45, dn*.45, Math.max(0,R.total-R.s-.02)); }   // the old end becomes a rounded corner; never behind where they already are
+  R.nodes.push({x:pt.x,y:pt.y,run}); routeBuild(R); M.keys.clear(); renderLayersSoon(); draw(); }
+function walkArrive(it){ const M=walkMode; if(!M||!M.route) return; const N=M.route.nodes, e=N[N.length-1]; const end=takeMark(M,e.x,e.y); M.route=null; M.v=0; renderLayersSoon(); toast(`On mark ${end.label}`); }
+function stopWalk(){ if(!walkMode) return; cancelAnimationFrame(walkMode.raf); if(walkMode.rewind) endRewind(walkMode,itemById(walkMode.id)); if(walkMode.take) commitTake(); walkMode=null; document.body.classList.remove('walking'); touch(); renderInspector(); draw(); guideSoon(); }
+function keepWalkLine(M){ const it=itemById(M.id); if(!it||!cur||!M.take) return; const raw=M.take.line.concat([[it.x,it.y]]);   // the route stays on the plot as its own line, separate from the marks
+  let len=0; for(let i=1;i<raw.length;i++) len+=Math.hypot(raw[i][0]-raw[i-1][0],raw[i][1]-raw[i-1][1]); if(len<.15) return;
+  const pts=smoothWalk(raw);   /* evenly spaced points keep the curve smooth (thinning them made kinks) */ let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9; pts.forEach(([x,y])=>{ x0=Math.min(x0,x); y0=Math.min(y0,y); x1=Math.max(x1,x); y1=Math.max(y1,y); });
+  const cx=(x0+x1)/2, cy=(y0+y1)/2, ln=mk('sketch',Math.round(cx*1000)/1000,Math.round(cy*1000)/1000,0,{w:Math.max(.05,x1-x0),h:Math.max(.05,y1-y0)});
+  ln.p={pts:pts.map(([x,y])=>[Math.round((x-cx)*1000)/1000,Math.round((y-cy)*1000)/1000]),color:'muted',width:.02}; ln.label=`${itemName(it)} walk`;
+  cur.items.push(ln); ensureLayers(cur); renderLayersSoon(); }
+function smoothWalk(raw){   // even spacing + a gentle relax: no hooks where a corner meets a straight, and a softer line overall
+  if(raw.length<2) return raw; const st=.08, out=[raw[0].slice()]; let carry=0;
+  for(let i=1;i<raw.length;i++){ const a=raw[i-1], b=raw[i], L=Math.hypot(b[0]-a[0],b[1]-a[1]); let d=st-carry;
+    while(d<=L){ const t=d/L; out.push([a[0]+(b[0]-a[0])*t, a[1]+(b[1]-a[1])*t]); d+=st; } carry=L-(d-st); }
+  const e=raw[raw.length-1], l=out[out.length-1]; if(Math.hypot(e[0]-l[0],e[1]-l[1])>.02) out.push(e.slice()); else out[out.length-1]=e.slice();
+  for(let r=0;r<4;r++) for(let i=1;i<out.length-1;i++){ out[i]=[(out[i-1][0]+2*out[i][0]+out[i+1][0])/4,(out[i-1][1]+2*out[i][1]+out[i+1][1])/4]; }
+  return out; }
+function walkLine(M,it){ const L=beginTake(M,it).line, l=L[L.length-1]; if(!l || Math.hypot(it.x-l[0],it.y-l[1])>.04) L.push([it.x,it.y]); }
+function walkStep(now){
+  const M=walkMode; if(!M) return; const it=itemById(M.id); if(!it){ stopWalk(); return; }
+  const dt=Math.min(.05,(now-M.last)/1000); M.last=now;
+  if(M.rewind){ const W=M.rewind, t=Math.min(1,(now-W.t0)/W.dur), e=t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2, d=((W.trot-W.frot)%360+540)%360-180;
+    it.x=W.fx+(W.tx-W.fx)*e; it.y=W.fy+(W.ty-W.fy)*e; it.rot=Math.round((W.frot+d*e)*10)/10;
+    if(t>=1) endRewind(M,it); reaimAll(); draw(); M.raf=requestAnimationFrame(walkStep); return; }
+  let ix=0, iy=0; const K=M.keys;
+  if(K.has('w')||K.has('arrowup')) iy-=1; if(K.has('s')||K.has('arrowdown')) iy+=1; if(K.has('a')||K.has('arrowleft')) ix-=1; if(K.has('d')||K.has('arrowright')) ix+=1;
+  if((ix||iy) && M.route){ const q=routeAt(M.route,M.route.s); M.vx=q.tx*M.v; M.vy=q.ty*M.v; M.route=null; M.v=0; }   // keys take over from a click
+  let run=M.shift, v, ang;
+  if(M.route){ const R=M.route, rem=R.total-R.s; let k=1; while(k<R.nodes.length-1 && R.sw[k]<R.s) k++;
+    run=R.nodes[k].run||M.shift; const vmax=run?4.2:1.4, acc=run?3.6:1.3, dec=run?3.2:1.1;
+    const vt=Math.min(vmax, Math.sqrt(2*dec*Math.max(0,rem))+.04);
+    if(M.v<vt) M.v=Math.min(vt, M.v+acc*dt*(.3+.7*Math.min(1,M.v/(vmax*.6))));   // ease in: a soft first step, then up to pace
+    else M.v=Math.max(vt, M.v-dec*1.6*dt);                                          // ease out into the mark
+    R.s=Math.min(R.total, R.s+M.v*dt); const q=routeAt(R,R.s); it.x=q.x; it.y=q.y; v=M.v; ang=Math.atan2(q.ty,q.tx);
+    { const tgt=ang/D2R, d=((tgt-(it.rot||0))%360+540)%360-180; it.rot=Math.round(((it.rot||0)+d*(1-Math.exp(-dt*9)))*10)/10; }   // turn the head along the path, smoothly
+    M.dist+=v*dt; walkLine(M,it);
+    if(R.s>=R.total-1e-4){ it.x=Math.round(it.x*1000)/1000; it.y=Math.round(it.y*1000)/1000; walkArrive(it); } }
+  else {
+    const n=Math.max(1,Math.hypot(ix,iy)), sp=run?4.2:1.4, a=1-Math.exp(-dt*10);   // walking 1.4 m/s, running 4.2 m/s, eased in and out
+    M.vx+=(ix/n*sp-M.vx)*a; M.vy+=(iy/n*sp-M.vy)*a;
+    v=Math.hypot(M.vx,M.vy); ang=Math.atan2(M.vy,M.vx);
+    if(v>.02){ beginTake(M,it); it.x+=M.vx*dt; it.y+=M.vy*dt; M.dist+=v*dt; walkLine(M,it); }
+    { const c=lastPtr?toWorld(lastPtr.x,lastPtr.y):hoverWorld; if(c && Math.hypot(c.x-it.x,c.y-it.y)>.08){ const d=((aim(it.x,it.y,c.x,c.y)-(it.rot||0))%360+540)%360-180; it.rot=Math.round(((it.rot||0)+d*(1-Math.exp(-dt*14)))*10)/10; } } }   /* head turns toward the cursor quickly but never snaps */   /* face the cursor wherever it is, even over a card or panel */
+  if(v>.02 && M.dist>(run?.55:.32)){ M.dist=0; M.side=-M.side; M.trail.push({x:it.x,y:it.y,a:ang,side:M.side,t:now}); }
+  M.trail=M.trail.filter(p=>now-p.t<1800);
+  reaimAll(); draw(); M.raf=requestAnimationFrame(walkStep); }
+function walkLineMarkup(k){ const M=walkMode; if(M&&M.rewind&&M.rewind.line.length>1){ const W=M.rewind, t=Math.min(1,(performance.now()-W.t0)/W.dur);
+    return `<path d="${smoothPath(W.line)}" fill="none" stroke="${penColor('muted',P)}" stroke-opacity="${f(Math.pow(1-t,1.6))}" stroke-width="${f(Math.max(.02,1.2*k))}" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>`; }
+  if(!M||!M.take||M.take.line.length<2) return ''; const it=itemById(M.id), pts=smoothWalk(M.take.line.concat(it?[[it.x,it.y]]:[]));
+  return `<path d="${smoothPath(pts)}" fill="none" stroke="${penColor('muted',P)}" stroke-width="${f(Math.max(.02,1.2*k))}" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>`; }   // where they've been (same look as the line it becomes): a quiet line on the floor
+function walkMarkup(k){ if(!walkMode) return ''; const now=performance.now(), R=walkMode.route; let o='';
+  if(walkMode.rewind){ const W=walkMode.rewind, t=Math.min(1,(now-W.t0)/W.dur), op=Math.pow(1-t,1.6), sc=1-.35*t;   // discarded marks shrink and fade
+    W.ghosts.forEach(m=>{ o+=`<g transform="translate(${f(m.x)} ${f(m.y)}) rotate(${f(m.rot||0)}) scale(${f(sc)})" opacity="${f(op)}">${shape(m,P,k)}</g>`; }); }
+  if(R){ const A=P.accent, q=routeAt(R,R.s); let d=`M${f(q.x)} ${f(q.y)}`; for(let i=0;i<R.pts.length;i++) if(R.cum[i]>R.s) d+=`L${f(R.pts[i][0])} ${f(R.pts[i][1])}`;   // where they're headed: the rest of the route, dashed
+    o+=`<path d="${d}" stroke="${A}" stroke-opacity=".55" stroke-width="${f(1.4*k)}" stroke-dasharray="${f(6*k)} ${f(4*k)}" stroke-linejoin="round" fill="none"/>`;
+    R.nodes.forEach((n,i)=>{ if(i>0 && i<R.nodes.length-1 && R.sw[i]>R.s) o+=`<circle cx="${f(n.x)}" cy="${f(n.y)}" r="${f(3*k)}" fill="${A}" fill-opacity=".7"/>`; });
+    const b=R.nodes[R.nodes.length-1], r=.1; o+=`<path d="M${f(b.x-r)} ${f(b.y-r)}L${f(b.x+r)} ${f(b.y+r)}M${f(b.x+r)} ${f(b.y-r)}L${f(b.x-r)} ${f(b.y+r)}" stroke="${A}" stroke-width="${f(2.2*k)}" stroke-linecap="round" opacity=".8"/>`; }
+  walkMode.trail.forEach(p=>{ const age=(now-p.t)/1800, op=.35*(1-age), nx=-Math.sin(p.a), ny=Math.cos(p.a), x=p.x+nx*.07*p.side, y=p.y+ny*.07*p.side;
+    o+=`<ellipse cx="${f(x)}" cy="${f(y)}" rx=".055" ry=".028" transform="rotate(${f(p.a/D2R)} ${f(x)} ${f(y)})" fill="${P.muted}" fill-opacity="${f(op)}"/>`; });
+  return `<g pointer-events="none">${o}</g>`; }
+document.addEventListener('keydown',e=>{
+  const tag=(e.target.tagName||'').toLowerCase();
+  if(tag==='input'||tag==='textarea'||tag==='select'||e.target.isContentEditable){
+    if(!(walkMode && (e.key==='Escape'||comboOf(e)===keyOf('walk')))) return;
+    e.target.blur(); }   // a stray focused field must never trap you in walk mode
+  const stop=()=>{ e.preventDefault(); e.stopImmediatePropagation(); };
+  if(!walkMode){ if(comboOf(e)===keyOf('walk') && keyOf('walk')){ stop(); startWalk(); } return; }
+  const k=(e.key||'').toLowerCase();
+  if(comboOf(e)===keyOf('walk')){ stop(); stopWalk(); return; }
+  if(k==='escape'){ stop(); if(!discardTake()) stopWalk(); return; }   // Esc throws away the current path; with none, it leaves walk mode
+  if(k==='enter' && !e.metaKey && !e.ctrlKey){ stop(); commitTake(); return; }
+  if(k==='shift'){ walkMode.shift=true; return; }
+  if(WALK_KEYS.has(k) && !e.metaKey && !e.ctrlKey){ stop(); walkMode.shift=e.shiftKey; walkMode.keys.add(k); return; }
+  if(!e.metaKey && !e.ctrlKey) stop();   // other plain keys do nothing while walking
+},true);
+addEventListener('pointerdown',e=>{ if(!walkMode || e.button!==0 || spaceDown) return; const u=e.target; if(!(u===svg||svg.contains(u)||cardsEl.contains(u))) return;   /* cards float over the floor, so clicking one walks there too */ e.preventDefault(); e.stopImmediatePropagation(); walkTo(toWorld(e.clientX,e.clientY), e.shiftKey); },true);   // walk mode: click a spot and they walk there (Shift-click runs)
+document.addEventListener('keyup',e=>{ if(!walkMode) return; const k=(e.key||'').toLowerCase(); if(k==='shift') walkMode.shift=false; walkMode.keys.delete(k); if(k.length===1) walkMode.keys.delete(k.toLowerCase()); },true);
+addEventListener('blur',()=>{ if(walkMode){ walkMode.keys.clear(); walkMode.shift=false; } });
 function lockBadge(it,cx,cy,k,col,sc,op,icon){ sc=sc==null?1:sc; op=op==null?1:op; icon=icon||'lock';
   if(isCard(it)){ cardBadges.push({cx,cy,col,sc,op,icon}); return ''; }
   const R=9*k*sc, s=12*k*sc;
@@ -2474,7 +2654,7 @@ function toggleLayers(on){ layersOpen = on==null ? !layersOpen : on; try{ localS
       el.style.pointerEvents='none'; lpCloseT=setTimeout(()=>{ el.hidden=true; el.style.pointerEvents=''; lpAnims.forEach(a=>{ try{ a.cancel(); }catch(e){} }); lpAnims=[]; },240); }
     renderRail(); if(layersOpen){ closeFloating(); renderLayers(); } return; }
   document.body.classList.toggle('layers-on',layersOpen); renderRail(); if(layersOpen){ closeFloating(); renderLayers(); } }
-function itemName(it){ const t=TYPES[it.type]; if(t.card) return (it.type==='note'&&it.p&&it.p.text? it.p.text.split('\n')[0].slice(0,28) : t.name)||t.name; return it.label || (it.type==='text'&&it.p&&it.p.text) || t.name; }
+function itemName(it){ const t=TYPES[it.type]; if(it.type==='gdoc') return (it.p&&it.p.title)||t.name; if(t.card) return (it.type==='note'&&it.p&&it.p.text? it.p.text.split('\n')[0].slice(0,28) : t.name)||t.name; return it.label || (it.type==='text'&&it.p&&it.p.text) || t.name; }
 function renderLayers(){
   const el=$('#layersPanel'); if(!el||!layersOpen) return;
   if(document.activeElement && document.activeElement.classList.contains('lr-edit') && el.contains(document.activeElement)) return;   // don't wipe a name being typed
@@ -3135,6 +3315,7 @@ function addItem(type,x,y){
   if((type==='window'||type==='door') && dropped){ const h=hostOnWall(it,x,y,it.rot,null); if(h){ it.x=h.x; it.y=h.y; it.rot=h.rot; } }
   if(type==='outlet' && dropped){ const h=outletOnWall(it,x,y,it.rot,null); if(h){ it.x=h.x; it.y=h.y; it.rot=h.rot; } }
   cur.items.push(it); sel=new Set([it.id]); touch(); renderInspector(); draw();
+  if(type==='wall') setTimeout(()=>{ if(!(placing && placing.ids.includes(it.id))) askWallLen(it.id); },0);   /* a dropped wall asks for its length */
   if(type==='sun') setTimeout(()=>{ if(!(placing && placing.ids.includes(it.id))) askSunTime(it.id); },0);
   return it;
 }
@@ -3423,6 +3604,17 @@ function stepPlace(now){ const P=placing; if(!P) return; P.animRaf=0; if(!P.anim
   if(u>=1){ P.anim=null; applyPlace(1); return; }
   applyPlace(k); P.animRaf=requestAnimationFrame(stepPlace); }
 /* time-of-day popup for a new sun: pick a time, or click away to leave it empty */
+/* length popup for a wall dropped from the menu: type a length, Enter sets it, Esc keeps the default */
+let lenPopId=null;
+function askWallLen(id){ const it=itemById(id), el=$('#lenPop'); if(!it||readOnly||!el) return; lenPopId=id; const inp=$('#lenPopIn'); inp.value=(Math.round(it.w*100)/100).toString();
+  el.hidden=false; const sx=(it.x-view.x)*view.s+W/2, sy=(it.y-view.y)*view.s+H/2, r=Math.max(it.w,it.h)/2*view.s, h=el.offsetHeight, w=el.offsetWidth; let top=sy+Math.min(r,40)+16; if(top+h>innerHeight-12) top=sy-40-h;
+  el.style.left=Math.round(clamp(sx,w/2+12,innerWidth-w/2-12))+'px'; el.style.top=Math.round(clamp(top,12,innerHeight-h-12))+'px';
+  setTimeout(()=>{ try{ inp.focus(); inp.select(); }catch(e){} },0); }
+function closeWallLen(save){ const el=$('#lenPop'); if(!el||el.hidden) return; el.hidden=true; const it=lenPopId&&itemById(lenPopId), v=parseFloat(String($('#lenPopIn').value).replace(',','.')); lenPopId=null;
+  if(save && it && v>0 && Math.abs(v-it.w)>.0005){ it.w=Math.round(Math.min(100,Math.max(.1,v))*1000)/1000; touch(); renderInspector(); draw(); } }
+$('#lenPopOk').onclick=()=>closeWallLen(true);
+$('#lenPopIn').addEventListener('keydown',e=>{ e.stopPropagation(); if(e.key==='Enter'){ e.preventDefault(); closeWallLen(true); } else if(e.key==='Escape'){ e.preventDefault(); closeWallLen(false); } });
+document.addEventListener('pointerdown',e=>{ if(lenPopId && !e.target.closest('#lenPop')) closeWallLen(false); },true);
 let timePopId=null;
 function askSunTime(id){ const it=itemById(id), el=$('#timePop'); if(!it||readOnly||!el) return;
   timePopId=id; const inp=$('#timePopIn'); inp.value=(it.p&&it.p.time)||'';
@@ -3471,7 +3663,7 @@ function pasteClip(){
 var KEY_ACTIONS=[
   ['Edit','undo','Undo','mod+z'], ['Edit','redo','Redo','mod+shift+z'], ['Edit','copy','Copy','mod+c'], ['Edit','cut','Cut','mod+x'],
   ['Edit','paste','Paste','mod+v'], ['Edit','dup','Duplicate','mod+d'], ['Edit','group','Group','mod+g'], ['Edit','ungroup','Ungroup','mod+shift+g'], ['Edit','lock','Lock / unlock layer','mod+l'], ['Edit','del','Delete selected','backspace'], ['Edit','rename','Rename selected object','enter'],
-  ['Objects','aim','Aim · rotate a group (several selected)','r'], ['Objects','rotl','Turn −15°','['], ['Objects','rotr','Turn +15°',']'],
+  ['Objects','aim','Aim · rotate a group (several selected)','r'], ['Objects','walk','Walk mode (talent): WASD, Shift to run','mod+enter'], ['Objects','rotl','Turn −15°','['], ['Objects','rotr','Turn +15°',']'],
   ['Tools','pen','Pen','p'], ['Tools','layers','Layers panel','l'],
   ['Left toolbar','c_board','Nested setup','0'], ['Left toolbar','g_shoots','Shoots',''], ['Left toolbar','g_lights','Lights','1'], ['Left toolbar','g_grip','Grip','2'], ['Left toolbar','g_camera','Camera','3'],
   ['Left toolbar','g_subjects','Subjects','4'], ['Left toolbar','g_set','Set','5'], ['Left toolbar','g_layers','Layers','6'],
@@ -3616,7 +3808,8 @@ function guideSoon(){ if(!guideRaf) guideRaf=requestAnimationFrame(()=>{ guideRa
 ['pointerup','pointercancel'].forEach(t=>addEventListener(t,()=>{ guideSoon(); setTimeout(guideSoon,40); },true));
 const snapKey=()=>keyLabel(keyOf('snap'));
 function guideNow(){
-  if(placing && placing.fresh) return {t:'Add '+(placing.name||'object').toLowerCase(), s:'Click to place it · Esc to cancel'};
+  if(walkMode) return {done:true, t:'Walk mode', s:`WASD, or click spots to walk a path · Shift to run · Enter places the path · Esc discards it · Esc again or ${keyLabel(keyOf('walk'))} to stop`};
+  if(placing && placing.fresh){ const lt=lenTarget()===placing; return {t:'Add '+(placing.name||'object').toLowerCase(), s: lt ? (placing.typed ? `Length ${placing.typed} m · Enter or click to place · Backspace to fix · Esc to cancel` : 'Click to place it · or type a length + Enter · Esc to cancel') : 'Click to place it · Esc to cancel'}; }
   if(placing) return {t:'Place copy', s:placing.shifted?'Move around the original to pick a side · let go of Shift to place freely · Click to drop · Esc to cancel':'Click to drop it · hold Shift to line it up beside the original · Esc to cancel'};
   if(drag && drag.mode){ const m=drag.mode, it=drag.it, lag=250;
     if(m==='move' && drag.moved){ const n=drag.orig.size, one=n===1?itemById([...drag.orig.keys()][0]):null, ty=one&&one.type, parts=[];
@@ -3665,7 +3858,7 @@ function updGuide(){
   if(!g){ if(guideKey){ guideKey=''; clearTimeout(guideTimer); el.hidden=true; $('#extDone').hidden=false; $('#extHint span').textContent=EXT_HINT; } return; }
   if(key===guideKey) return;
   const shown=!!guideKey && guideKey!=='mode' && !el.hidden; guideKey=key;
-  $('#extHint b').textContent=g.t; $('#extHint span').textContent=g.s; $('#extDone').hidden=true;
+  $('#extHint b').textContent=g.t; $('#extHint span').textContent=g.s; $('#extDone').hidden=!g.done;
   clearTimeout(guideTimer);
   if(g.lag && !shown){ el.hidden=true; guideTimer=setTimeout(()=>{ if(guideKey===key) el.hidden=false; },g.lag); }
   else el.hidden=false;
@@ -4071,7 +4264,7 @@ function fmtWhen(t){ try{ return new Date(t).toLocaleString('en-GB',{day:'numeri
 
 const cardsEl = $('#cards');
 let cdrag = null;
-const cardSig = it=>it.type==='board'?JSON.stringify([it.p.target, it.w, (all[it.p.target]||{}).updatedAt, (all[it.p.target]||{}).title]):it.type==='column'?JSON.stringify([it.p.title, it.w]):JSON.stringify([it.p, it.w]);
+const cardSig = it=>it.type==='gdoc'?JSON.stringify([it.p, it.w, gdSig(it.p.fileId), mcpState, readOnly]):it.type==='board'?JSON.stringify([it.p.target, it.w, (all[it.p.target]||{}).updatedAt, (all[it.p.target]||{}).title]):it.type==='column'?JSON.stringify([it.p.title, it.w]):JSON.stringify([it.p, it.w]);
 function cardInner(it){ return cardBody(it)+(readOnly?'':`<div class="c-acts"><button data-act="dupcard" title="${it.type==='board'?'Duplicate this setup and everything nested in it':'Duplicate'}" aria-label="Duplicate">${ic('copy','style="width:15px;height:15px"')}</button><button data-act="delcard" class="del" title="${it.type==='board'?'Delete this setup (Undo brings it back)':'Delete'}" aria-label="Delete">${ic('trash','style="width:15px;height:15px"')}</button></div>`); }
 function cardBody(it){
   const p=it.p, ro=readOnly?'readonly':'', dis=readOnly?'disabled':'';
@@ -4092,6 +4285,7 @@ function cardBody(it){
       bdDepth++; let th; try{ th=bdDepth>1?`<svg viewBox="0 0 16 10"></svg>`:thumbSVG(its,'bd'+it.id.slice(0,6),d&&d.layers); } finally{ bdDepth--; }
       return `<div class="bd-th">${th}</div><div class="bd-tx"><span class="bd-ic">${ic('nest')}</span><div style="min-width:0;flex:1"><input class="bd-title" data-f="btitle" value="${esc(d?d.title||'Setup':'New setup')}" ${ro} aria-label="Setup name"><small>${c.l} light${c.l===1?'':'s'} · ${c.c} cam${c.c===1?'':'s'}${nc?` · ${nc} card${nc===1?'':'s'}`:''}</small></div></div>`+
         (d?`<button class="bd-open" data-act="openboard" title="Open (or double-click)">Open ${ic('chev','style="width:13px;height:13px"')}</button>`:''); }
+    case 'gdoc': return gdocBody(it);
     case 'column': { const n=(p.items||[]).length;
       return `<div class="col-head"><input class="col-title" data-f="title" value="${esc(p.title)}" placeholder="Column" ${ro} aria-label="Column title"><div class="col-count">${n} card${n===1?'':'s'}</div></div><div class="col-body"></div>`+
         (readOnly?'':['left','right'].map(sd=>`<button class="col-plus ${sd}" data-act="newcolumn" data-side="${sd}" title="Add a column" aria-label="Add a column to the ${sd}">${ic('plus')}</button>`).join('')); }
@@ -4107,9 +4301,11 @@ function buildCard(it){
   fillCard(el,it); cardRO.observe(el); return el;
 }
 function fillCard(el,it){
+  const sc0=el.querySelector('.gd-body'), st0=sc0?sc0.scrollTop:0;
   el.innerHTML=cardInner(it)+(readOnly?'':`<span class="rz" aria-hidden="true"></span>`);
   el.dataset.sig=cardSig(it);
   el.querySelectorAll('textarea').forEach(autoGrow);
+  if(it.type==='gdoc') gdAfterFill(el,it,st0);
 }
 function autoGrow(t){ t.style.height='auto'; t.style.height=(t.scrollHeight+2)+'px'; }
 function renderCards(){
@@ -4120,13 +4316,107 @@ function renderCards(){
     let el=cardsEl.querySelector(`[data-cid="${it.id}"]`);
     if(!el){ el=buildCard(it); cardsEl.appendChild(el); }
     else if(el.dataset.sig!==cardSig(it) && !el.contains(document.activeElement)) fillCard(el,it);
-    el.style.left=(it.x*PXM0)+'px'; el.style.top=(it.y*PXM0)+'px'; el.style.width=it.w+'px'; el.style.zIndex=i+1; el.style.minHeight=it.nh?it.nh+'px':'';
+    el.style.left=(it.x*PXM0)+'px'; el.style.top=(it.y*PXM0)+'px'; el.style.width=it.w+'px'; el.style.zIndex=i+1; el.style.minHeight=it.nh?it.nh+'px':''; if(it.type==='gdoc') el.style.height=(it.nh||420)+'px';
     el.classList.toggle('sel', sel.has(it.id)); el.classList.toggle('solo', sel.has(it.id) && sel.size===1); el.classList.toggle('key', sel.size>1 && [...sel][0]===it.id); el.classList.toggle('locked', LFk.lock(it)); el.style.opacity=LFk.op(it)<.999?LFk.op(it):'';
     keep.add(it.id);
   });
   [...cardsEl.children].forEach(el=>{ if(!keep.has(el.dataset.cid)){ cardRO.unobserve(el); el.remove(); } });
+  gdSyncWatches(items);
   layoutColumns();
 }
+/* ================= Google Doc cards =================
+   A card shows a Google Doc from the viewer's Google Drive connection and keeps it current (re-read about every 30 s while
+   the page is open). Only the doc's id, title and link are saved with the plot; its text stays in memory, never in the plot. */
+const GD_SERVER='Google Drive', GD_MIME="application/vnd.google-apps.document";
+var mcpApi=null, mcpState='loading', GD={}, gdWatch={}, gdSearchT=null;
+(async()=>{ try{ if(window.claude && typeof window.claude.use==='function') mcpApi=await window.claude.use('mcp'); }catch(e){ mcpApi=null; }
+  mcpState=mcpApi?'ready':'none'; if(typeof renderCards==='function' && cur) renderCards(); })();
+function gdHash(s){ let h=0; s=s||''; for(let i=0;i<s.length;i+=7) h=(h*31+s.charCodeAt(i))|0; return h+':'+s.length; }
+function gdSig(id){ const g=id&&GD[id]; return g?[gdHash(g.md),g.title,g.err,g.md==null?1:0].join('|'):''; }
+function gdIdFromUrl(v){ const m=String(v||'').match(/\/document\/d\/([A-Za-z0-9_-]{20,})/); return m?m[1]:null; }
+const GD_DENY=new Set(['needs_reauth','server_not_connected','selection_required','blocked_by_policy','approval_required','not_in_manifest','not_granted','capability_disabled','capability_removed','server_not_found','consent_required']);
+function gdErrText(code){ return ({
+  needs_reauth:'Google Drive needs reconnecting. Reconnect it in claude.ai Settings → Connectors.',
+  server_not_connected:'Connect Google Drive in claude.ai Settings → Connectors to show this doc here.',
+  selection_required:'Choose which Google Drive connection to use in the prompt claude.ai shows.',
+  blocked_by_policy:'Your organisation doesn’t allow Google Drive here.',
+  approval_required:'Set Plot needs your OK to read this doc from Google Drive.',
+  not_in_manifest:'Google Drive is turned off for this page. Turn it on in the page’s Permissions menu.',
+  consent_required:'Set Plot needs your OK to read this doc from Google Drive.',
+  server_unavailable:'Google Drive isn’t answering right now. Trying again shortly.',
+  tool_error:'Google Drive couldn’t open this doc. It may have been deleted or not shared with you.'
+})[code] || 'Couldn’t load this doc right now.'; }
+function gdPayload(r){ let v=r&&r.payload; if(typeof v==='string'){ try{ v=JSON.parse(v); }catch(e){ v={fileContent:v}; } } return v||{}; }
+function gdStore(id,res){ const v=gdPayload(res), g=GD[id]||(GD[id]={});
+  g.md=typeof v.fileContent==='string'?v.fileContent:''; if(v.title) g.title=v.title; if(v.viewUrl) g.url=v.viewUrl;
+  g.at=res&&res.cache&&res.cache.storedAt||Date.now(); g.err=null; }
+function gdApply(id){   // push fresh content into every card showing this doc
+  cardsEl.querySelectorAll('.bc-gdoc').forEach(el=>{ const it=itemById(el.dataset.cid); if(!it||it.p.fileId!==id) return;
+    const g=GD[id]; if(g&&g.title&&g.title!==it.p.title && !readOnly){ it.p.title=g.title; renderLayersSoon(); }   // keep the saved title in step with the doc
+    if(el.dataset.sig!==cardSig(it)) fillCard(el,it); else gdAfterFill(el,it,null); }); }
+function gdOnEvent(id,ev){ const g=GD[id]||(GD[id]={});
+  if(ev.type==='data'){ gdStore(id,ev.result); }
+  else { const c=ev.error&&ev.error.code; g.err=c||'upstream_error'; if(GD_DENY.has(g.err)) g.md=null; }   // denials retract what was shown; hiccups keep the last good copy
+  gdApply(id); }
+function gdSyncWatches(items){ if(!mcpApi) return; const want=new Set(items.filter(i=>i.type==='gdoc'&&i.p&&i.p.fileId).map(i=>i.p.fileId));
+  want.forEach(id=>{ if(gdWatch[id]) return; try{ gdWatch[id]=mcpApi.watchTool(GD_SERVER,'read_file_content',{fileId:id},ev=>gdOnEvent(id,ev),{cache:{staleTime:20000,gcTime:86400000},refetchInterval:30000}); }catch(e){} });
+  Object.keys(gdWatch).forEach(id=>{ if(!want.has(id)){ try{ gdWatch[id](); }catch(e){} delete gdWatch[id]; } }); }
+async function gdRefresh(id,user){ if(!id||!mcpApi) return; const g=GD[id]||(GD[id]={}); g.busy=true; gdApply(id);
+  try{ const r=await mcpApi.callTool(GD_SERVER,'read_file_content',{fileId:id},{cache:{refresh:true,gcTime:86400000}}); gdStore(id,r); }
+  catch(e){ g.err=e&&e.code||'upstream_error'; if(GD_DENY.has(g.err)) g.md=null; }
+  g.busy=false; gdApply(id); }
+function gdLink(it,id,title,url){ if(!id) return; checkpoint(); it.p.fileId=id; it.p.title=title||it.p.title||''; it.p.url=url||'https://docs.google.com/document/d/'+id+'/edit';
+  touch(); renderLayersSoon(); refill(it); renderCards(); if(!gdWatch[id]) gdRefresh(id); }
+function gdSearchSoon(el,q){ clearTimeout(gdSearchT); gdSearchT=setTimeout(()=>gdSearch(el,q),q?280:0); }
+async function gdSearch(el,q){ const list=el&&el.querySelector('.gd-list'); if(!list) return;
+  if(!mcpApi){ list.innerHTML=`<div class="gd-msg">${mcpState==='loading'?'Connecting to Google Drive…':'Google Drive isn’t available in this view. Paste a Google Docs link to place it anyway.'}</div>`; return; }
+  const id=gdIdFromUrl(q); if(id){ list.innerHTML=`<button class="gd-row" data-act="gpick" data-id="${esc(id)}"><span class="gd-ric">${ic('gdoc')}</span><span class="gd-rt"><b>Use this link</b><small>Press Enter or click</small></span></button>`; return; }
+  const term=String(q||'').trim().replace(/\\/g,'\\\\').replace(/'/g,"\\'"), query=(term?`title contains '${term}' and `:'')+`mimeType = '${GD_MIME}'`;
+  list.dataset.q=q||''; list.innerHTML=`<div class="gd-msg">Searching your Drive…</div>`;
+  try{ const r=await mcpApi.callTool(GD_SERVER,'search_files',{query,pageSize:12,excludeContentSnippets:true},{cache:{staleTime:15000}});
+    if(list.dataset.q!==(q||'')) return;   // a newer search took over
+    const files=(gdPayload(r).files||[]).filter(f=>f&&f.id);
+    list.innerHTML=files.length?files.map(f=>`<button class="gd-row" data-act="gpick" data-id="${esc(f.id)}" data-title="${esc(f.title||'')}" data-url="${esc(f.viewUrl||'')}"><span class="gd-ric">${ic('gdoc')}</span><span class="gd-rt"><b>${esc(f.title||'Untitled')}</b><small>${f.modifiedTime?'Edited '+esc(fmtWhen(Date.parse(f.modifiedTime))):''}</small></span></button>`).join('')
+      :`<div class="gd-msg">${term?'No docs match that name.':'No Google Docs found in your Drive.'}</div>`; }
+  catch(e){ if(list.dataset.q!==(q||'')) return; list.innerHTML=`<div class="gd-msg">${esc(gdErrText(e&&e.code))}</div>`; } }
+function gdAfterFill(el,it,st){ const sc=el.querySelector('.gd-body'); if(sc && st!=null) sc.scrollTop=st;
+  const w=el.querySelector('.gd-when'), g=it.p.fileId&&GD[it.p.fileId]; if(w) w.textContent=g&&g.busy?'Refreshing…':g&&g.at?'Live · checked '+new Date(g.at).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}):mcpApi?'Loading…':'';
+  const lst=el.querySelector('.gd-list'); if(lst && !lst.dataset.done){ lst.dataset.done='1'; const q=el.querySelector('.gd-q'); gdSearch(el,q?q.value:''); } }
+function gdocBody(it){ const p=it.p, g=p.fileId&&GD[p.fileId];
+  if(!p.fileId){
+    if(readOnly) return `<div class="gd-head"><span class="gd-ic">${ic('gdoc')}</span><div class="gd-tt"><b>Google Doc</b><small>No doc chosen yet</small></div></div>`;
+    return `<div class="gd-head"><span class="gd-ic">${ic('gdoc')}</span><div class="gd-tt"><b>Place a Google Doc</b><small>Pick one from your Drive, or paste a link</small></div></div>`+
+      `<div class="gd-pick"><input class="gd-q" data-f="gq" placeholder="Search your Docs or paste a link" spellcheck="false" aria-label="Search Google Docs"><div class="gd-list" role="list"></div></div>`; }
+  const title=(g&&g.title)||p.title||'Google Doc', url=(g&&g.url)||p.url||('https://docs.google.com/document/d/'+p.fileId+'/edit');
+  let body;
+  if(mcpState==='loading') body=`<div class="gd-msg">Connecting to Google Drive…</div>`;
+  else if(!mcpApi) body=`<div class="gd-msg">This view can’t read Google Drive, so the doc’s text isn’t shown here. Open it in Google Docs instead.</div>`;
+  else if(g && g.md!=null) body=(g.err?`<div class="gd-warn">${esc(gdErrText(g.err))}</div>`:'')+`<div class="gd-doc">${mdToHtml(g.md)||'<p class="gd-empty">This doc is empty.</p>'}</div>`;
+  else if(g && g.err) body=`<div class="gd-msg">${esc(gdErrText(g.err))}</div>`+((g.err==='approval_required'||g.err==='consent_required')?`<button class="btn sm primary gd-allow" data-act="gallow">Allow and load</button>`:'');
+  else body=`<div class="gd-msg">Loading the doc…</div>`;
+  return `<div class="gd-head"><span class="gd-ic">${ic('gdoc')}</span><div class="gd-tt"><b title="${esc(title)}">${esc(title)}</b><small class="gd-when"></small></div>`+
+    (mcpApi?`<button class="gd-btn" data-act="grefresh" title="Refresh now" aria-label="Refresh now">${ic('refresh')}</button>`:'')+
+    `<a class="gd-btn" href="${esc(url)}" target="_blank" rel="noopener noreferrer" title="Open in Google Docs to edit" aria-label="Open in Google Docs">${ic('ext')}</a>`+
+    (readOnly?'':`<button class="gd-btn" data-act="gchange" title="Show a different doc" aria-label="Show a different doc">${ic('swap')}</button>`)+`</div><div class="gd-body">${body}</div>`; }
+/* a small, safe Markdown renderer for what Google Drive returns: headings, paragraphs, lists, tables, bold, links */
+function mdInline(t){ t=t.replace(/\\([\\`*_{}\[\]()#+\-.!|<>~])/g,'$1'); let h=esc(t);
+  h=h.replace(/\*\*([^*]+?)\*\*/g,'<b>$1</b>').replace(/(^|[\s(])\*([^*\s][^*]*?)\*(?=[\s).,!?:;]|$)/g,'$1<i>$2</i>');
+  h=h.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,'<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>').replace(/&lt;(https?:\/\/[^\s&]+)&gt;/g,'<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
+  return h.replace(/\n/g,'<br>'); }
+function mdToHtml(md){ if(!md) return ''; const L=String(md).replace(/\r/g,'').replace(/&#10;/g,'\u2028').split('\n'); let o='', para=[], list=null;
+  const flushP=()=>{ const t=para.join(' ').trim(); if(t) o+=`<p>${mdInline(t.replace(/\u2028/g,'\n'))}</p>`; para=[]; };
+  const flushL=()=>{ if(list){ o+=`<${list.t}>${list.items.map(x=>`<li>${mdInline(x)}</li>`).join('')}</${list.t}>`; list=null; } };
+  for(let i=0;i<L.length;i++){ const ln=L[i], tr=ln.trim();
+    if(tr.startsWith('|')){ flushP(); flushL(); const rows=[]; while(i<L.length && L[i].trim().startsWith('|')){ rows.push(L[i].trim()); i++; } i--;
+      const cells=rows.filter(r=>!/^\|(\s*:?-+:?\s*\|)+\s*$/.test(r)).map(r=>r.replace(/^\||\|$/g,'').split(/(?<!\\)\|/).map(c=>c.trim()));
+      const body=cells.filter((r,ix)=>!(ix===0 && r.every(c=>!c)));
+      if(body.length) o+=`<div class="gd-tw"><table>${body.map(r=>`<tr>${r.map(c=>`<td>${mdInline(c.replace(/\u2028/g,'\n'))}</td>`).join('')}</tr>`).join('')}</table></div>`; continue; }
+    const hm=tr.match(/^(#{1,6})\s+(.*)$/); if(hm){ flushP(); flushL(); if(hm[2].trim()) o+=`<h${Math.min(6,hm[1].length+2)}>${mdInline(hm[2])}</h${Math.min(6,hm[1].length+2)}>`; continue; }
+    const um=ln.match(/^\s*[-*+]\s+(.*)$/), om=ln.match(/^\s*\d+[.)]\s+(.*)$/);
+    if(um||om){ flushP(); const t=om?'ol':'ul'; if(!list||list.t!==t){ flushL(); list={t,items:[]}; } list.items.push((um||om)[1]); continue; }
+    if(!tr){ flushP(); flushL(); continue; }
+    flushL(); para.push(tr); }
+  flushP(); flushL(); return o; }
 /* nested setups (like Milanote boards): a card on the board opens another setup; that setup knows its parent */
 var bdDepth=0, saveDocT={};
 function saveDoc(id){ const d=all[id]; if(!d) return; clearTimeout(saveDocT[id]);
@@ -4349,7 +4639,8 @@ const CARD_DEFAULT = {
   grid:()=>({w:380,p:{cells:[['Item','Qty','Notes'],['','',''],['','','']]}}),
   color:()=>({w:180,p:{hex:'#10A0A0',name:''}}),
   column:()=>({w:300,p:{title:'New Column',items:[]}}),
-  board:()=>({w:240,p:{target:null}})
+  board:()=>({w:240,p:{target:null}}),
+  gdoc:()=>({w:380,nh:420,p:{fileId:null,title:'',url:''}})
 };
 function addCard(type,x,y){
   if(readOnly) return;
@@ -4357,11 +4648,11 @@ function addCard(type,x,y){
   checkpoint();
   const d=CARD_DEFAULT[type]();
   if(x==null){ x=view.x-(d.w/2)/PXM0; y=view.y-1; }
-  const it={id:uid(),type,x:Math.round(x*10)/10,y:Math.round(y*10)/10,rot:0,w:d.w,h:0,label:'',p:d.p};
+  const it={id:uid(),type,x:Math.round(x*10)/10,y:Math.round(y*10)/10,rot:0,w:d.w,h:0,label:'',p:d.p}; if(d.nh) it.nh=d.nh;
   if(type==='board') it.p.target=createChildSetup();
   cur.items.push(it); sel.clear(); renderInspector(); touch(); draw();
   setCardSel(it.id);
-  renderCards(); { const el=cardsEl.querySelector(`[data-cid="${it.id}"]`); const f0=el&&el.querySelector('textarea,.c-item,input[data-f="cell"],.bd-title'); if(f0&&type!=='color'){ f0.focus({preventScroll:true}); if((type==='grid'||type==='board')&&f0.select) f0.select(); } }
+  renderCards(); { const el=cardsEl.querySelector(`[data-cid="${it.id}"]`); const f0=el&&el.querySelector('textarea,.c-item,input[data-f="cell"],.bd-title,.gd-q'); if(f0&&type!=='color'){ f0.focus({preventScroll:true}); if((type==='grid'||type==='board')&&f0.select) f0.select(); } }
   return it;
 }
 /* brainstorm: + on a note's side adds a connected note there */
@@ -4471,7 +4762,7 @@ cardsEl.addEventListener('pointerdown',e=>{
   if(!wasSolo && !inGroup){ sel=new Set([it.id]); renderInspector(); syncCardSel(); draw(); }
   if(readOnly) return;
   const rz=e.target.closest('.rz');
-  if(!rz && e.target.closest('button,input[type=checkbox],.c-chk')) return;
+  if(!rz && e.target.closest('button,a[href],input[type=checkbox],.c-chk')) return;
   const field=e.target.closest('textarea,input');
   if(field && document.activeElement===field) return;
   e.preventDefault();
@@ -4519,15 +4810,16 @@ addEventListener('pointerup',e=>{
   if(d.field){ d.field.focus(); if(d.field.setSelectionRange && d.field.type!=='color'){ const n=d.field.value.length; try{ d.field.setSelectionRange(n,n); }catch(err){} } }
 });
 addEventListener('pointercancel',()=>{ if(cdrag&&cdrag.moved) touch(); cdrag=null; if(colDrop){ colDrop=null; draw(); } if(setupDrop){ setupDrop=null; markSetupDrop(); } });
-cardsEl.addEventListener('wheel',e=>wheelZoom(e),{passive:false});
+cardsEl.addEventListener('wheel',e=>{ const sb=!e.ctrlKey&&!e.metaKey&&e.target.closest&&e.target.closest('.gd-body,.gd-list'); if(sb && sb.scrollHeight>sb.clientHeight+1) return; wheelZoom(e); },{passive:false});   // a doc scrolls under the wheel; pinch still zooms
 
 /* editing */
 let cardCp=null;
-cardsEl.addEventListener('focusin',e=>{ const it=cardItem(e.target); if(it && !readOnly && cardCp!==e.target){ cardCp=e.target; checkpoint(); if(!sel.has(it.id)) setCardSel(it.id); } });
+cardsEl.addEventListener('focusin',e=>{ const it=cardItem(e.target); if(it && !readOnly && cardCp!==e.target && e.target.dataset.f!=='gq'){   /* the doc search box edits nothing, so it needs no undo step */ cardCp=e.target; checkpoint(); if(!sel.has(it.id)) setCardSel(it.id); } });
 cardsEl.addEventListener('focusout',e=>{ if(cardCp===e.target) cardCp=null; const it=cardItem(e.target); if(it && e.target.dataset.f==='hex'){ const v=hexOk(e.target.value); if(!v){ e.target.value=hexOk(it.p.hex)||'#10A0A0'; } } });
 cardsEl.addEventListener('input',e=>{
   const t=e.target, it=cardItem(t); if(!it||readOnly) return;
   const el=t.closest('.bc'), f=t.dataset.f, p=it.p;
+  if(f==='gq'){ gdSearchSoon(el,t.value); return; }
   if(f==='text'){ p.text=t.value; autoGrow(t); }
   else if(f==='title') p.title=t.value;
   else if(f==='item') p.items[+t.dataset.i].t=t.value;
@@ -4559,6 +4851,7 @@ cardsEl.addEventListener('keydown',e=>{
   const t=e.target, it=cardItem(t); if(!it||readOnly) return;
   if(t.dataset.f==='hex' && e.key==='Enter'){ e.preventDefault(); t.blur(); return; }
   if(e.key==='Escape'){ e.preventDefault(); e.stopPropagation(); t.blur(); setCardSel(it.id); return; }
+  if(t.dataset.f==='gq' && e.key==='Enter'){ e.preventDefault(); const id=gdIdFromUrl(t.value); if(id) gdLink(it,id,'',''); else { const first=t.closest('.bc').querySelector('[data-act="gpick"]'); if(first) first.click(); } return; }
   if(it.type==='todo' && t.dataset.f==='item'){
     const i=+t.dataset.i;
     if(e.key==='Enter'){ e.preventDefault(); checkpoint(); it.p.items.splice(i+1,0,{t:'',d:false}); refill(it,`[data-f="item"][data-i="${i+1}"]`); touch(); }
@@ -4583,6 +4876,10 @@ cardsEl.addEventListener('click',e=>{
   if(a==='linknote'){ if(!b.dataset.noclick) addLinkedNote(it,b.dataset.side); return; }
   if(a==='newcolumn'){ addColumnBeside(it,b.dataset.side); return; }
   if(a==='openboard'){ openBoardCard(it); return; }
+  if(a==='gpick'){ gdLink(it,b.dataset.id,b.dataset.title||'',b.dataset.url||''); return; }
+  if(a==='gchange'){ checkpoint(); it.p.fileId=null; touch(); refill(it,'.gd-q'); return; }
+  if(a==='grefresh'){ gdRefresh(it.p.fileId,true); return; }
+  if(a==='gallow'){ gdRefresh(it.p.fileId,true); return; }
   checkpoint();
   if(a==='additem'){ it.p.items.push({t:'',d:false}); refill(it,`[data-f="item"][data-i="${it.p.items.length-1}"]`); }
   else if(a==='addrow'){ c.push(c[0].map(()=>'')); refill(it); }
@@ -4595,7 +4892,7 @@ function deleteCard(id){ checkpoint(); cur.items=cur.items.filter(i=>i.id!==id);
 function dupCard(id){ const it=itemById(id); if(!it) return; if(it.type==='board'&&it.p.target&&all[it.p.target]){ duplicateSetupById(it.p.target); return; } if(it.type==='column'){ checkpoint(); const out=cloneInto([it],(it.w+24)/PXM0,0); enterPlace(out.map(o=>o.id),{dx:(it.w+24)/PXM0,dy:0}); return; } checkpoint(); const c=JSON.parse(JSON.stringify(it)); c.id=uid(); c.x+=.3; c.y+=.3; if(c.type==='comment') c.p.at=Date.now(); delete c.conns; cur.items.push(c); renderCards(); enterPlace([c.id],{dx:.3,dy:.3}); }
 
 /* right toolbar: click to drop in the middle, or drag onto the board */
-const CARD_TOOLS=[['note','Note','note'],['todo','To-do','todo'],['comment','Comment','comment'],['grid','Table','table'],['color','Colour','swatch'],['column','Column','column']];
+const CARD_TOOLS=[['note','Note','note'],['todo','To-do','todo'],['comment','Comment','comment'],['grid','Table','table'],['color','Colour','swatch'],['column','Column','column'],['gdoc','Doc','gdoc']];
 const ITEM_TOOLS=[['text','Text','notes'],['arrow','Arrow','arrow'],['measure','Distance','measure'],['sketch','Pen','pen']];
 $('#railR').innerHTML=CARD_TOOLS.map(([t,n,i])=>`<button class="tool" data-card="${t}" aria-label="Add ${n}">${ic(i)}${n}</button>`).join('')+
   `<hr><button class="tool" data-cat="Notes" aria-expanded="false" aria-label="Text, arrows, distances, angles and pen">${ic('notes')}Notes</button>`+
@@ -4723,7 +5020,7 @@ function startLocal(){ mode='local'; all=localRead(); setStatus('Saved in this b
     const next={}; snap.docs.forEach(d=>{ if(d.exists) next[d.id]=d.data(); });
     if(cur && (dirty||saving) && all[cur.id]) next[cur.id]=all[cur.id];
     all=JSON.parse(JSON.stringify(next));
-    if(cur && !dirty && !saving && !drag){
+    if(cur && !dirty && !saving && !drag && !walkMode){   /* walking moves things every frame without saving, so a sync mid-walk must not swap the plot underneath */
       const r=all[cur.id];
       if(!r){ cur=null; sel.clear(); }
       else if(r.rev && r.rev!==lastRev && (JSON.stringify(r.items)!==JSON.stringify(cur.items)||JSON.stringify(r.layers)!==JSON.stringify(cur.layers))){ const keep=new Set(sel); cur=Object.assign({id:cur.id},JSON.parse(JSON.stringify(r))); cur.items=normItems(cur.items||[]); ensureLayers(cur); renderLayersSoon(); sel=new Set([...keep].filter(id=>itemById(id))); renderHeader(); renderInspector(); draw(); }
