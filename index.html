@@ -673,6 +673,29 @@ body.placing .bc:hover{box-shadow:0 1px 2px rgba(20,24,30,.08),0 6px 18px -6px r
 .c-pick{position:absolute;left:12px;bottom:12px;width:1px;height:1px;opacity:0;pointer-events:none;border:0;padding:0}
 .bc-note{display:flex;flex-direction:column}
 .bc-image{overflow:hidden;border-radius:10px;background:var(--field)}
+.bc-trello{display:flex;flex-direction:column;overflow:hidden;border-radius:10px}
+.tr-ic{background:color-mix(in srgb,#0c66e4 14%,transparent)!important;color:#0c66e4!important}.tr-ric{color:#0c66e4!important}
+.tr-body{flex:1 1 auto;min-height:0;display:flex;flex-direction:column}
+.tr-body>.gd-msg{padding:14px 16px}.tr-body>.gd-allow{margin:0 16px}
+.tr-lists{flex:1 1 auto;min-height:0;display:flex;gap:10px;overflow-x:auto;overflow-y:hidden;padding:12px;scrollbar-width:thin;overscroll-behavior:contain}
+.tr-list{flex:0 0 232px;display:flex;flex-direction:column;min-height:0;max-height:100%;background:var(--field);border-radius:10px;padding:8px}
+.tr-list.tr-over{box-shadow:inset 0 0 0 2px var(--accent)}
+.tr-lh{display:flex;align-items:center;gap:6px;padding:2px 4px 8px;font-size:13px}.tr-lh b{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tr-lh span{color:var(--faint);font-size:12px}
+.tr-cards{flex:0 1 auto;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:6px;scrollbar-width:thin;overscroll-behavior:contain}
+.tr-card{background:var(--card);border-radius:8px;padding:7px 9px;box-shadow:0 1px 1px rgba(9,30,66,.18);font-size:13px;line-height:1.35;cursor:grab;position:relative}
+.tr-card:hover{box-shadow:0 0 0 1.5px var(--accent)}
+.tr-card.tr-src{opacity:.35}.tr-card.pend{opacity:.6}
+.tr-ghost{position:fixed;z-index:400;pointer-events:none;transform:rotate(2deg);box-shadow:0 10px 24px rgba(0,0,0,.25);font-family:var(--sans);color:var(--ink)}
+.tr-lb{display:flex;gap:4px;margin-bottom:5px;flex-wrap:wrap}.tr-lb i{width:28px;height:7px;border-radius:4px;display:block}
+.tr-cn{display:flex;gap:6px;align-items:flex-start}.tr-cn span{flex:1;min-width:0;word-break:break-word}
+.tr-chk{flex:none;width:0;height:15px;margin:1px -6px 0 0;border-radius:50%;border:0 solid var(--line2);background:transparent;padding:0;cursor:pointer;opacity:0;transition:opacity .15s,width .15s,margin .15s}
+.tr-card:hover .tr-chk,.tr-card.done .tr-chk{opacity:1;width:15px;margin-right:0;border-width:1.5px}   /* the done circle slides in on hover, like Trello */.tr-chk:hover{border-color:#1f845a}
+.tr-card.done .tr-chk{background:#1f845a;border-color:#1f845a;box-shadow:inset 0 0 0 2.5px var(--card)}
+.tr-meta{display:flex;align-items:center;gap:6px;margin-top:4px;color:var(--muted);font-size:11.5px}.tr-meta:empty{display:none}
+.tr-due{padding:1px 6px;border-radius:4px;background:color-mix(in srgb,var(--ink) 7%,transparent)}.tr-due.late{background:#ffd5d2;color:#ae2e24}.tr-due.ok{background:#baf3db;color:#216e4e}
+.tr-open{margin-left:auto;color:var(--faint);display:grid;place-items:center;opacity:0}.tr-card:hover .tr-open{opacity:1}.tr-open svg{width:13px;height:13px}
+.tr-add{border:0;background:transparent;color:var(--muted);font:inherit;font-size:13px;text-align:left;padding:7px 6px 2px;border-radius:6px;cursor:pointer}.tr-add:hover{color:var(--ink)}
+.bc .tr-in{border:1.5px solid var(--accent)!important;border-radius:7px;padding:6px 8px!important;background:var(--card)!important;font-size:13px;margin-top:6px}
 .im-wrap{position:relative;width:100%}
 .im-img{display:block;width:100%;height:100%;object-fit:cover;pointer-events:none;-webkit-user-drag:none}
 .im-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-align:center;padding:16px;color:var(--muted);border:1.5px dashed var(--line2);border-radius:10px;min-height:120px}
@@ -997,6 +1020,7 @@ const TYPES = {
   color:   {cat:'Board',card:true,name:'Colour',z:20,w:180,h:0,label:'',noFront:true,p:{hex:'#10A0A0',name:''}},
   board:   {cat:'Board',card:true,name:'Setup',z:20,w:240,h:0,label:'',noFront:true,p:{target:null}},
   column:  {cat:'Board',card:true,name:'Column',z:19,w:300,h:0,label:'',noFront:true,p:{title:'New Column',items:[]}},
+  trello:  {cat:'Board',card:true,name:'Trello board',z:20,w:760,h:0,label:'',noFront:true,p:{boardId:null,name:'',url:''}},
   image:   {cat:'Board',card:true,name:'Image',z:20,w:320,h:0,label:'',noFront:true,p:{src:'',name:'',aw:4,ah:3}},
   gdoc:    {cat:'Board',card:true,name:'Google Doc',z:20,w:380,h:0,label:'',noFront:true,p:{fileId:null,title:'',url:''}}
 };
@@ -1436,6 +1460,7 @@ const TEMPLATES = {
 
 /* ================= icons ================= */
 const IC = {
+  trello:'<rect x="3.5" y="3.5" width="17" height="17" rx="3"/><rect x="6.5" y="6.5" width="4.5" height="10" rx="1"/><rect x="13" y="6.5" width="4.5" height="6" rx="1"/>',
   image:'<rect x="3.5" y="5" width="17" height="14" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="m4 17.5 5-4.5 3.5 3 3-2.5 4.5 4"/>',
   upload:'<path d="M12 15.5V5M7.5 9.5 12 5l4.5 4.5M5 15v3.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V15"/>',
   gdoc:'<path d="M6.5 3.5h7l4 4v12.5a.5.5 0 0 1-.5.5h-10.5a.5.5 0 0 1-.5-.5V4a.5.5 0 0 1 .5-.5z"/><path d="M13.5 3.5V8h4M9 12h6M9 15h6M9 18h3.5"/>',
@@ -2734,7 +2759,7 @@ function toggleLayers(on){ layersOpen = on==null ? !layersOpen : on; try{ localS
       el.style.pointerEvents='none'; lpCloseT=setTimeout(()=>{ el.hidden=true; el.style.pointerEvents=''; lpAnims.forEach(a=>{ try{ a.cancel(); }catch(e){} }); lpAnims=[]; },240); }
     renderRail(); if(layersOpen){ closeFloating(); renderLayers(); } return; }
   document.body.classList.toggle('layers-on',layersOpen); renderRail(); if(layersOpen){ closeFloating(); renderLayers(); } }
-function itemName(it){ const t=TYPES[it.type]; if(it.type==='image') return (it.p&&it.p.name)||t.name; if(it.type==='gdoc') return (it.p&&it.p.title)||t.name; if(t.card) return (it.type==='note'&&it.p&&it.p.text? it.p.text.split('\n')[0].slice(0,28) : t.name)||t.name; return it.label || (it.type==='text'&&it.p&&it.p.text) || t.name; }
+function itemName(it){ const t=TYPES[it.type]; if(it.type==='trello') return (it.p&&it.p.name)||t.name; if(it.type==='image') return (it.p&&it.p.name)||t.name; if(it.type==='gdoc') return (it.p&&it.p.title)||t.name; if(t.card) return (it.type==='note'&&it.p&&it.p.text? it.p.text.split('\n')[0].slice(0,28) : t.name)||t.name; return it.label || (it.type==='text'&&it.p&&it.p.text) || t.name; }
 function renderLayers(){
   const el=$('#layersPanel'); if(!el||!layersOpen) return;
   if(document.activeElement && document.activeElement.classList.contains('lr-edit') && el.contains(document.activeElement)) return;   // don't wipe a name being typed
@@ -4438,7 +4463,7 @@ function fmtWhen(t){ try{ return new Date(t).toLocaleString('en-GB',{day:'numeri
 
 const cardsEl = $('#cards');
 let cdrag = null;
-const cardSig = it=>it.type==='image'?JSON.stringify([it.p, it.w, imgSig(it.p.src), readOnly]):it.type==='gdoc'?JSON.stringify([it.p, it.w, gdSig(it.p.fileId), mcpState, readOnly]):it.type==='board'?JSON.stringify([it.p.target, it.w, (all[it.p.target]||{}).updatedAt, (all[it.p.target]||{}).title]):it.type==='column'?JSON.stringify([it.p.title, it.w]):JSON.stringify([it.p, it.w]);
+const cardSig = it=>it.type==='trello'?JSON.stringify([it.p, it.w, trSig(it.p.boardId), mcpState, readOnly]):it.type==='image'?JSON.stringify([it.p, it.w, imgSig(it.p.src), readOnly]):it.type==='gdoc'?JSON.stringify([it.p, it.w, gdSig(it.p.fileId), mcpState, readOnly]):it.type==='board'?JSON.stringify([it.p.target, it.w, (all[it.p.target]||{}).updatedAt, (all[it.p.target]||{}).title]):it.type==='column'?JSON.stringify([it.p.title, it.w]):JSON.stringify([it.p, it.w]);
 function cardInner(it){ return cardBody(it)+(readOnly?'':`<div class="c-acts"><button data-act="dupcard" title="${it.type==='board'?'Duplicate this setup and everything nested in it':'Duplicate'}" aria-label="Duplicate">${ic('copy','style="width:15px;height:15px"')}</button><button data-act="delcard" class="del" title="${it.type==='board'?'Delete this setup (Undo brings it back)':'Delete'}" aria-label="Delete">${ic('trash','style="width:15px;height:15px"')}</button></div>`); }
 function cardBody(it){
   const p=it.p, ro=readOnly?'readonly':'', dis=readOnly?'disabled':'';
@@ -4459,6 +4484,7 @@ function cardBody(it){
       bdDepth++; let th; try{ th=bdDepth>1?`<svg viewBox="0 0 16 10"></svg>`:thumbSVG(its,'bd'+it.id.slice(0,6),d&&d.layers); } finally{ bdDepth--; }
       return `<div class="bd-th">${th}</div><div class="bd-tx"><span class="bd-ic">${ic('nest')}</span><div style="min-width:0;flex:1"><input class="bd-title" data-f="btitle" value="${esc(d?d.title||'Setup':'New setup')}" ${ro} aria-label="Setup name"><small>${c.l} light${c.l===1?'':'s'} · ${c.c} cam${c.c===1?'':'s'}${nc?` · ${nc} card${nc===1?'':'s'}`:''}</small></div></div>`+
         (d?`<button class="bd-open" data-act="openboard" title="Open (or double-click)">Open ${ic('chev','style="width:13px;height:13px"')}</button>`:''); }
+    case 'trello': return trelloBody(it);
     case 'image': return imageBody(it);
     case 'gdoc': return gdocBody(it);
     case 'column': { const n=(p.items||[]).length;
@@ -4476,11 +4502,12 @@ function buildCard(it){
   fillCard(el,it); cardRO.observe(el); return el;
 }
 function fillCard(el,it){
-  const sc0=el.querySelector('.gd-body'), st0=sc0?sc0.scrollTop:0;
+  const sc0=el.querySelector('.gd-body'), st0=sc0?sc0.scrollTop:0, tl0=el.querySelector('.tr-lists'), trSc0=tl0?[tl0.scrollLeft,[...el.querySelectorAll('.tr-cards')].map(c=>c.scrollTop)]:null;
   el.innerHTML=cardInner(it)+(readOnly?'':`<span class="rz" aria-hidden="true"></span>`);
   el.dataset.sig=cardSig(it);
   el.querySelectorAll('textarea').forEach(autoGrow);
   if(it.type==='gdoc') gdAfterFill(el,it,st0);
+  if(it.type==='trello') trAfterFill(el,it,trSc0);
 }
 function autoGrow(t){ t.style.height='auto'; t.style.height=(t.scrollHeight+2)+'px'; }
 function renderCards(){
@@ -4491,14 +4518,106 @@ function renderCards(){
     let el=cardsEl.querySelector(`[data-cid="${it.id}"]`);
     if(!el){ el=buildCard(it); cardsEl.appendChild(el); }
     else if(el.dataset.sig!==cardSig(it) && !el.contains(document.activeElement)) fillCard(el,it);
-    el.style.left=(it.x*PXM0)+'px'; el.style.top=(it.y*PXM0)+'px'; el.style.width=it.w+'px'; el.style.zIndex=i+1; el.style.minHeight=it.nh?it.nh+'px':''; if(it.type==='gdoc'){ el.style.height=it.p.collapsed?'':(it.nh||420)+'px'; el.classList.toggle('gd-col',!!it.p.collapsed); }
+    el.style.left=(it.x*PXM0)+'px'; el.style.top=(it.y*PXM0)+'px'; el.style.width=it.w+'px'; el.style.zIndex=i+1; el.style.minHeight=it.nh?it.nh+'px':''; if(it.type==='trello') el.style.height=(it.nh||460)+'px';
+    if(it.type==='gdoc'){ el.style.height=it.p.collapsed?'':(it.nh||420)+'px'; el.classList.toggle('gd-col',!!it.p.collapsed); }
     el.classList.toggle('sel', sel.has(it.id)); el.classList.toggle('solo', sel.has(it.id) && sel.size===1); el.classList.toggle('key', sel.size>1 && [...sel][0]===it.id); el.classList.toggle('locked', LFk.lock(it)); { const o2=LFk.op(it)*isoOp(it); el.style.opacity=o2<.999?o2:''; }
     keep.add(it.id);
   });
   [...cardsEl.children].forEach(el=>{ if(!keep.has(el.dataset.cid)){ cardRO.unobserve(el); el.remove(); } });
-  gdSyncWatches(items);
+  gdSyncWatches(items); trSyncWatches(items);
   layoutColumns();
 }
+/* ================= Trello board cards =================
+   A card on the plot shows a Trello board through the viewer's Trello connection and stays in sync: it re-reads every ~30 s,
+   and changes made here (add a card, rename, move between lists, mark done) go straight to Trello. Only the board's id,
+   name and link are saved with the plot. */
+const TR_SERVER='Trello';
+var TRB={}, trWatch={};
+const TR_COL={green:'#4bce97',yellow:'#e2b203',orange:'#faa53d',red:'#f87462',purple:'#9f8fef',blue:'#579dff',sky:'#6cc3e0',lime:'#94c748',pink:'#e774bb',black:'#8590a2'};
+const trLabelCol=c=>{ if(!c) return '#8590a2'; const b=String(c).replace(/_(light|dark)$/,''); return TR_COL[b]||'#8590a2'; };
+function trPay(r){ let v=r&&r.payload; if(typeof v==='string'){ try{ v=JSON.parse(v); }catch(e){ v={}; } } return v||{}; }
+function trSig(id){ const B=id&&TRB[id]; if(!B) return ''; return gdHash(JSON.stringify([B.lists,B.cards]))+'|'+(B.err||'')+'|'+(B.busy?1:0)+'|'+(B.cards?1:0); }
+function trApply(id){ cardsEl.querySelectorAll('.bc-trello').forEach(el=>{ const it=itemById(el.dataset.cid); if(!it||it.p.boardId!==id) return;
+  const B=TRB[id]; if(B&&B.name&&B.name!==it.p.name&&!readOnly){ it.p.name=B.name; renderLayersSoon(); }
+  if(el.dataset.trEdit||trDrag) { trAfterFill(el,it,null); return; }   // don't redraw under someone typing or dragging
+  if(el.dataset.sig!==cardSig(it)) fillCard(el,it); else trAfterFill(el,it,null); }); }
+function trOn(id,kind,ev){ const B=TRB[id]||(TRB[id]={});
+  if(ev.type==='data'){ const v=trPay(ev.result); if(kind==='lists') B.lists=(v.lists||[]).slice().sort((a,b)=>(a.position||0)-(b.position||0));
+    else B.cards=((v.cards&&v.cards.nodes)||[]).filter(c=>c&&!c.closed); B.err=null; B.at=ev.result.cache&&ev.result.cache.storedAt||Date.now(); }
+  else { B.err=ev.error&&ev.error.code||'upstream_error'; if(GD_DENY.has(B.err)){ B.lists=null; B.cards=null; } }
+  trApply(id); }
+function trSyncWatches(items){ if(!mcpApi) return; const want=new Set(items.filter(i=>i.type==='trello'&&i.p&&i.p.boardId).map(i=>i.p.boardId));
+  want.forEach(id=>{ if(trWatch[id]) return; const o={cache:{staleTime:15000,gcTime:86400000},refetchInterval:30000};
+    try{ trWatch[id]=[mcpApi.watchTool(TR_SERVER,'trelloReadList',{action:'list_by_board',boardId:id,limit:50},ev=>trOn(id,'lists',ev),o),
+                     mcpApi.watchTool(TR_SERVER,'trelloReadCard',{action:'list_by_board',boardIdOrUrl:id,limit:50},ev=>trOn(id,'cards',ev),o)]; }catch(e){} });
+  Object.keys(trWatch).forEach(id=>{ if(!want.has(id)){ trWatch[id].forEach(u=>{ try{ u(); }catch(e){} }); delete trWatch[id]; } }); }
+async function trRefresh(id){ if(!id||!mcpApi) return; const B=TRB[id]||(TRB[id]={}); B.busy=true; trApply(id);
+  try{ const [l,c]=await Promise.all([mcpApi.callTool(TR_SERVER,'trelloReadList',{action:'list_by_board',boardId:id,limit:50},{cache:{refresh:true,gcTime:86400000,staleTime:15000}}),
+                                      mcpApi.callTool(TR_SERVER,'trelloReadCard',{action:'list_by_board',boardIdOrUrl:id,limit:50},{cache:{refresh:true,gcTime:86400000,staleTime:15000}})]);
+    trOn(id,'lists',{type:'data',result:l}); trOn(id,'cards',{type:'data',result:c}); }
+  catch(e){ trOn(id,'err',{type:'error',error:e}); }
+  B.busy=false; trApply(id); }
+async function trWrite(id,input,okMsg){ try{ await mcpApi.callTool(TR_SERVER,'trelloWriteCard',input,{cache:false}); if(okMsg) toast(okMsg); }
+  catch(e){ const c=e&&e.code; toast(c==='approval_required'||c==='consent_required'?'Trello needs your OK to make changes. Try again and allow it.':c==='needs_reauth'?'Reconnect Trello in claude.ai Settings → Connectors':'Trello didn’t accept that change'); }
+  try{ await mcpApi.invalidate(TR_SERVER); }catch(e){} trRefresh(id); }
+function trLink(it,id,name,url){ if(!id) return; checkpoint(); it.p.boardId=id; it.p.name=name||it.p.name||''; it.p.url=url||''; touch(); renderLayersSoon(); refill(it); renderCards(); if(!trWatch[id]) trRefresh(id); }
+async function trCreate(it,inp){ const el=inp.closest('.bc'), lid=(el.dataset.trEdit||'').slice(4), name=inp.value.trim(); delete el.dataset.trEdit;
+  const B=TRB[it.p.boardId]; if(name && B && B.cards){ B.cards.push({id:'tmp'+uid(),name,list:{id:lid},labels:[],pending:true}); }
+  fillCard(el,it); if(name) trWrite(it.p.boardId,{action:'create',listId:lid,name,pos:'bottom'},null); }
+async function trRename(it,inp){ const el=inp.closest('.bc'), cid=(el.dataset.trEdit||'').slice(5), name=inp.value.trim(); delete el.dataset.trEdit;
+  const B=TRB[it.p.boardId], c=B&&B.cards&&B.cards.find(x=>x.id===cid); if(c&&name&&name!==c.name){ c.name=name; fillCard(el,it); trWrite(it.p.boardId,{action:'update',cardId:cid,name},null); } else fillCard(el,it); }
+function trDone(it,cid){ const B=TRB[it.p.boardId], c=B&&B.cards&&B.cards.find(x=>x.id===cid); if(!c||c.complete) return; c.complete=true; trApply(it.p.boardId); trWrite(it.p.boardId,{action:'mark_done',cardId:cid},'Marked done in Trello'); }
+async function trPickLoad(el){ const list=el.querySelector('.tr-pick-list'); if(!list) return;
+  if(!mcpApi){ list.innerHTML=`<div class="gd-msg">${mcpState==='loading'?'Connecting to Trello…':'Trello sync works when Set Plot is opened from its claude.ai link. Here you can still keep a link to the board.'}</div>`; return; }
+  list.innerHTML='<div class="gd-msg">Loading your boards…</div>';
+  try{ let all2=[], cur2=null; for(let i=0;i<4;i++){ const r=await mcpApi.callTool(TR_SERVER,'trelloReadBoard',Object.assign({action:'list',limit:100},cur2?{cursor:cur2}:{}),{cache:{staleTime:60000}}); const v=trPay(r), nodes=(v.cards&&v.cards.nodes)||v.boards||[];
+      all2=all2.concat(nodes); const pi=(v.cards&&v.cards.pageInfo)||{}; if(!pi.hasNextPage) break; cur2=pi.endCursor; }
+    list._boards=all2; trPickFilter(el,(el.querySelector('.tr-q')||{}).value||''); }
+  catch(e){ list.innerHTML=`<div class="gd-msg">${esc(gdErrText(e&&e.code).replace(/Google Drive/g,'Trello').replace(/doc/g,'board'))}</div>`; } }
+function trPickFilter(el,q){ const list=el.querySelector('.tr-pick-list'); if(!list||!list._boards) return; q=String(q||'').trim().toLowerCase();
+  const bs=list._boards.filter(b=>!q||String(b.name||'').toLowerCase().includes(q)).slice().reverse();   // newest boards first
+  list.innerHTML=bs.length?bs.map(b=>`<button class="gd-row" data-act="trpick" data-id="${esc(b.id)}" data-name="${esc(b.name||'')}" data-url="${esc(b.url||b.webUrl||'')}"><span class="gd-ric tr-ric">${ic('trello')}</span><span class="gd-rt"><b>${esc(b.name||'Untitled board')}</b><small>${esc((b.board&&b.board.name)||'')}</small></span></button>`).join(''):`<div class="gd-msg">${q?'No boards match that name.':'No boards found.'}</div>`; }
+function trAfterFill(el,it,sc){ const B=it.p.boardId&&TRB[it.p.boardId], w=el.querySelector('.tr-when');
+  if(w) w.textContent=B&&B.busy?'Syncing…':B&&B.at?'Live · synced '+new Date(B.at).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}):mcpApi?'Loading…':'';
+  if(sc){ const tl=el.querySelector('.tr-lists'); if(tl) tl.scrollLeft=sc[0]; el.querySelectorAll('.tr-cards').forEach((c,i)=>{ if(sc[1][i]!=null) c.scrollTop=sc[1][i]; }); }
+  const pl=el.querySelector('.tr-pick-list'); if(pl && !pl.dataset.done){ pl.dataset.done='1'; trPickLoad(el); } }
+function trDue(c){ const d=c.due&&Date.parse(c.due); if(!d) return ''; const late=!c.dueComplete && d<Date.now(); return `<span class="tr-due${c.dueComplete?' ok':late?' late':''}">${esc(new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'short'}))}</span>`; }
+function trelloBody(it){ const p=it.p, B=p.boardId&&TRB[p.boardId], el=cardsEl.querySelector(`[data-cid="${it.id}"]`), edit=(el&&el.dataset.trEdit)||'';
+  if(!p.boardId){
+    if(readOnly) return `<div class="gd-head"><span class="gd-ic tr-ic">${ic('trello')}</span><div class="gd-tt"><b>Trello board</b><small>No board chosen yet</small></div></div>`;
+    return `<div class="gd-head"><span class="gd-ic tr-ic">${ic('trello')}</span><div class="gd-tt"><b>Place a Trello board</b><small>Pick one of your boards; it stays in sync both ways</small></div></div><div class="gd-pick"><input class="gd-q tr-q" data-f="trq" placeholder="Search your boards" spellcheck="false" aria-label="Search Trello boards"><div class="gd-list tr-pick-list" role="list"></div></div>`; }
+  const url=p.url||'https://trello.com';
+  let body;
+  if(mcpState==='loading') body=`<div class="gd-msg">Connecting to Trello…</div>`;
+  else if(!mcpApi) body=`<div class="gd-msg">Trello sync works when Set Plot is opened from its claude.ai link. <a href="${esc(url)}" target="_blank" rel="noopener noreferrer">Open the board in Trello</a></div>`;
+  else if(!B||!B.lists||!B.cards) body=B&&B.err?`<div class="gd-msg">${esc(gdErrText(B.err).replace(/Google Drive/g,'Trello').replace(/this doc/g,'this board').replace(/doc/g,'board'))}</div>`+(B.err==='approval_required'||B.err==='consent_required'?`<button class="btn sm primary gd-allow" data-act="trrefresh">Allow and load</button>`:''):`<div class="gd-msg">Loading the board…</div>`;
+  else body=`<div class="tr-lists">`+B.lists.map(l=>{ const cs=B.cards.filter(c=>c.list&&c.list.id===l.id);
+      return `<div class="tr-list" data-list="${esc(l.id)}"><div class="tr-lh"><b>${esc(l.name)}</b><span>${cs.length}</span></div><div class="tr-cards">`+
+        cs.map(c=>{ const ren=edit==='name:'+c.id, lb=(c.labels||[]).map(x=>`<i style="background:${trLabelCol(x.color)}" title="${esc(x.name||x.color||'')}"></i>`).join('');
+          return `<div class="tr-card${c.complete?' done':''}${c.pending?' pend':''}" data-card="${esc(c.id)}" data-list="${esc(l.id)}">${lb?`<div class="tr-lb">${lb}</div>`:''}`+
+            (ren?`<input class="tr-in" data-f="trname" value="${esc(c.name)}">`:`<div class="tr-cn">${readOnly||c.pending?'':`<button class="tr-chk" data-act="trdone" data-card="${esc(c.id)}" title="${c.complete?'Done':'Mark done'}" aria-label="Mark done" ${c.complete?'disabled':''}></button>`}<span>${esc(c.name)}</span></div>`)+
+            `<div class="tr-meta">${trDue(c)}${c.desc?'<span class="tr-ico" title="Has a description">≡</span>':''}${c.url||c.webUrl?`<a class="tr-open" href="${esc(c.url||c.webUrl)}" target="_blank" rel="noopener noreferrer" title="Open in Trello">${ic('ext')}</a>`:''}</div></div>`; }).join('')+
+        `</div>`+(readOnly?'':(edit==='new:'+l.id?`<input class="tr-in tr-new" data-f="trnew" placeholder="Card name, then Enter">`:`<button class="tr-add" data-act="tradd" data-list="${esc(l.id)}">+ Add a card</button>`))+`</div>`; }).join('')+`</div>`;
+  return `<div class="gd-head"><span class="gd-ic tr-ic">${ic('trello')}</span><div class="gd-tt"><b title="${esc(p.name||'Trello board')}">${esc(p.name||'Trello board')}</b><small class="tr-when"></small></div>`+
+    (mcpApi?`<button class="gd-btn" data-act="trrefresh" title="Sync now" aria-label="Sync now">${ic('refresh')}</button>`:'')+
+    `<a class="gd-btn" href="${esc(url)}" target="_blank" rel="noopener noreferrer" title="Open in Trello" aria-label="Open in Trello">${ic('ext')}</a>`+
+    (readOnly?'':`<button class="gd-btn" data-act="trchange" title="Show a different board" aria-label="Show a different board">${ic('swap')}</button>`)+`</div><div class="tr-body">${body}</div>`; }
+/* drag a Trello card to another list (or the top/bottom of its own) */
+var trDrag=null;
+cardsEl.addEventListener('pointerdown',e=>{ const tc=e.target.closest('.tr-card'); if(!tc||e.button!==0||readOnly||!mcpApi||e.target.closest('button,a,input')) return;
+  e.stopPropagation(); const r=tc.getBoundingClientRect(); trDrag={el:tc,board:tc.closest('.bc'),sx:e.clientX,sy:e.clientY,ox:e.clientX-r.left,oy:e.clientY-r.top,w:r.width,moved:false,ghost:null,pid:e.pointerId}; },true);
+addEventListener('pointermove',e=>{ const D=trDrag; if(!D) return; if(!D.moved && Math.hypot(e.clientX-D.sx,e.clientY-D.sy)<5) return;
+  if(!D.moved){ D.moved=true; const g=D.el.cloneNode(true); g.classList.add('tr-ghost'); g.style.width=D.w+'px'; document.body.appendChild(g); D.ghost=g; D.el.classList.add('tr-src'); }
+  D.ghost.style.left=(e.clientX-D.ox)+'px'; D.ghost.style.top=(e.clientY-D.oy)+'px';
+  const u=document.elementFromPoint(e.clientX,e.clientY), L=u&&u.closest('.tr-list'); D.board.querySelectorAll('.tr-list').forEach(x=>x.classList.toggle('tr-over',x===L&&L.closest('.bc')===D.board)); D.to=L&&L.closest('.bc')===D.board?L:null;
+  if(D.to){ const cs=D.to.querySelector('.tr-cards'), rr=cs.getBoundingClientRect(); D.top=e.clientY<rr.top+Math.min(rr.height,cs.scrollHeight)/2; } },true);
+addEventListener('pointerup',e=>{ const D=trDrag; if(!D) return; trDrag=null; if(D.ghost) D.ghost.remove(); D.el.classList.remove('tr-src'); D.board.querySelectorAll('.tr-over').forEach(x=>x.classList.remove('tr-over')); if(!D.moved||!D.to) return;
+  const it=itemById(D.board.dataset.cid), B=it&&TRB[it.p.boardId], cid=D.el.dataset.card, lid=D.to.dataset.list, from=D.el.dataset.list; if(!B||!B.cards) return;
+  const i=B.cards.findIndex(c=>c.id===cid); if(i<0) return; const c=B.cards.splice(i,1)[0]; c.list={id:lid,name:''};
+  const firstIdx=B.cards.findIndex(x=>x.list&&x.list.id===lid), lastIdx=B.cards.map(x=>x.list&&x.list.id).lastIndexOf(lid);
+  if(D.top) B.cards.splice(firstIdx<0?B.cards.length:firstIdx,0,c); else B.cards.splice(lastIdx<0?B.cards.length:lastIdx+1,0,c);
+  trApply(it.p.boardId); fillCard(D.board,it);
+  trWrite(it.p.boardId,{action:'move',cardId:cid,listId:lid,pos:D.top?'top':'bottom'},from===lid?null:'Moved in Trello'); },true);
 /* ================= Image cards =================
    Drop image files on the plot (or double-click an Image card) to add them. Big photos are scaled to 2400 px.
    On claude.ai they're stored with the artifact; elsewhere they're kept in this browser (IndexedDB). */
@@ -4813,12 +4932,17 @@ function colDropAt(cx,cy,it){
   return null; }
 function addColumnBeside(col,side){
   if(readOnly||!col) return; checkpoint();
+  const before=new Map([...cardsEl.querySelectorAll('.bc')].map(el=>[el.dataset.cid,el.getBoundingClientRect()]));   // to glide pushed-aside columns (FLIP)
   const gap=24/PXM0, w=col.w/PXM0, dir=side==='left'?-1:1, nx=col.x+dir*(w+gap), cr=cardRect(col);
   const onSide=cur.items.filter(c=>c.type==='column'&&c!==col&&(dir>0?c.x>col.x:c.x<col.x)).filter(c=>{ const r=cardRect(c); return r.y<cr.y+cr.h && r.y+r.h>cr.y; }).sort((a,b)=>dir*(a.x-b.x));
   if(dir>0){ let edge=nx+w+gap; onSide.forEach(c=>{ if(c.x<edge) c.x=edge; edge=c.x+c.w/PXM0+gap; }); }
   else { let edge=nx-gap; onSide.forEach(c=>{ const cw=c.w/PXM0; if(c.x+cw>edge) c.x=edge-cw; edge=c.x-gap; }); }   // push neighbours out of the way
   const d=CARD_DEFAULT.column(), it={id:uid(),type:'column',x:Math.round(nx*1000)/1000,y:col.y,rot:0,w:col.w,h:0,label:'',p:d.p};
   cur.items.push(it); touch(); setCardSel(it.id); renderCards();
+  if(!matchMedia('(prefers-reduced-motion: reduce)').matches){ const sc=view.s/PXM0;
+    cardsEl.querySelectorAll('.bc').forEach(el=>{ const b=before.get(el.dataset.cid); if(!b) return; const a=el.getBoundingClientRect(), dx=(b.left-a.left)/sc, dy=(b.top-a.top)/sc; if(Math.abs(dx)<.5&&Math.abs(dy)<.5) return;
+      el.animate([{transform:`translate(${dx}px,${dy}px)`},{transform:'none'}],{duration:340,easing:'cubic-bezier(.2,.8,.2,1)'}); });
+    const nel=cardsEl.querySelector(`.bc[data-cid="${it.id}"]`); if(nel) nel.animate([{opacity:0,transform:`translateX(${-dir*18}px) scale(.97)`},{opacity:1,transform:'none'}],{duration:320,easing:'cubic-bezier(.2,.8,.2,1)'}); }   // the new column slides out of the one you clicked
   const t=cardsEl.querySelector(`.bc[data-cid="${it.id}"] .col-title`); if(t){ t.focus({preventScroll:true}); t.select(); }
 }
 addEventListener('pointermove',e=>{   // a column's + buttons show while the cursor is over its left or right side
@@ -4888,6 +5012,7 @@ const CARD_DEFAULT = {
   column:()=>({w:300,p:{title:'New Column',items:[]}}),
   board:()=>({w:240,p:{target:null}}),
   image:()=>({w:320,p:{src:'',name:'',aw:4,ah:3}}),
+  trello:()=>({w:760,nh:460,p:{boardId:null,name:'',url:''}}),
   gdoc:()=>({w:380,nh:420,p:{fileId:null,title:'',url:''}})
 };
 function addCard(type,x,y){
@@ -5010,7 +5135,7 @@ cardsEl.addEventListener('pointerdown',e=>{
   if(!wasSolo && !inGroup){ sel=new Set([it.id]); renderInspector(); syncCardSel(); draw(); }
   if(readOnly) return;
   const rz=e.target.closest('.rz');
-  if(!rz && e.target.closest('button,a[href],input[type=checkbox],.c-chk')) return;
+  if(!rz && e.target.closest('button,a[href],input[type=checkbox],.c-chk,.tr-card,.tr-lists input')) return;
   const field=e.target.closest('textarea,input');
   if(field && document.activeElement===field) return;
   e.preventDefault();
@@ -5042,7 +5167,7 @@ addEventListener('pointermove',e=>{
   } else {
     const min = it.type==='grid'?220:it.type==='color'?130:it.type==='note'?120:it.type==='column'?220:160;
     it.w=Math.round(clamp(cdrag.ow+dx*PXM0/view.s,min,1400));
-    if(it.type==='note'||it.type==='gdoc'){ if(cdrag.oh==null) cdrag.oh=cdrag.el.offsetHeight; it.nh=Math.round(clamp(cdrag.oh+dy*PXM0/view.s,it.type==='gdoc'?180:46,2400)); }   // notes and docs grow tall as well as wide
+    if(it.type==='note'||it.type==='gdoc'||it.type==='trello'){ if(cdrag.oh==null) cdrag.oh=cdrag.el.offsetHeight; it.nh=Math.round(clamp(cdrag.oh+dy*PXM0/view.s,it.type==='gdoc'||it.type==='trello'?180:46,2400)); }   // notes and docs grow tall as well as wide
     cdrag.el.querySelectorAll('textarea').forEach(autoGrow);
   }
   draw();
@@ -5058,16 +5183,18 @@ addEventListener('pointerup',e=>{
   if(d.field){ d.field.focus(); if(d.field.setSelectionRange && d.field.type!=='color'){ const n=d.field.value.length; try{ d.field.setSelectionRange(n,n); }catch(err){} } }
 });
 addEventListener('pointercancel',()=>{ if(cdrag&&cdrag.moved) touch(); cdrag=null; if(colDrop){ colDrop=null; draw(); } if(setupDrop){ setupDrop=null; markSetupDrop(); } });
-cardsEl.addEventListener('wheel',e=>{ const sb=!e.ctrlKey&&!e.metaKey&&e.target.closest&&e.target.closest('.gd-body,.gd-list'); if(sb && sb.scrollHeight>sb.clientHeight+1) return; wheelZoom(e); },{passive:false});   // a doc scrolls under the wheel; pinch still zooms
+cardsEl.addEventListener('wheel',e=>{ const sb=!e.ctrlKey&&!e.metaKey&&e.target.closest&&e.target.closest('.gd-body,.gd-list,.tr-cards,.tr-pick-list'); if(sb && sb.scrollHeight>sb.clientHeight+1) return; const hz=!e.ctrlKey&&!e.metaKey&&e.target.closest&&e.target.closest('.tr-lists'); if(hz && hz.scrollWidth>hz.clientWidth+1){ e.preventDefault(); hz.scrollLeft+=(Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:e.deltaY); return; } wheelZoom(e); },{passive:false});   // a doc scrolls under the wheel; pinch still zooms
 
 /* editing */
 let cardCp=null;
 cardsEl.addEventListener('focusin',e=>{ const it=cardItem(e.target); if(it && !readOnly && cardCp!==e.target && e.target.dataset.f!=='gq'){   /* the doc search box edits nothing, so it needs no undo step */ cardCp=e.target; checkpoint(); if(!sel.has(it.id)) setCardSel(it.id); } });
-cardsEl.addEventListener('focusout',e=>{ if(cardCp===e.target) cardCp=null; const it=cardItem(e.target); if(it && e.target.dataset.f==='hex'){ const v=hexOk(e.target.value); if(!v){ e.target.value=hexOk(it.p.hex)||'#10A0A0'; } } });
+cardsEl.addEventListener('focusout',e=>{ { const t=e.target, f=t.dataset&&t.dataset.f; if(f==='trnew'||f==='trname'){ const el=t.closest('.bc'), it=el&&itemById(el.dataset.cid); setTimeout(()=>{ if(it && el.dataset.trEdit && !el.contains(document.activeElement)){ if(t.value.trim()) (f==='trnew'?trCreate:trRename)(it,t); else { delete el.dataset.trEdit; fillCard(el,it); } } },0); } }   /* leaving the field saves it, like Trello */ if(cardCp===e.target) cardCp=null; const it=cardItem(e.target); if(it && e.target.dataset.f==='hex'){ const v=hexOk(e.target.value); if(!v){ e.target.value=hexOk(it.p.hex)||'#10A0A0'; } } });
 cardsEl.addEventListener('input',e=>{
   const t=e.target, it=cardItem(t); if(!it||readOnly) return;
   const el=t.closest('.bc'), f=t.dataset.f, p=it.p;
   if(f==='gq'){ gdSearchSoon(el,t.value); return; }
+  if(f==='trq'){ trPickFilter(el,t.value); return; }
+  if(f==='trnew'||f==='trname') return;
   if(f==='text'){ p.text=t.value; autoGrow(t); }
   else if(f==='title') p.title=t.value;
   else if(f==='item') p.items[+t.dataset.i].t=t.value;
@@ -5088,6 +5215,7 @@ function setCardColor(el,it,hex,fromText){
   if(blk) blk.style.background=hex; if(hi){ hi.style.color=inkOn(hex); if(!fromText) hi.value=hex; } if(nm) nm.placeholder=nearestName(hex); if(pk&&fromText) pk.value=hex.toLowerCase();
 }
 cardsEl.addEventListener('dblclick',e=>{
+  { const tc=e.target.closest('.tr-card'); if(tc && !readOnly && mcpApi){ const el=tc.closest('.bc'), it=itemById(el.dataset.cid); if(it){ e.preventDefault(); el.dataset.trEdit='name:'+tc.dataset.card; fillCard(el,it); const q=el.querySelector('[data-f="trname"]'); if(q){ q.focus(); q.select(); } } return; } }
   { const ic0=e.target.closest('.bc-image'); if(ic0 && !readOnly){ const it=itemById(ic0.dataset.cid); if(it){ e.preventDefault(); pickImageFor(it); } return; } }
   { const gc=e.target.closest('.bc-gdoc.gd-col'); if(gc){ const it=itemById(gc.dataset.cid); if(it){ e.preventDefault(); gdCollapse(it,false); } return; } }
   { const bd=e.target.closest('.bc-board'); if(bd && !e.target.closest('.bd-title')){ openBoardCard(itemById(bd.dataset.cid)); return; } }
@@ -5101,6 +5229,8 @@ cardsEl.addEventListener('keydown',e=>{
   const t=e.target, it=cardItem(t); if(!it||readOnly) return;
   if(t.dataset.f==='hex' && e.key==='Enter'){ e.preventDefault(); t.blur(); return; }
   if(e.key==='Escape'){ e.preventDefault(); e.stopPropagation(); t.blur(); setCardSel(it.id); return; }
+  if((t.dataset.f==='trnew'||t.dataset.f==='trname') && (e.key==='Enter'||e.key==='Escape')){ e.preventDefault(); e.stopPropagation(); if(e.key==='Enter') (t.dataset.f==='trnew'?trCreate:trRename)(it,t); else { delete t.closest('.bc').dataset.trEdit; fillCard(t.closest('.bc'),it); } return; }
+  if(t.dataset.f==='trq' && e.key==='Enter'){ e.preventDefault(); const first=t.closest('.bc').querySelector('[data-act="trpick"]'); if(first) first.click(); return; }
   if(t.dataset.f==='gq' && e.key==='Enter'){ e.preventDefault(); const id=gdIdFromUrl(t.value); if(id) gdLink(it,id,'',''); else { const first=t.closest('.bc').querySelector('[data-act="gpick"]'); if(first) first.click(); } return; }
   if(it.type==='todo' && t.dataset.f==='item'){
     const i=+t.dataset.i;
@@ -5128,6 +5258,11 @@ cardsEl.addEventListener('click',e=>{
   if(a==='openboard'){ openBoardCard(it); return; }
   if(a==='gpick'){ gdLink(it,b.dataset.id,b.dataset.title||'',b.dataset.url||''); return; }
   if(a==='gcollapse'){ gdCollapse(it,true); return; }
+  if(a==='trpick'){ trLink(it,b.dataset.id,b.dataset.name||'',b.dataset.url||''); return; }
+  if(a==='trchange'){ checkpoint(); it.p.boardId=null; touch(); refill(it,'.tr-q'); return; }
+  if(a==='trrefresh'){ trRefresh(it.p.boardId); return; }
+  if(a==='tradd'){ const el=b.closest('.bc'); el.dataset.trEdit='new:'+b.dataset.list; fillCard(el,it); const q=el.querySelector('[data-f="trnew"]'); if(q) q.focus(); return; }
+  if(a==='trdone'){ trDone(it,b.dataset.card); return; }
   if(a==='gchange'){ checkpoint(); it.p.fileId=null; touch(); refill(it,'.gd-q'); return; }
   if(a==='grefresh'){ gdRefresh(it.p.fileId,true); return; }
   if(a==='gallow'){ gdRefresh(it.p.fileId,true); return; }
@@ -5143,7 +5278,7 @@ function deleteCard(id){ checkpoint(); cur.items=cur.items.filter(i=>i.id!==id);
 function dupCard(id){ const it=itemById(id); if(!it) return; if(it.type==='board'&&it.p.target&&all[it.p.target]){ duplicateSetupById(it.p.target); return; } if(it.type==='column'){ checkpoint(); const out=cloneInto([it],(it.w+24)/PXM0,0); enterPlace(out.map(o=>o.id),{dx:(it.w+24)/PXM0,dy:0}); return; } checkpoint(); const c=JSON.parse(JSON.stringify(it)); c.id=uid(); c.x+=.3; c.y+=.3; if(c.type==='comment') c.p.at=Date.now(); delete c.conns; cur.items.push(c); renderCards(); enterPlace([c.id],{dx:.3,dy:.3}); }
 
 /* right toolbar: click to drop in the middle, or drag onto the board */
-const CARD_TOOLS=[['note','Note','note'],['todo','To-do','todo'],['comment','Comment','comment'],['grid','Table','table'],['color','Colour','swatch'],['column','Column','column'],['image','Image','image'],['gdoc','Doc','gdoc']];
+const CARD_TOOLS=[['note','Note','note'],['todo','To-do','todo'],['comment','Comment','comment'],['grid','Table','table'],['color','Colour','swatch'],['column','Column','column'],['image','Image','image'],['gdoc','Doc','gdoc'],['trello','Trello','trello']];
 const ITEM_TOOLS=[['text','Text','notes'],['arrow','Arrow','arrow'],['measure','Distance','measure'],['sketch','Pen','pen']];
 $('#railR').innerHTML=CARD_TOOLS.map(([t,n,i])=>`<button class="tool" data-card="${t}" aria-label="Add ${n}">${ic(i)}${n}</button>`).join('')+
   `<hr><button class="tool" data-cat="Notes" aria-expanded="false" aria-label="Text, arrows, distances, angles and pen">${ic('notes')}Notes</button>`+
@@ -5196,6 +5331,10 @@ function cardsSVG(items,Q,layers){
       for(let c=1;c<cols;c++) g+=`<line x1="${c*cw}" y1="0" x2="${c*cw}" y2="${h}" stroke="#e3e6ea"/>`;
       for(let r=1;r<rows;r++) g+=`<line x1="0" y1="${r*rh}" x2="${w}" y2="${r*rh}" stroke="#e3e6ea"/>`;
       p.cells.forEach((row,r)=>row.forEach((v,c)=>{ const max=Math.max(3,Math.floor((cw-16)/7.2)); const s=String(v||''); g+=T(c*cw+8,r*rh+22,13,s.length>max?s.slice(0,max-1)+'…':s,`fill="${r===0?'#ffffff':'#1c1f23'}"${r===0?' font-weight="700"':''}`); }));
+    } else if(it.type==='trello'){
+      const B=p.boardId&&TRB[p.boardId], ls=(B&&B.lists)||[], hh=it.nh||460; h=hh; g+=card(hh)+T(16,30,15,p.name||'Trello board',`font-weight="700" fill="#1c1f23"`);
+      ls.slice(0,Math.max(1,Math.floor((w-24)/170))).forEach((l,i)=>{ const x=12+i*170, cs=(B.cards||[]).filter(c=>c.list&&c.list.id===l.id); g+=`<rect x="${x}" y="46" width="160" height="${hh-58}" rx="6" fill="#f1f2f4"/>`+T(x+10,66,12.5,l.name,`font-weight="700" fill="#1c1f23"`);
+        cs.slice(0,Math.floor((hh-90)/34)).forEach((c,j)=>{ g+=`<rect x="${x+6}" y="${78+j*34}" width="148" height="28" rx="5" fill="#ffffff" stroke="#e3e6ea"/>`+T(x+14,96+j*34,11.5,c.name.length>24?c.name.slice(0,23)+'…':c.name,`fill="#1c1f23"`); }); });
     } else if(it.type==='image'){
       const ih=Math.round(w*(p.ah||3)/(p.aw||4)), dat=imgData(p.src); h=ih;
       g+=`<clipPath id="ic${it.id}"><rect width="${w}" height="${ih}" rx="8"/></clipPath>`+(dat?`<image href="${dat}" width="${w}" height="${ih}" preserveAspectRatio="xMidYMid slice" clip-path="url(#ic${it.id})"/>`:card(ih,'#f3f4f6')+T(w/2,ih/2+5,13,p.src?'Image':'Empty image',`text-anchor="middle" fill="#8a9099"`));
