@@ -165,6 +165,34 @@ body.connecting,body.connecting *{cursor:crosshair!important}
 .fly{position:absolute;left:calc(max(16px,env(safe-area-inset-left,0px)) + 80px);top:50%;transform:translateY(-50%);width:300px;max-height:calc(100% - 150px);overflow:auto;padding:14px;box-shadow:var(--shadow-lg);scrollbar-width:thin}
 .fly h3{margin:0 0 2px;font-size:15px;font-weight:700}
 .fly p{margin:0 0 12px;color:var(--muted);font-size:12.5px}
+body.presenting #insp:not(.auto){opacity:0!important;visibility:hidden!important}   /* in focus mode settings only slide in from the right edge */
+body.presenting :is(.ui>.top,#rail,#railR,#layersPanel,.ui>.bottom,#extHint,#aimHint,#drawBar,#boardPop){opacity:0!important;visibility:hidden!important;transition:opacity .35s ease,visibility 0s linear .35s!important}
+.hud-back :is(.ui>.top,#rail,#railR,#layersPanel,.ui>.bottom,#insp){animation:hudBack .75s cubic-bezier(.45,0,.25,1) both}
+.hud-back :is(#rail,#railR){animation-delay:.08s}.hud-back .ui>.bottom{animation-delay:.14s}
+@keyframes hudBack{from{opacity:0}to{opacity:1}}
+.focus-x{position:fixed;top:max(16px,env(safe-area-inset-top,0px));right:max(16px,env(safe-area-inset-right,0px));z-index:30;width:40px;height:40px;border-radius:12px;border:0;display:grid;place-items:center;color:var(--ink);cursor:pointer;opacity:0;visibility:hidden;transform:scale(.9);transition:opacity .3s ease,transform .3s ease,visibility 0s linear .3s}
+.focus-x svg{width:19px;height:19px}
+body.presenting .focus-x{opacity:.55;visibility:visible;transform:none;transition:opacity .3s ease .15s,transform .3s ease .15s,visibility 0s}
+body.presenting .focus-x:hover{opacity:1}
+#plot.drawing ~ .boardcards .bc{pointer-events:none}   /* the pen draws straight over cards instead of grabbing them */
+body.presenting .bc .c-acts,body.presenting .bc .c-plus,body.presenting .bc .col-plus,body.presenting .bc .rz{display:none!important}
+.addsrch{position:fixed;z-index:60;width:300px;padding:0;overflow:hidden;box-shadow:var(--shadow-lg);display:flex;flex-direction:column;max-height:min(420px,calc(100vh - 16px))}
+.addsrch.pop{animation:asPop .14s cubic-bezier(.2,.8,.2,1)}
+@keyframes asPop{from{opacity:0;transform:translateY(-4px) scale(.98)}to{opacity:1;transform:none}}
+.as-in{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line);flex:none}
+.as-in svg{width:16px;height:16px;color:var(--muted);flex:none}
+.as-in input{flex:1;min-width:0;border:0;background:transparent;color:var(--ink);font:inherit;font-size:14px;outline:none}
+.as-list{overflow:auto;padding:4px;flex:1 1 auto;min-height:0;scrollbar-width:thin}
+.as-h{font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);padding:8px 8px 4px}
+.as-row{display:flex;align-items:center;gap:10px;width:100%;border:0;background:transparent;color:var(--ink);font:inherit;font-size:13px;text-align:left;padding:5px 8px;border-radius:7px;cursor:pointer}
+.as-row.on{background:color-mix(in srgb,var(--accent) 13%,transparent)}
+.as-ic{width:30px;height:24px;flex:none;display:grid;place-items:center;color:var(--muted)}
+.as-ic svg{max-width:30px;max-height:24px;width:auto;height:auto}
+.as-ic svg.i{width:18px;height:18px}
+.as-t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:550}
+.as-row small{color:var(--faint);font-size:11px;flex:none}
+.as-none{color:var(--muted);font-size:13px;padding:14px 10px}
+.as-foot{flex:none;font-size:11px;color:var(--faint);padding:6px 12px;border-top:1px solid var(--line)}
 .tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .tile{border:0;background:var(--field);border-radius:11px;padding:10px 4px 8px;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--ink);touch-action:none;cursor:grab;min-width:0}
 .tile:hover{background:var(--hover);box-shadow:inset 0 0 0 1.5px var(--accent)}
@@ -583,7 +611,8 @@ body.placing #plot,body.placing #cards .bc{cursor:copy!important}
 .modal textarea{width:min(560px,80vw);height:260px;font-family:var(--mono);font-size:12px;background:var(--field);border:0;border-radius:9px;padding:10px}
 .kbd{font-family:var(--mono);font-size:11px;border-radius:5px;padding:1px 5px;background:var(--field);color:var(--muted)}
 
-#lockOv{position:fixed;inset:0;pointer-events:none;z-index:3}   /* same level as the cards, just after them */
+#lockOv{position:fixed;inset:0;pointer-events:none;z-index:3}
+#inkOv{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:4;display:block}   /* same level as the cards, just after them */
 .bc.locked .c-plus,.bc.locked .rz,.bc.locked .c-acts{display:none!important}
 .lkb{position:absolute;width:18px;height:18px;border-radius:50%;border:1.4px solid;display:grid;place-items:center;box-sizing:border-box}
 .lkb svg.i{width:12px;height:12px;stroke-width:2.2}
@@ -643,6 +672,17 @@ body.placing .bc:hover{box-shadow:0 1px 2px rgba(20,24,30,.08),0 6px 18px -6px r
 .c-name{padding:14px 18px 16px}
 .c-pick{position:absolute;left:12px;bottom:12px;width:1px;height:1px;opacity:0;pointer-events:none;border:0;padding:0}
 .bc-note{display:flex;flex-direction:column}
+.bc-image{overflow:hidden;border-radius:10px;background:var(--field)}
+.im-wrap{position:relative;width:100%}
+.im-img{display:block;width:100%;height:100%;object-fit:cover;pointer-events:none;-webkit-user-drag:none}
+.im-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-align:center;padding:16px;color:var(--muted);border:1.5px dashed var(--line2);border-radius:10px;min-height:120px}
+.im-empty svg{width:30px;height:30px;margin-bottom:4px;color:var(--faint)}.im-empty b{color:var(--ink);font-size:14px}.im-empty small{font-size:12px;line-height:1.35;max-width:220px}
+.im-miss{border-style:solid}
+.im-busy{position:absolute;inset:0;display:grid;place-content:center;gap:8px;justify-items:center;background:rgba(0,0,0,.35);color:#fff;font-size:12.5px;font-weight:600}
+.im-busy i{width:20px;height:20px;border-radius:50%;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;animation:imSpin .8s linear infinite}
+@keyframes imSpin{to{transform:rotate(360deg)}}
+body.img-drop #plot{outline:3px dashed color-mix(in srgb,var(--accent) 70%,transparent);outline-offset:-10px}
+body.img-drop .bc-image .im-empty{border-color:var(--accent);color:var(--accent)}
 .bc-gdoc{display:flex;flex-direction:column;overflow:hidden;border-radius:10px}
 .bc-gdoc.gd-anim{transition:width .32s cubic-bezier(.2,.8,.2,1),height .32s cubic-bezier(.2,.8,.2,1)}
 .bc-gdoc.gd-col{border-radius:14px}
@@ -791,7 +831,7 @@ body.insp-open .rail-r{right:calc(max(16px,env(safe-area-inset-right,0px)) + 332
 </style>
 
 <svg id="plot" xmlns="http://www.w3.org/2000/svg" aria-label="Lighting diagram"></svg>
-<div class="boardcards" id="cards"></div><div id="lockOv" aria-hidden="true"></div>
+<div class="boardcards" id="cards"></div><div id="lockOv" aria-hidden="true"></div><svg id="inkOv" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"></svg>
 
 <div class="ui">
   <div class="top">
@@ -809,6 +849,7 @@ body.insp-open .rail-r{right:calc(max(16px,env(safe-area-inset-right,0px)) + 332
       <button class="ib" id="redoBtn" aria-label="Redo" title="Redo  Ctrl+Shift+Z" disabled></button>
       <span class="vsep hide-s"></span>
       <button class="ib hide-s" id="detailsBtn" aria-pressed="false" aria-label="Setup details and gear list" title="Setup details &amp; gear"></button>
+      <button class="ib" id="presentBtn" aria-label="Focus mode" title="Focus mode: hide the toolbars  Shift+F"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 9V4.5H9M15 4.5h4.5V9M19.5 15v4.5H15M9 19.5H4.5V15"/></svg></button>
       <div class="rel">
         <button class="btn primary" id="exportBtn" aria-haspopup="menu" aria-expanded="false"></button>
         <div class="card menu" id="exportMenu" role="menu" hidden>
@@ -825,6 +866,8 @@ body.insp-open .rail-r{right:calc(max(16px,env(safe-area-inset-right,0px)) + 332
   <nav class="card rail rail-r" id="railR" aria-label="Add to board"></nav>
   <aside class="card layers" id="layersPanel" hidden aria-label="Layers"></aside>
   <div class="card fly" id="fly" hidden></div>
+  <button class="card focus-x" id="focusExit" aria-label="Exit focus mode" title="Exit focus mode  Esc"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 9.5h5v-5M19.5 9.5h-5v-5M4.5 14.5h5v5M19.5 14.5h-5v5"/></svg></button>
+  <div class="card addsrch" id="addSrch" hidden role="dialog" aria-label="Search and add"><div class="as-in"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6"/><path d="m15 15 5 5"/></svg><input id="addQ" placeholder="Add anything…" spellcheck="false" autocomplete="off" aria-label="Search objects and cards"></div><div class="as-list" id="addList" role="listbox"></div><div class="as-foot">↑↓ choose · ↵ add · Esc close</div></div>
 
   <div class="bottom">
     <div class="card pill">
@@ -954,6 +997,7 @@ const TYPES = {
   color:   {cat:'Board',card:true,name:'Colour',z:20,w:180,h:0,label:'',noFront:true,p:{hex:'#10A0A0',name:''}},
   board:   {cat:'Board',card:true,name:'Setup',z:20,w:240,h:0,label:'',noFront:true,p:{target:null}},
   column:  {cat:'Board',card:true,name:'Column',z:19,w:300,h:0,label:'',noFront:true,p:{title:'New Column',items:[]}},
+  image:   {cat:'Board',card:true,name:'Image',z:20,w:320,h:0,label:'',noFront:true,p:{src:'',name:'',aw:4,ah:3}},
   gdoc:    {cat:'Board',card:true,name:'Google Doc',z:20,w:380,h:0,label:'',noFront:true,p:{fileId:null,title:'',url:''}}
 };
 const CATS = ['Lights','Grip','Camera','Talent','Set'];
@@ -1280,7 +1324,8 @@ function gridSVG(x0,y0,x1,y1,Q,k,pxm){
 function plotMarkup(items,Q,o){
   const k=1/o.pxm, defs=[`<linearGradient id="gSweep" x1="0" x2="1"><stop offset="0" stop-color="${Q.ink}" stop-opacity=".16"/><stop offset="1" stop-color="${Q.ink}" stop-opacity="0"/></linearGradient>`];
   let beams='', body='', labels='', over='', beamLbl='';
-  const LF=layerFns(o.layers);
+  let LF=layerFns(o.layers);
+  if(o.iso){ const op0=LF.op; LF=Object.assign({},LF,{op:it=>op0(it)*isoOp(it)}); }   /* Shift+H: everything outside the highlight is dimmed, on screen only */
   items=items.filter(LF.vis);
   const sorted = items.filter(it=>TYPES[it.type] && !TYPES[it.type].card).slice().sort((a,b)=>LF.rank(a)-LF.rank(b) || TYPES[a.type].z-TYPES[b.type].z);
   const occl = o.beams ? occluders(items) : [];
@@ -1391,6 +1436,8 @@ const TEMPLATES = {
 
 /* ================= icons ================= */
 const IC = {
+  image:'<rect x="3.5" y="5" width="17" height="14" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="m4 17.5 5-4.5 3.5 3 3-2.5 4.5 4"/>',
+  upload:'<path d="M12 15.5V5M7.5 9.5 12 5l4.5 4.5M5 15v3.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V15"/>',
   gdoc:'<path d="M6.5 3.5h7l4 4v12.5a.5.5 0 0 1-.5.5h-10.5a.5.5 0 0 1-.5-.5V4a.5.5 0 0 1 .5-.5z"/><path d="M13.5 3.5V8h4M9 12h6M9 15h6M9 18h3.5"/>',
   ext:'<path d="M14 4.5h5.5V10M19.5 4.5 11 13M17 14v4.5a1 1 0 0 1-1 1H5.5a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1H10"/>',
   shrink:'<path d="M4.5 9.5h5v-5M19.5 9.5h-5v-5M4.5 14.5h5v5M19.5 14.5h-5v5"/>',
@@ -1519,10 +1566,11 @@ function renderPlot(){
   const vw=W/view.s, vh=H/view.s, x0=view.x-vw/2, y0=view.y-vh/2;
   svg.setAttribute('viewBox',`${f(x0)} ${f(y0)} ${f(vw)} ${f(vh)}`);
   const k=1/view.s;
+  inkOvRender(`${f(x0)} ${f(y0)} ${f(vw)} ${f(vh)}`,k);
   cardBadges=[];
-  const m = plotMarkup(cur?cur.items:[],P,{pxm:view.s,beams:opts.beams,specs:opts.specs&&view.s>=50,sel,handles:!readOnly && ![...sel].some(id=>{ const it=itemById(id); return it && LFc().lock(it); }),layers:cur&&cur.layers,plug:plugIds(),cable:cableIds(),cableSel,beamH:beamHoverId()});
+  const m = plotMarkup(cur?cur.items:[],P,{pxm:view.s,beams:opts.beams,specs:opts.specs&&view.s>=50,sel,handles:!readOnly && ![...sel].some(id=>{ const it=itemById(id); return it && LFc().lock(it); }),layers:cur&&cur.layers,iso:!!isoSet,plug:plugIds(),cable:cableIds(),cableSel,beamH:beamHoverId()});
   const g = patternMarkup(P,x0,y0,vw,vh,k,view.s,'pv');
-  svg.innerHTML = `<defs>${g.defs}${m.defs}</defs>${g.body}${walkLineMarkup(k)}<g>${m.beams}</g><g>${m.body}</g><g>${m.labels}</g>${linksSVG(cur?cur.items:[],P,k,cur&&cur.layers,true)}${conDragMarkup(k)}${plugDragMarkup(k)}${plugSnapMarkup(k)}<g>${m.over}</g>${lockSelMarkup(k)}${hoverMarkup(k)}${lockFlashMarkup(k)}${walkMarkup(k)}<g>${cur&&sel.size&&!extMode?originMarkup(k):''}</g>${extMarkup(k)}${camDropMarkup(k)}${angModeMarkup(k)}${rotModeMarkup(k)}${wallLine&&drag?(w=>w?`<g pointer-events="none" transform="translate(${f(w.x)} ${f(w.y)}) rotate(${f(w.rot)})"><rect x="${f(-w.w/2)}" y="${f(-w.h/2-4*k)}" width="${f(w.w)}" height="${f(w.h+8*k)}" rx="${f(3*k)}" fill="${P.accent}" fill-opacity=".12" stroke="${P.accent}" stroke-opacity=".6" stroke-width="${f(1.2*k)}" stroke-dasharray="${f(4*k)} ${f(3*k)}"/></g>`:'')(itemById(wallLine)):''}${snapMark&&drag?`<g pointer-events="none"><circle cx="${f(snapMark.x)}" cy="${f(snapMark.y)}" r="${f(9*k)}" fill="${P.accent}" fill-opacity=".15" stroke="${P.accent}" stroke-width="${f(1.6*k)}"/><circle cx="${f(snapMark.x)}" cy="${f(snapMark.y)}" r="${f(2.5*k)}" fill="${P.accent}"/></g>`:''}${drag&&drag.mode==='draw'?`<path d="${drag.pts.length>1?smoothPath(drag.pts):`M${f(drag.pts[0][0])} ${f(drag.pts[0][1])}l0 0`}" fill="none" stroke="${penColor(penOpts.color,P)}" stroke-width="${f(Math.max(penOpts.width,1.2*k))}" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>`:''}<g>${cur&&!readOnly?focusMarkup(k):''}</g>${drag&&drag.mode==='box'&&drag.cur?`<rect x="${f(Math.min(drag.start.x,drag.cur.x))}" y="${f(Math.min(drag.start.y,drag.cur.y))}" width="${f(Math.abs(drag.cur.x-drag.start.x))}" height="${f(Math.abs(drag.cur.y-drag.start.y))}" rx="${f(3*k)}" fill="${P.accent}" fill-opacity=".08" stroke="${P.accent}" stroke-width="${f(1.2*k)}" pointer-events="none"/>`:''}`;
+  svg.innerHTML = `<defs>${g.defs}${m.defs}</defs>${g.body}${walkLineMarkup(k)}<g>${m.beams}</g><g>${m.body}</g><g>${m.labels}</g>${linksSVG(cur?cur.items:[],P,k,cur&&cur.layers,true)}${conDragMarkup(k)}${plugDragMarkup(k)}${plugSnapMarkup(k)}<g>${m.over}</g>${lockSelMarkup(k)}${hoverMarkup(k)}${lockFlashMarkup(k)}${isoPulseMarkup(k)}${walkMarkup(k)}<g>${cur&&sel.size&&!extMode?originMarkup(k):''}</g>${extMarkup(k)}${camDropMarkup(k)}${angModeMarkup(k)}${rotModeMarkup(k)}${wallLine&&drag?(w=>w?`<g pointer-events="none" transform="translate(${f(w.x)} ${f(w.y)}) rotate(${f(w.rot)})"><rect x="${f(-w.w/2)}" y="${f(-w.h/2-4*k)}" width="${f(w.w)}" height="${f(w.h+8*k)}" rx="${f(3*k)}" fill="${P.accent}" fill-opacity=".12" stroke="${P.accent}" stroke-opacity=".6" stroke-width="${f(1.2*k)}" stroke-dasharray="${f(4*k)} ${f(3*k)}"/></g>`:'')(itemById(wallLine)):''}${snapMark&&drag?`<g pointer-events="none"><circle cx="${f(snapMark.x)}" cy="${f(snapMark.y)}" r="${f(9*k)}" fill="${P.accent}" fill-opacity=".15" stroke="${P.accent}" stroke-width="${f(1.6*k)}"/><circle cx="${f(snapMark.x)}" cy="${f(snapMark.y)}" r="${f(2.5*k)}" fill="${P.accent}"/></g>`:''}${drag&&drag.mode==='draw'?`<path d="${drag.pts.length>1?smoothPath(drag.pts):`M${f(drag.pts[0][0])} ${f(drag.pts[0][1])}l0 0`}" fill="none" stroke="${penColor(penOpts.color,P)}" stroke-width="${f(Math.max(penOpts.width,1.2*k))}" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>`:''}<g>${cur&&!readOnly?focusMarkup(k):''}</g>${drag&&drag.mode==='box'&&drag.cur?`<rect x="${f(Math.min(drag.start.x,drag.cur.x))}" y="${f(Math.min(drag.start.y,drag.cur.y))}" width="${f(Math.abs(drag.cur.x-drag.start.x))}" height="${f(Math.abs(drag.cur.y-drag.start.y))}" rx="${f(3*k)}" fill="${P.accent}" fill-opacity=".08" stroke="${P.accent}" stroke-width="${f(1.2*k)}" pointer-events="none"/>`:''}`;
   renderCards(); renderCardBadges();
   $('#zoomLbl').textContent = Math.round(view.s/70*100)+'%';
   const cands=[.25,.5,1,2,5,10]; let L=1; for(const c of cands){ if(c*view.s>=36){ L=c; break; } }
@@ -1648,7 +1696,7 @@ function finishStroke(raw){
   checkpoint();
   const it=mk('sketch',Math.round(cx*1000)/1000,Math.round(cy*1000)/1000,0,{w:Math.max(.05,x1-x0),h:Math.max(.05,y1-y0)});
   it.p={pts:local,color:penOpts.color,width:penOpts.width};
-  cur.items.push(it); touch(); draw();
+  cur.items.push(it); if(pres) pres.ink.push({doc:cur.id,id:it.id}); if(isoSet) isoSet.add(it.id); touch(); draw();
 }
 
 /* ================= wall snapping ================= */
@@ -2391,6 +2439,7 @@ $('#specBtn').onclick=e=>toggleOpt('specs',e.currentTarget);
 addEventListener('resize',draw);
 
 /* ================= history ================= */
+function dropNoopCheckpoint(){ if(!cur||!hist.length) return; if(hist[hist.length-1]===JSON.stringify({items:cur.items,meta:meta(cur)})){ hist.pop(); updUndo(); } }   // an undo step that changes nothing is just a wasted ⌘Z
 function checkpoint(){ if(!cur) return; hist.push(JSON.stringify({items:cur.items,meta:meta(cur)})); if(hist.length>120) hist.shift(); fut.length=0; updUndo(); }
 function restore(s){ setTimeout(renderLayersSoon,0); if(rotMode){ rotMode=null; $('#extHint').hidden=true; $('#extHint span').textContent=EXT_HINT; svg.classList.remove('aiming'); } if(angMode) exitAngle(); if(extMode){ extMode=null; $('#extHint').hidden=true; svg.classList.remove('aiming'); } if(focusMode){ focusMode=false; focusPt=null; updAimUI(); } const o=JSON.parse(s); cur.items=o.items; Object.assign(cur,o.meta); syncBoardParents(); sel=new Set([...sel].filter(id=>itemById(id))); touch(); renderInspector(); renderHeader(); draw(); if(document.getElementById('pwBox')) rerenderPower(); }
 function undo(){ if(!hist.length||readOnly) return; fut.push(JSON.stringify({items:cur.items,meta:meta(cur)})); restore(hist.pop()); updUndo(); }
@@ -2452,7 +2501,7 @@ function setCamLetter(it,L){
   it.p.letter=L; if(isDefaultCamLabel(it.label)) it.label=L+' cam';
   if(other) toast(`Swapped letters with ${other.label||'the other camera'}`);
 }
-function openDiagram(id,keepView){ activeLayer=null; setTimeout(renderLayersSoon,0);
+function openDiagram(id,keepView){ activeLayer=null; isoSet=null; isoAmt=0; setTimeout(renderLayersSoon,0);
   if(cur && dirty) flush();
   const d=all[id]; if(!d) return;
   cur=Object.assign({id},JSON.parse(JSON.stringify(d)));
@@ -2633,6 +2682,25 @@ function layerFns(layers){
            visId:id=>info(id).vis, lockId:id=>info(id).lock };
 }
 const LFc = ()=>layerFns(cur&&cur.layers);
+/* Shift+H highlight: a view-only dim of everything that isn't selected; nothing is saved, Shift+H again brings it all back */
+var isoSet=null, isoAmt=0, isoRaf=0, isoDoc=null;
+function isoOp(it){ return isoSet && !isoSet.has(it.id) ? 1-.75*isoAmt : 1; }
+function isoAnim(to,done){ cancelAnimationFrame(isoRaf); const a=isoAmt, t0=performance.now(), D=matchMedia('(prefers-reduced-motion: reduce)').matches?1:(to>a?420:520);   // dim a touch quicker than the fade back in
+  const step=now=>{ const t=Math.min(1,(now-t0)/D), e=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2; isoAmt=a+(to-a)*e; draw(); if(t<1) isoRaf=requestAnimationFrame(step); else if(done) done(); };
+  isoRaf=requestAnimationFrame(step); }
+function toggleIso(){ if(!cur) return;
+  if(isoSet){ isoAnim(0,()=>{ isoSet=null; isoDoc=null; draw(); guideSoon(); }); return; }
+  if(!sel.size){ toast('Select what to highlight first'); return; }
+  const keep=new Set(sel); cur.items.forEach(i=>{ const c=colOf&&colOf(i.id); if(c&&keep.has(c.id)) keep.add(i.id); });   // cards stacked in a highlighted column stay lit
+  isoSet=keep; isoDoc=cur.id; isoAmt=0; isoPulse=matchMedia('(prefers-reduced-motion: reduce)').matches?0:performance.now(); isoAnim(1); guideSoon(); }
+var isoPulse=0;
+function isoPulseMarkup(k){   // one soft ring that blooms out from each highlighted object as the rest dims
+  if(!isoSet||!isoPulse||!cur) return ''; const D=750, t=(performance.now()-isoPulse)/D; if(t>=1){ isoPulse=0; return ''; } draw();
+  const e=1-Math.pow(1-t,3), g=(3+13*e)*k, op=.45*(1-t)*(t<.12?t/.12:1), col=P.accent; let o='';
+  isoSet.forEach(id=>{ const it=itemById(id); if(!it||colOf(id)) return;
+    if(isCard(it)){ const r=cardRect(it); o+=`<rect x="${f(r.x-g)}" y="${f(r.y-g)}" width="${f(r.w+2*g)}" height="${f(r.h+2*g)}" rx="${f(10/PXM0+g)}" fill="none" stroke="${col}" stroke-opacity="${f(op)}" stroke-width="${f(2*k)}"/>`; }
+    else { const hw=Math.max(it.w,10*k)/2+g, hh=Math.max(it.h,10*k)/2+g, rx=Math.min(hw,hh)*.5; o+=`<g transform="translate(${f(it.x)} ${f(it.y)}) rotate(${f(it.rot||0)})"><rect x="${f(-hw)}" y="${f(-hh)}" width="${f(hw*2)}" height="${f(hh*2)}" rx="${f(rx)}" fill="none" stroke="${col}" stroke-opacity="${f(op)}" stroke-width="${f(2*k)}"/></g>`; } });
+  return `<g pointer-events="none">${o}</g>`; }
 function dropHiddenFromSel(){ const L=LFc(); let ch=false; [...sel].forEach(id=>{ const it=itemById(id); if(!it || !L.vis(it)){ sel.delete(id); ch=true; } }); return ch; }
 
 /* ---- panel ---- */
@@ -2666,7 +2734,7 @@ function toggleLayers(on){ layersOpen = on==null ? !layersOpen : on; try{ localS
       el.style.pointerEvents='none'; lpCloseT=setTimeout(()=>{ el.hidden=true; el.style.pointerEvents=''; lpAnims.forEach(a=>{ try{ a.cancel(); }catch(e){} }); lpAnims=[]; },240); }
     renderRail(); if(layersOpen){ closeFloating(); renderLayers(); } return; }
   document.body.classList.toggle('layers-on',layersOpen); renderRail(); if(layersOpen){ closeFloating(); renderLayers(); } }
-function itemName(it){ const t=TYPES[it.type]; if(it.type==='gdoc') return (it.p&&it.p.title)||t.name; if(t.card) return (it.type==='note'&&it.p&&it.p.text? it.p.text.split('\n')[0].slice(0,28) : t.name)||t.name; return it.label || (it.type==='text'&&it.p&&it.p.text) || t.name; }
+function itemName(it){ const t=TYPES[it.type]; if(it.type==='image') return (it.p&&it.p.name)||t.name; if(it.type==='gdoc') return (it.p&&it.p.title)||t.name; if(t.card) return (it.type==='note'&&it.p&&it.p.text? it.p.text.split('\n')[0].slice(0,28) : t.name)||t.name; return it.label || (it.type==='text'&&it.p&&it.p.text) || t.name; }
 function renderLayers(){
   const el=$('#layersPanel'); if(!el||!layersOpen) return;
   if(document.activeElement && document.activeElement.classList.contains('lr-edit') && el.contains(document.activeElement)) return;   // don't wipe a name being typed
@@ -3143,6 +3211,54 @@ function alignPanelHTML(){
 }
 function runAlign(a){ if(a==='dh'||a==='dv') distributeSel(a==='dh'?'h':'v'); else alignSel(a); }
 $('#fly').addEventListener('click',e=>{ const b=e.target.closest('[data-align]'); if(!b||b.disabled) return; runAlign(b.dataset.align); });
+/* Shift+A: a search box at the cursor for every object and card. Pick one and it rides the cursor until you click it down. */
+var addAt=null, addSel=0, addHits=[], addRecent=[]; try{ addRecent=JSON.parse(localStorage.getItem('setplot-addrecent')||'[]')||[]; }catch(e){}
+const ADD_CAT={Lights:'Lights',Grip:'Grip',Camera:'Camera',Talent:'Subjects',Set:'Set',Notes:'Notes',Board:'Cards'};
+function addCatalog(){ const out=[], seen=new Set(), push=(k,cat,icon)=>{ if(seen.has(k)||!TYPES[k]) return; seen.add(k); const t=TYPES[k], p=t.p||{};
+    out.push({k, name:t.name, cat, icon, kw:[t.name,cat,k,p.fixture,p.modifier,t.label].filter(Boolean).join(' ').toLowerCase()}); };
+  CATS.concat(['Notes']).forEach(c=>tilesOf(c).forEach(k=>push(k,ADD_CAT[c]||c,null)));
+  CARD_TOOLS.forEach(([k,n,i])=>push(k,'Cards',i)); push('board','Cards','nest');
+  return out; }
+function addScore(e,q){ if(!q) return 1; const n=e.name.toLowerCase(); if(n===q) return 100; if(n.startsWith(q)) return 80; if(n.split(/[\s/·-]+/).some(w=>w.startsWith(q))) return 60;
+  if(n.includes(q)) return 40; const words=q.split(/\s+/).filter(Boolean); if(words.every(w=>e.kw.includes(w))) return 20;
+  let i=0; for(const ch of n) if(ch===q[i]) i++; return i===q.length?5:0; }   // letters in order as a last resort ("lcb" finds LED COB)
+function renderAddList(){ const q=$('#addQ').value.trim().toLowerCase(), all=addCatalog();
+  let hits=all.map(e=>({e,s:addScore(e,q)})).filter(x=>x.s>0);
+  if(q) hits.sort((a,b)=>b.s-a.s); else { const r=addRecent.filter(k=>all.some(e=>e.k===k)); hits=r.map(k=>({e:all.find(e=>e.k===k),s:1,recent:true})).concat(hits.filter(x=>!r.includes(x.e.k))); }
+  addHits=hits.slice(0,60); addSel=clamp(addSel,0,Math.max(0,addHits.length-1));
+  let lastCat=null, html='';
+  addHits.forEach((h,i)=>{ const grp=h.recent?'Recent':q?null:h.e.cat; if(grp && grp!==lastCat){ html+=`<div class="as-h">${esc(grp)}</div>`; lastCat=grp; }
+    html+=`<button class="as-row${i===addSel?' on':''}" data-i="${i}" role="option" aria-selected="${i===addSel}"><span class="as-ic">${h.e.icon?ic(h.e.icon):iconSVG(h.e.k)}</span><span class="as-t">${esc(h.e.name)}</span>${q||h.recent?`<small>${esc(h.e.cat)}</small>`:''}</button>`; });
+  $('#addList').innerHTML=html||`<div class="as-none">Nothing called “${esc($('#addQ').value)}”</div>`;
+  const on=$('#addList .as-row.on'); if(on) on.scrollIntoView({block:'nearest'}); }
+function openAddSearch(){ if(readOnly) return; if(placing) cancelPlace(); closeFloating(); hideTip();
+  const c=lastPtr, u=c&&document.elementFromPoint(c.x,c.y), onPlot=u&&(u===svg||svg.contains(u)||cardsEl.contains(u));
+  addAt=onPlot?{cx:c.x,cy:c.y}:{cx:innerWidth/2,cy:innerHeight/2};
+  const b=$('#addSrch'); $('#addQ').value=''; addSel=0; renderAddList(); b.hidden=false;
+  const w=b.offsetWidth, h=b.offsetHeight; b.style.left=Math.round(clamp(addAt.cx-24,8,innerWidth-w-8))+'px'; b.style.top=Math.round(clamp(addAt.cy-22,8,innerHeight-h-8))+'px';
+  b.classList.remove('pop'); void b.offsetWidth; b.classList.add('pop'); $('#addQ').focus(); }
+function closeAddSearch(){ const b=$('#addSrch'); if(b.hidden) return; b.hidden=true; if(document.activeElement===$('#addQ')) $('#addQ').blur(); }
+function pickAdd(i){ const h=addHits[i]; if(!h) return; const k=h.e.k; closeAddSearch();
+  addRecent=[k].concat(addRecent.filter(x=>x!==k)).slice(0,5); try{ localStorage.setItem('setplot-addrecent',JSON.stringify(addRecent)); }catch(e){}
+  if(!cur) createDiagram('blank',null); blankChosen=cur&&cur.id; $('#empty').hidden=true;
+  const w=toWorld(addAt.cx,addAt.cy);
+  if(k==='sketch'){ enterDraw(); return; }
+  if(k==='angle'){ enterAngle(w); return; }
+  if(TYPES[k].card){ const d=CARD_DEFAULT[k]&&CARD_DEFAULT[k](), it=addCard(k,w.x-((d&&d.w)||240)/2/PXM0,w.y-.3); if(!it) return;
+    if(document.activeElement&&cardsEl.contains(document.activeElement)) document.activeElement.blur(); dropNoopCheckpoint();
+    enterPlace([it.id],{dx:0,dy:0},{fresh:true,name:TYPES[k].name}); return; }
+  const it=addItem(k,w.x,w.y); if(it) enterPlace([it.id],{dx:0,dy:0},{fresh:true,name:TYPES[k].name}); }
+$('#addQ').addEventListener('input',()=>{ addSel=0; renderAddList(); });
+$('#addQ').addEventListener('keydown',e=>{ e.stopPropagation();
+  if(e.key==='ArrowDown'||e.key==='ArrowUp'){ e.preventDefault(); addSel=clamp(addSel+(e.key==='ArrowDown'?1:-1),0,Math.max(0,addHits.length-1)); renderAddList(); }
+  else if(e.key==='Enter'){ e.preventDefault(); pickAdd(addSel); }
+  else if(e.key==='Escape'){ e.preventDefault(); closeAddSearch(); }
+  else if(e.key==='Tab'){ e.preventDefault(); } });
+$('#addList').addEventListener('pointermove',e=>{ const r=e.target.closest('.as-row'); if(r && +r.dataset.i!==addSel){ addSel=+r.dataset.i; $('#addList').querySelectorAll('.as-row').forEach(x=>{ const on=+x.dataset.i===addSel; x.classList.toggle('on',on); x.setAttribute('aria-selected',on); }); } });
+$('#addList').addEventListener('pointerdown',e=>e.preventDefault());   // keep focus in the box
+$('#addList').addEventListener('click',e=>{ const r=e.target.closest('.as-row'); if(r) pickAdd(+r.dataset.i); });
+addEventListener('pointerdown',e=>{ const b=$('#addSrch'); if(!b.hidden && !b.contains(e.target)) closeAddSearch(); },true);
+addEventListener('blur',closeAddSearch);
 function closeFloating(){ flyAt=null; if(flyCat){ flyCat=null; renderRail(); renderFly(); } closeBoard(); }
 /* number keys open a toolbar group as a popup at the cursor: drag a tile out, or click one to drop it right there */
 var flyAt=null, lastClient=null;
@@ -3339,7 +3455,7 @@ const insp=$('#insp');
 var inspPinned=false; try{ inspPinned=localStorage.getItem('setplot-insp-pin')==='1'; }catch(e){}
 const canHover=matchMedia('(hover: hover) and (pointer: fine)');
 let peekT=0;
-function inspAuto(){ return canHover.matches && !inspPinned && !detailsOpen; }
+function inspAuto(){ return canHover.matches && ((typeof pres!=='undefined'&&pres) || (!inspPinned && !detailsOpen)); }   // focus mode always tucks settings away, even when pinned
 function syncInspMode(){
   const auto=!insp.hidden && inspAuto();
   insp.classList.toggle('auto',auto);
@@ -3643,7 +3759,7 @@ document.addEventListener('pointerdown',e=>{ if(timePopId && !e.target.closest('
 function endPlace(){ placing=null; wallLine=null; document.body.classList.remove('placing'); $('#extHint').hidden=true; $('#extDone').hidden=false; $('#extHint span').textContent=EXT_HINT; }
 function commitPlace(){ if(!placing) return; { const P=placing, one=P.fresh&&P.ids.length===1&&itemById(P.ids[0]); if(one&&one.type==='sun') setTimeout(()=>askSunTime(one.id),0); } if(placing.anim){ placing.anim=null; applyPlace(1); } endPlace(); touch(); renderInspector(); syncCardSel(); draw(); }
 function cancelPlace(){ if(!placing) return; const ids=new Set(placing.ids), fresh=placing.fresh; placing.anim=null; endPlace();
-  cur.items=cur.items.filter(i=>!ids.has(i.id)); sel=new Set(); restoreLast(); pruneOrphanSetups(); touch(); renderInspector(); syncCardSel(); draw(); toast(fresh?'Cancelled':'Copy cancelled'); }
+  cur.items=cur.items.filter(i=>!ids.has(i.id)); sel=new Set(); restoreLast(); pruneOrphanSetups(); if(fresh) dropNoopCheckpoint(); touch(); renderInspector(); syncCardSel(); draw(); toast(fresh?'Cancelled':'Copy cancelled'); }
 addEventListener('pointermove',e=>{ if(placing){ hoverWorld=toWorld(e.clientX,e.clientY); movePlace(hoverWorld,e.shiftKey); } },true);
 addEventListener('pointerdown',e=>{ if(!placing) return; e.preventDefault(); e.stopPropagation();
   if(e.button===2){ cancelPlace(); return; }
@@ -3677,12 +3793,12 @@ var KEY_ACTIONS=[
   ['Edit','undo','Undo','mod+z'], ['Edit','redo','Redo','mod+shift+z'], ['Edit','copy','Copy','mod+c'], ['Edit','cut','Cut','mod+x'],
   ['Edit','paste','Paste','mod+v'], ['Edit','dup','Duplicate','mod+d'], ['Edit','group','Group','mod+g'], ['Edit','ungroup','Ungroup','mod+shift+g'], ['Edit','lock','Lock / unlock layer','mod+l'], ['Edit','del','Delete selected','backspace'], ['Edit','rename','Rename selected object','enter'],
   ['Objects','aim','Aim · rotate a group (several selected)','r'], ['Objects','walk','Walk mode (talent): WASD, Shift to run','mod+enter'], ['Objects','rotl','Turn −15°','['], ['Objects','rotr','Turn +15°',']'],
-  ['Tools','pen','Pen','p'], ['Tools','layers','Layers panel','l'],
+  ['Tools','addmenu','Search & add at the cursor','shift+a'], ['Tools','pen','Pen','p'], ['Tools','layers','Layers panel','l'],
   ['Left toolbar','c_board','Nested setup','0'], ['Left toolbar','g_shoots','Shoots',''], ['Left toolbar','g_lights','Lights','1'], ['Left toolbar','g_grip','Grip','2'], ['Left toolbar','g_camera','Camera','3'],
   ['Left toolbar','g_subjects','Subjects','4'], ['Left toolbar','g_set','Set','5'], ['Left toolbar','g_layers','Layers','6'],
   ['Right toolbar','c_note','Note','shift+1'], ['Right toolbar','c_todo','To-do','shift+2'], ['Right toolbar','c_comment','Comment','shift+3'],
   ['Right toolbar','c_grid','Table','shift+4'], ['Right toolbar','c_color','Colour','shift+5'], ['Right toolbar','c_column','Column','shift+8'], ['Right toolbar','g_notes','Notes (text, arrow, distance, angle, pen)','shift+6'], ['Right toolbar','g_align','Align & distribute','shift+7'],
-  ['View','fit','Fit plot to screen','f'], ['View','zoomin','Zoom in','+'], ['View','zoomout','Zoom out','-'], ['View','zoom100','Zoom to 100%','shift+0'],
+  ['View','present','Focus mode (hide the toolbars)','shift+f'], ['View','isolate','Highlight selection (dim the rest)','shift+h'], ['View','fit','Fit plot to screen','f'], ['View','zoomin','Zoom in','+'], ['View','zoomout','Zoom out','-'], ['View','zoom100','Zoom to 100%','shift+0'],
   ['View','snap','Snap on / off','s'], ['View','beams','Beams on / off','b'], ['View','specs','Fixture specs on / off','i'],
   ['Help','keys','Show shortcuts','?'], ['Help','guide','Helper bar on / off','h']
 ];
@@ -3791,6 +3907,9 @@ document.addEventListener('keydown',e=>{
   if(!typing && act && act.startsWith('g_')){ e.preventDefault();
     const g=act.slice(2); if(g==='shoots'){ $('#drawer').hidden?openDrawer():closeDrawer(); } else if(g==='layers'){ toggleLayers(); }
     else openGroupAtCursor({lights:'Lights',grip:'Grip',camera:'Camera',subjects:'Talent',set:'Set',notes:'Notes',align:'Align'}[g]); return; }
+  if(act==='isolate' && !typing){ e.preventDefault(); toggleIso(); return; }
+  if(act==='present' && !typing){ e.preventDefault(); startPresent(); return; }
+  if(act==='addmenu' && !typing && !readOnly){ e.preventDefault(); openAddSearch(); return; }
   if(typing||readOnly||!cur) return;
   if(act && act.startsWith('c_')){ e.preventDefault(); const t=act.slice(2); if(hoverWorld) addCard(t,hoverWorld.x-.4,hoverWorld.y-.2); else addCard(t); return; }
   if(cableSel && (act==='del'||e.key==='Delete'||e.key==='Backspace')){ e.preventDefault(); unplugCable(cableSel); return; }
@@ -3861,6 +3980,7 @@ function guideNow(){
     return {t:'Add '+lbl.toLowerCase(), s:card&&COL_TYPES.has(railDrag.type)?'Drop it on the board · drop into a column to stack it':'Drop it on the board · let go anywhere else to cancel', lag:150}; }
   if(conDrag && conDrag.moved) return {t:'Connect', s:conDrag.target?'Let go to connect them':'Drop on a card or object to connect · let go on empty space to start a new note', lag:150};
   if(lpDrag && lpDrag.moved) return {t:'Layers', s:lpDrag.iid?'Drop on a layer to move the object into it':'Drop between layers to reorder · drop on a group to put it inside', lag:150};
+  if(isoSet) return {t:'Highlight', s:`${isoSet.size} object${isoSet.size===1?'':'s'} highlighted · everything else is dimmed for now · ${keyLabel(keyOf('isolate'))} to show all`};
   if(cableSel) return {t:'Cable selected', s:'Press Delete to unplug · drag the dot to bend it · Esc to deselect'};
   return null;
 }
@@ -3894,38 +4014,78 @@ function copyText(t,msg){
   try{ navigator.clipboard.writeText(t).then(()=>toast(msg),fail); }catch(e){ fail(); }
 }
 function wrap(text,max){ const out=[]; String(text||'').split('\n').forEach(par=>{ let line=''; par.split(/\s+/).forEach(w=>{ if((line+' '+w).trim().length>max){ if(line) out.push(line); line=w; } else line=(line+' '+w).trim(); }); out.push(line); }); return out; }
-function sheetSVG(){
+function sheetSVG(d){ d=d||cur; const FR=frameOf(d.items);
   const SQ=LIGHT_P, Q=board.exportBg?boardPalette(board.bg):LIGHT_P, pxm=80, k=1/pxm;
-  const b=bounds(cur.items)||{x0:-2,y0:-2,x1:2,y1:2};
+  const b=bounds(d.items)||{x0:-2,y0:-2,x1:2,y1:2};
   const m=.8, x0=b.x0-m, y0=b.y0-m, x1=b.x1+m, y1=b.y1+m;
   const pw=Math.round((x1-x0)*pxm), ph=Math.round((y1-y0)*pxm);
   const head=100, side=380, pad=32;
   const rows=[]; const add=(t,o)=>rows.push(Object.assign({t},o||{}));
-  const lights=cur.items.filter(i=>TYPES[i.type].light);
-  if(lights.length){ add('LIGHTS',{h:1}); lights.forEach(i=>{ const p=i.p; add(i.label||TYPES[i.type].name,{b:1,dot:tintOf(i),off:i.on===false}); const s1=[p.fixture,p.modifier].filter(Boolean).join(' + '); if(s1) wrap(s1,50).forEach(l=>add(l,{m:1})); add([i.type==='sun'&&p.time?p.time:'',p.cct?p.cct+'K':'',i.type==='sun'?'':p.power+'%',p.gel,p.height?'stand '+p.height+' m':''].filter(Boolean).join(' · '),{m:1}); if(refCam()) add(relText(i.x,i.y),{m:1}); if(p.notes) wrap(p.notes,50).forEach(l=>add(l,{m:1,i:1})); add('',{sp:1}); }); }
-  const cams=cur.items.filter(i=>TYPES[i.type].cam);
+  const lights=d.items.filter(i=>TYPES[i.type].light);
+  if(lights.length){ add('LIGHTS',{h:1}); lights.forEach(i=>{ const p=i.p; add(i.label||TYPES[i.type].name,{b:1,dot:tintOf(i),off:i.on===false}); const s1=[p.fixture,p.modifier].filter(Boolean).join(' + '); if(s1) wrap(s1,50).forEach(l=>add(l,{m:1})); add([i.type==='sun'&&p.time?p.time:'',p.cct?p.cct+'K':'',i.type==='sun'?'':p.power+'%',p.gel,p.height?'stand '+p.height+' m':''].filter(Boolean).join(' · '),{m:1}); if(FR.cam) add(relText(i.x,i.y,FR),{m:1}); if(p.notes) wrap(p.notes,50).forEach(l=>add(l,{m:1,i:1})); add('',{sp:1}); }); }
+  const cams=d.items.filter(i=>TYPES[i.type].cam);
   if(cams.length){ add('CAMERA',{h:1}); cams.forEach(i=>{ add(i.label,{b:1}); add(`${i.p.lens}mm ${i.p.sensor}${i.p.settings?' · '+i.p.settings:''}`,{m:1}); }); add('',{sp:1}); }
-  const grip={}; cur.items.forEach(i=>{ const t=TYPES[i.type]; if(t.cat==='Grip'){ const sz=t.sizes&&t.sizes.find(s=>Math.abs(s[1]-i.h)<.01); const key=(sz?sz[0]+' ':'')+t.name.toLowerCase()+(i.p.material?' · '+i.p.material:''); grip[key]=(grip[key]||0)+1; } });
+  const grip={}; d.items.forEach(i=>{ const t=TYPES[i.type]; if(t.cat==='Grip'){ const sz=t.sizes&&t.sizes.find(s=>Math.abs(s[1]-i.h)<.01); const key=(sz?sz[0]+' ':'')+t.name.toLowerCase()+(i.p.material?' · '+i.p.material:''); grip[key]=(grip[key]||0)+1; } });
   if(Object.keys(grip).length){ add('GRIP',{h:1}); Object.entries(grip).forEach(([g,n])=>add(`${n}× ${g}`,{m:1})); add('',{sp:1}); }
-  if(cur.notes){ add('NOTES',{h:1}); wrap(cur.notes,52).forEach(l=>add(l,{m:1})); }
+  if(d.notes){ add('NOTES',{h:1}); wrap(d.notes,52).forEach(l=>add(l,{m:1})); }
   let ly=0; const legend=rows.map(r=>{ const lh=r.h?24:r.sp?8:r.b?19:17; ly+=lh; if(r.sp) return ''; const x=r.dot?16:0;
     return (r.dot?`<circle cx="5" cy="${ly-4.5}" r="5" fill="${r.dot}"/>`:'')+`<text x="${x}" y="${ly}" font-family="${FONT}" font-size="${r.h?11.5:r.b?14:12.5}" font-weight="${r.h||r.b?700:400}" fill="${r.m||r.h?SQ.muted:SQ.ink}" ${r.h?'letter-spacing="1.4"':''}${r.i?' font-style="italic"':''}>${esc(r.t)}${r.off?' (off)':''}</text>`; }).join('');
   const sheetW=pad+Math.max(pw,420)+pad+side+pad, sheetH=head+Math.max(ph,ly+20)+pad*2;
-  const mk2=plotMarkup(cur.items,Q,{pxm,beams:opts.beams,specs:opts.specs,layers:cur.layers});
-  const title=`<text x="${pad}" y="44" font-family="${FONT}" font-size="26" font-weight="800" fill="${SQ.ink}">${esc(cur.shoot||'Lighting plot')}</text>`+
-    `<text x="${pad}" y="70" font-family="${FONT}" font-size="16" font-weight="600" fill="${SQ.ink}">${esc(cur.title||'Setup')}</text>`+
-    `<text x="${pad}" y="90" font-family="${FONT}" font-size="12.5" fill="${SQ.muted}">${esc([cur.client,cur.date,cur.location,cur.crew].filter(Boolean).join('   ·   '))}</text>`+
+  const mk2=plotMarkup(d.items,Q,{pxm,beams:opts.beams,specs:opts.specs,layers:d.layers});
+  const title=`<text x="${pad}" y="44" font-family="${FONT}" font-size="26" font-weight="800" fill="${SQ.ink}">${esc(d.shoot||'Lighting plot')}</text>`+
+    `<text x="${pad}" y="70" font-family="${FONT}" font-size="16" font-weight="600" fill="${SQ.ink}">${esc(d.title||'Setup')}</text>`+
+    `<text x="${pad}" y="90" font-family="${FONT}" font-size="12.5" fill="${SQ.muted}">${esc([d.client,d.date,d.location,d.crew].filter(Boolean).join('   ·   '))}</text>`+
     `<line x1="${pad}" y1="${head}" x2="${sheetW-pad}" y2="${head}" stroke="${SQ.grid2}" stroke-width="1"/>`;
   const plotX=pad, plotY=head+pad;
   const scale=`<g transform="translate(${plotX+12} ${plotY+ph-16})"><path d="M0 0L0 6L${pxm} 6L${pxm} 0" fill="none" stroke="${Q.ink}" stroke-width="1.5"/><text x="${pxm+8}" y="7" font-family="${FONT}" font-size="11" fill="${Q.muted}">1 m</text></g>`;
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${sheetW}" height="${sheetH}" viewBox="0 0 ${sheetW} ${sheetH}"><rect width="100%" height="100%" fill="#ffffff"/>${title}`+
     `<defs><clipPath id="clipPlot"><rect x="${plotX}" y="${plotY}" width="${pw}" height="${ph}" rx="10"/></clipPath>${mk2.defs}</defs>`+
     `<rect x="${plotX}" y="${plotY}" width="${pw}" height="${ph}" rx="10" fill="${Q.paper}"/>`+
-    `<g clip-path="url(#clipPlot)"><g transform="translate(${plotX} ${plotY}) scale(${pxm}) translate(${f(-x0)} ${f(-y0)})">${board.exportBg?(()=>{ const g=patternMarkup(Q,x0,y0,x1-x0,y1-y0,k,pxm,'px'); return `<defs>${g.defs}</defs>${g.body}`; })():gridSVG(x0,y0,x1,y1,Q,k,pxm)}<g>${mk2.beams}</g><g>${mk2.body}</g><g>${mk2.labels}</g>${cardsSVG(cur.items,Q,cur.layers)}</g></g>`+
+    `<g clip-path="url(#clipPlot)"><g transform="translate(${plotX} ${plotY}) scale(${pxm}) translate(${f(-x0)} ${f(-y0)})">${board.exportBg?(()=>{ const g=patternMarkup(Q,x0,y0,x1-x0,y1-y0,k,pxm,'px'); return `<defs>${g.defs}</defs>${g.body}`; })():gridSVG(x0,y0,x1,y1,Q,k,pxm)}<g>${mk2.beams}</g><g>${mk2.body}</g><g>${mk2.labels}</g>${cardsSVG(d.items,Q,d.layers)}</g></g>`+
     `<rect x="${plotX}" y="${plotY}" width="${pw}" height="${ph}" rx="10" fill="none" stroke="${Q.grid2}"/>${scale}`+
     `<g transform="translate(${sheetW-pad-side+12} ${plotY})">${legend}</g>`+
     `<text x="${sheetW-pad}" y="${sheetH-14}" font-family="${FONT}" font-size="10.5" fill="${SQ.muted}" text-anchor="end">Set Plot · ${esc(new Date().toISOString().slice(0,10))}</text></svg>`;
 }
+/* Focus mode: the toolbars and panels fade away and the plot fills the screen. Everything else still works: select,
+   highlight (Shift+H), draw (P), add (1–9, Shift+A) and place. ←/→ with nothing selected step through the shoot's setups. */
+var pres=null;
+/* while presenting, pen lines are also drawn on a layer above the cards, so you can circle a note or a doc */
+const inkOv=document.getElementById('inkOv');
+function inkOvRender(vb,k){ if(!pres||!cur){ if(inkOv.firstChild) inkOv.innerHTML=''; return; } inkOv.setAttribute('viewBox',vb);
+  const ids=new Set(pres.ink.filter(x=>x.doc===cur.id).map(x=>x.id)); let o='';
+  cur.items.forEach(it=>{ if(it.type==='sketch' && ids.has(it.id) && !it.hidden) o+=`<g transform="translate(${f(it.x)} ${f(it.y)}) rotate(${f(it.rot||0)})">${shape(it,P,k)}</g>`; });
+  if(drag&&drag.mode==='draw'&&drag.pts&&drag.pts.length) o+=`<path d="${drag.pts.length>1?smoothPath(drag.pts):`M${f(drag.pts[0][0])} ${f(drag.pts[0][1])}l0 0`}" fill="none" stroke="${penColor(penOpts.color,P)}" stroke-width="${f(Math.max(penOpts.width,1.2*k))}" stroke-linecap="round" stroke-linejoin="round"/>`;
+  inkOv.innerHTML=o; }
+function presentList(){ const sh=cur.shoot||''; const rows=Object.entries(all).filter(([id,d])=>id!==cur.id && !isArchived(id) && (d.shoot||'')===sh).concat([[cur.id,cur]]).sort((a,b)=>(a[1].createdAt||0)-(b[1].createdAt||0));
+  const ids=new Set(rows.map(r=>r[0])), out=[], seen=new Set(), walk=r=>{ if(seen.has(r[0])) return; seen.add(r[0]); out.push(r[0]); rows.filter(x=>x[1].parent===r[0]).forEach(walk); };
+  rows.filter(r=>!r[1].parent||!ids.has(r[1].parent)).forEach(walk); rows.forEach(walk); return out; }   // parents before the setups nested in them, like the Shoots tree
+function glideView(to,D){ const a={x:view.x,y:view.y,s:view.s}, t0=performance.now(); D=matchMedia('(prefers-reduced-motion: reduce)').matches?1:(D||480);
+  const step=now=>{ const t=Math.min(1,(now-t0)/D), e=t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2; view.s=a.s+(to.s-a.s)*e; view.x=a.x+(to.x-a.x)*e; view.y=a.y+(to.y-a.y)*e; draw(); if(t<1) requestAnimationFrame(step); };
+  requestAnimationFrame(step); }
+function presentFit(glide){ W=innerWidth; H=innerHeight; const b=cur&&bounds(cur.items); if(!b) return; const pad=Math.min(70,Math.max(24,W*.05));
+  const s2=clamp(Math.min((W-2*pad)/(b.x1-b.x0+.4),(H-2*pad)/(b.y1-b.y0+.4)),15,260), to={x:(b.x0+b.x1)/2,y:(b.y0+b.y1)/2,s:s2};
+  if(glide) glideView(to,620); else { view.x=to.x; view.y=to.y; view.s=to.s; draw(); } }
+function startPresent(){ if(!cur){ toast('Open a setup first'); return; } if(pres) return; if(placing) cancelPlace(); if(walkMode) stopWalk(); closeFloating(); closeAddSearch(); closeDrawer&&!$('#drawer').hidden&&closeDrawer();
+  pres={ink:[], start:cur.id};
+  document.body.classList.add('presenting'); syncInspMode();
+  try{ const de=document.documentElement; if(de.requestFullscreen && !document.fullscreenElement) de.requestFullscreen().catch(()=>{}); }catch(e){}
+  toast(`Focus mode · Esc or the corner button to exit`); }
+function presentStep(dir){ if(!pres||!cur) return; const L=presentList(), i=L.indexOf(cur.id), j=i+dir; if(j<0||j>=L.length){ toast(dir>0?'Last setup':'First setup'); return; }
+  if(drawMode) exitDraw(); if(dirty) flush(); openDiagram(L[j]); presentFit(false); toast(`${j+1} / ${L.length} · ${cur.title||'Setup'}`); }
+function stopPresent(){ if(!pres) return; pres=null; if(isoSet) toggleIso();
+  const B=document.body; B.classList.remove('presenting'); syncInspMode(); if(!matchMedia('(prefers-reduced-motion: reduce)').matches){ B.classList.remove('hud-back'); void B.offsetWidth; B.classList.add('hud-back'); clearTimeout(stopPresent.t); stopPresent.t=setTimeout(()=>B.classList.remove("hud-back"),1000); }   // the toolbars ease back in, top first
+  try{ if(document.fullscreenElement) document.exitFullscreen().catch(()=>{}); }catch(e){}
+  draw(); }
+$('#focusExit').onclick=()=>stopPresent();
+$('#presentBtn').onclick=()=>startPresent();
+addEventListener('keydown',e=>{
+  if(!pres) return; const t=(e.target.tagName||'').toLowerCase(); if(t==='input'||t==='textarea'||e.target.isContentEditable) return;
+  if(e.key==='Escape'){ if(placing||walkMode||flyCat||drawMode||sel.size||!$('#addSrch').hidden||!$('#modal').hidden||!$('#extMenu').hidden||!$('#timePop').hidden||!$('#lenPop').hidden||extMode||rotMode||angMode) return;   // Esc cancels whatever is open first, as usual
+    e.preventDefault(); e.stopImmediatePropagation(); stopPresent(); return; }   // then it leaves focus mode
+  if(comboOf(e)===keyOf('present')){ e.preventDefault(); e.stopImmediatePropagation(); stopPresent(); return; }
+  if((e.key==='PageDown'||e.key==='PageUp') || ((e.key==='ArrowRight'||e.key==='ArrowLeft') && !sel.size && !e.metaKey && !e.ctrlKey && !e.altKey)){
+    e.preventDefault(); e.stopImmediatePropagation(); presentStep(e.key==='ArrowRight'||e.key==='PageDown'?1:-1); }
+},true);
 const fname=ext=>(`${cur.shoot?cur.shoot+' - ':''}${cur.title||'Setup'}`.replace(/[\\/:*?"<>|]+/g,'').trim()||'lighting-plot')+'.'+ext;
 async function saveFile(name,data,previewUrl){
   if(dlApi){ try{ await dlApi.save({filename:name,data}); return true; }catch(e){ if(e&&e.code==='declined') return false; if(e&&e.code==='rate_limited'){ toast('Another save is open. Try again in a moment.'); return false; } } }
@@ -4211,6 +4371,7 @@ var blankChosen=null;
 $('#emptyTpls').innerHTML=tplCardsLite();
 function tplCardsLite(){ return Object.entries(TEMPLATES).map(([k,t],i)=>`<button class="sc" data-etpl="${k}"><span class="th">${thumbSVG(t.items(),'te'+i)}</span><span class="tx"><b>${esc(t.label)}</b><small>${esc(t.desc)}</small></span></button>`).join(''); }
 $('#emptyTpls').addEventListener('click',e=>{ const b=e.target.closest('[data-etpl]'); if(!b) return; const k=b.dataset.etpl;
+  if(!cur){ createDiagram(k,null); if(k!=='blank'||!cur) return; }   /* first visit: make the setup, and for Blank fall through so this one click also closes the picker */
   if(cur && !cur.items.length){ if(k==='blank'){ blankChosen=cur.id; flyCat='Lights'; renderRail(); renderFly(); $('#empty').hidden=true; return; }   /* stays blank: the picker doesn't come back when the menu closes */ checkpoint(); cur.items=TEMPLATES[k].items(); touch(); fit(); }
   else createDiagram(k,null); });
 function setReadOnly(v){ readOnly=v; $('#rail').hidden=v; $('#railR').hidden=v; if(cur) cardsEl.innerHTML=''; if(v) closeFloating(); updUndo(); renderHeader(); renderInspector(); draw(); }
@@ -4277,7 +4438,7 @@ function fmtWhen(t){ try{ return new Date(t).toLocaleString('en-GB',{day:'numeri
 
 const cardsEl = $('#cards');
 let cdrag = null;
-const cardSig = it=>it.type==='gdoc'?JSON.stringify([it.p, it.w, gdSig(it.p.fileId), mcpState, readOnly]):it.type==='board'?JSON.stringify([it.p.target, it.w, (all[it.p.target]||{}).updatedAt, (all[it.p.target]||{}).title]):it.type==='column'?JSON.stringify([it.p.title, it.w]):JSON.stringify([it.p, it.w]);
+const cardSig = it=>it.type==='image'?JSON.stringify([it.p, it.w, imgSig(it.p.src), readOnly]):it.type==='gdoc'?JSON.stringify([it.p, it.w, gdSig(it.p.fileId), mcpState, readOnly]):it.type==='board'?JSON.stringify([it.p.target, it.w, (all[it.p.target]||{}).updatedAt, (all[it.p.target]||{}).title]):it.type==='column'?JSON.stringify([it.p.title, it.w]):JSON.stringify([it.p, it.w]);
 function cardInner(it){ return cardBody(it)+(readOnly?'':`<div class="c-acts"><button data-act="dupcard" title="${it.type==='board'?'Duplicate this setup and everything nested in it':'Duplicate'}" aria-label="Duplicate">${ic('copy','style="width:15px;height:15px"')}</button><button data-act="delcard" class="del" title="${it.type==='board'?'Delete this setup (Undo brings it back)':'Delete'}" aria-label="Delete">${ic('trash','style="width:15px;height:15px"')}</button></div>`); }
 function cardBody(it){
   const p=it.p, ro=readOnly?'readonly':'', dis=readOnly?'disabled':'';
@@ -4298,6 +4459,7 @@ function cardBody(it){
       bdDepth++; let th; try{ th=bdDepth>1?`<svg viewBox="0 0 16 10"></svg>`:thumbSVG(its,'bd'+it.id.slice(0,6),d&&d.layers); } finally{ bdDepth--; }
       return `<div class="bd-th">${th}</div><div class="bd-tx"><span class="bd-ic">${ic('nest')}</span><div style="min-width:0;flex:1"><input class="bd-title" data-f="btitle" value="${esc(d?d.title||'Setup':'New setup')}" ${ro} aria-label="Setup name"><small>${c.l} light${c.l===1?'':'s'} · ${c.c} cam${c.c===1?'':'s'}${nc?` · ${nc} card${nc===1?'':'s'}`:''}</small></div></div>`+
         (d?`<button class="bd-open" data-act="openboard" title="Open (or double-click)">Open ${ic('chev','style="width:13px;height:13px"')}</button>`:''); }
+    case 'image': return imageBody(it);
     case 'gdoc': return gdocBody(it);
     case 'column': { const n=(p.items||[]).length;
       return `<div class="col-head"><input class="col-title" data-f="title" value="${esc(p.title)}" placeholder="Column" ${ro} aria-label="Column title"><div class="col-count">${n} card${n===1?'':'s'}</div></div><div class="col-body"></div>`+
@@ -4330,13 +4492,62 @@ function renderCards(){
     if(!el){ el=buildCard(it); cardsEl.appendChild(el); }
     else if(el.dataset.sig!==cardSig(it) && !el.contains(document.activeElement)) fillCard(el,it);
     el.style.left=(it.x*PXM0)+'px'; el.style.top=(it.y*PXM0)+'px'; el.style.width=it.w+'px'; el.style.zIndex=i+1; el.style.minHeight=it.nh?it.nh+'px':''; if(it.type==='gdoc'){ el.style.height=it.p.collapsed?'':(it.nh||420)+'px'; el.classList.toggle('gd-col',!!it.p.collapsed); }
-    el.classList.toggle('sel', sel.has(it.id)); el.classList.toggle('solo', sel.has(it.id) && sel.size===1); el.classList.toggle('key', sel.size>1 && [...sel][0]===it.id); el.classList.toggle('locked', LFk.lock(it)); el.style.opacity=LFk.op(it)<.999?LFk.op(it):'';
+    el.classList.toggle('sel', sel.has(it.id)); el.classList.toggle('solo', sel.has(it.id) && sel.size===1); el.classList.toggle('key', sel.size>1 && [...sel][0]===it.id); el.classList.toggle('locked', LFk.lock(it)); { const o2=LFk.op(it)*isoOp(it); el.style.opacity=o2<.999?o2:''; }
     keep.add(it.id);
   });
   [...cardsEl.children].forEach(el=>{ if(!keep.has(el.dataset.cid)){ cardRO.unobserve(el); el.remove(); } });
   gdSyncWatches(items);
   layoutColumns();
 }
+/* ================= Image cards =================
+   Drop image files on the plot (or double-click an Image card) to add them. Big photos are scaled to 2400 px.
+   On claude.ai they're stored with the artifact; elsewhere they're kept in this browser (IndexedDB). */
+var IMG={}, assetsApi=null;
+(async()=>{ try{ if(window.claude && typeof window.claude.use==='function') assetsApi=await window.claude.use('assets'); }catch(e){ assetsApi=null; } })();
+const IDB=(()=>{ let dbp=null; const open=()=>dbp||(dbp=new Promise((res,rej)=>{ try{ const r=indexedDB.open('setplot-images',1); r.onupgradeneeded=()=>r.result.createObjectStore('img'); r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error); }catch(e){ rej(e); } }));
+  const tx=(mode,fn)=>open().then(db=>new Promise((res,rej)=>{ const t=db.transaction('img',mode), st=t.objectStore('img'), q=fn(st); t.oncomplete=()=>res(q&&q.result); t.onerror=()=>rej(t.error); }));
+  return { put:(k,v)=>tx('readwrite',st=>st.put(v,k)), get:k=>tx('readonly',st=>st.get(k)) }; })();
+function imgURL(src){ if(!src) return null; if(src.startsWith('asset:')) return '/_blob/'+src.slice(6); if(src.startsWith('data:')) return src;
+  const c=IMG[src]; if(c) return c.url||null;
+  if(src.startsWith('idb:')){ IMG[src]={state:'loading'}; IDB.get(src.slice(4)).then(b=>{ IMG[src]=b?{url:URL.createObjectURL(b),state:'ok'}:{state:'missing'}; imgRefresh(src); }).catch(()=>{ IMG[src]={state:'missing'}; imgRefresh(src); }); }
+  return null; }
+function imgState(src){ if(!src) return 'empty'; if(src.startsWith('asset:')||src.startsWith('data:')) return (IMG[src]&&IMG[src].state)||'ok'; return (IMG[src]&&IMG[src].state)||'loading'; }
+function imgSig(src){ const c=src&&IMG[src]; return (src||'')+'|'+(c?c.state+(c.url?1:0):''); }
+function imgData(src){ const c=src&&IMG[src]; return c&&c.data||null; }   // a small copy kept for PNG/SVG exports and thumbnails
+function imgRefresh(src){ cardsEl.querySelectorAll('.bc-image').forEach(el=>{ const it=itemById(el.dataset.cid); if(it && (it.p.src===src||it.p.tmp===src) && el.dataset.sig!==cardSig(it)) fillCard(el,it); }); }
+function imageBody(it){ const p=it.p, tmp=p.tmp&&IMG[p.tmp]?p.tmp:null, src=tmp||p.src, url=imgURL(src), st=tmp?'ok':imgState(p.src), ar=`aspect-ratio:${p.aw||4}/${p.ah||3}`;
+  if(!src) return `<div class="im-empty" style="${ar}">${ic('image')}<b>Image</b><small>${readOnly?'No image yet':'Double-click to upload, or drop a file here'}</small></div>`;
+  if(st==='missing') return `<div class="im-empty im-miss" style="${ar}">${ic('image')}<b>${esc(p.name||'Image')}</b><small>This image was added in another browser, so it isn't stored here</small></div>`;
+  return `<div class="im-wrap" style="${ar}">${url?`<img class="im-img" src="${esc(url)}" alt="${esc(p.name||'Image')}" draggable="false" data-src="${esc(src)}">`:''}${tmp?'<div class="im-busy"><i></i>Uploading…</div>':''}</div>`; }
+cardsEl.addEventListener('load',e=>{ const im=e.target; if(!(im instanceof HTMLImageElement)||!im.classList.contains('im-img')) return; const src=im.dataset.src; if(!src) return;
+  const c=IMG[src]||(IMG[src]={state:'ok',url:im.src}); c.state='ok'; if(!c.data){ try{ const m=1000, sc=Math.min(1,m/Math.max(im.naturalWidth,im.naturalHeight)), cv=document.createElement('canvas'); cv.width=Math.max(1,Math.round(im.naturalWidth*sc)); cv.height=Math.max(1,Math.round(im.naturalHeight*sc)); cv.getContext('2d').drawImage(im,0,0,cv.width,cv.height); c.data=cv.toDataURL('image/jpeg',.85); }catch(err){} } },true);
+cardsEl.addEventListener('error',e=>{ const im=e.target; if(!(im instanceof HTMLImageElement)||!im.classList.contains('im-img')) return; const src=im.dataset.src; if(src){ IMG[src]=Object.assign(IMG[src]||{}, {state:'missing'}); imgRefresh(src); } },true);
+async function shrinkImage(file){ const u=URL.createObjectURL(file); try{ const im=new Image(); im.src=u; await im.decode(); let w=im.naturalWidth||800, h=im.naturalHeight||600;
+    if(file.type==='image/gif'||file.type==='image/svg+xml'||Math.max(w,h)<=2400&&file.size<1.5e6&&/^image\/(jpeg|png|webp)$/.test(file.type)) return {blob:file,w,h};   // already small: keep the original
+    const sc=Math.min(1,2400/Math.max(w,h)), cw=Math.round(w*sc), ch=Math.round(h*sc), cv=document.createElement('canvas'); cv.width=cw; cv.height=ch; cv.getContext('2d').drawImage(im,0,0,cw,ch);
+    const type=file.type==='image/png'?'image/webp':'image/jpeg', blob=await new Promise(r=>cv.toBlob(r,type,.86)); return {blob:blob||file,w:cw,h:ch}; }
+  finally{ setTimeout(()=>URL.revokeObjectURL(u),2000); } }
+async function storeImage(blob){ if(assetsApi){ const r=await assetsApi.upload(blob); return 'asset:'+r.id; } const key=uid()+Date.now().toString(36); await IDB.put(key,blob); return 'idb:'+key; }
+async function fillImage(it,file){ if(!it||!file||!/^image\//.test(file.type)){ toast('That file isn’t an image'); return; }
+  const tmp='tmp:'+uid(); IMG[tmp]={state:'ok',url:URL.createObjectURL(file)}; it.p.tmp=tmp; it.p.name=it.p.name||file.name.replace(/\.[a-z0-9]+$/i,''); renderCards(); imgRefresh(tmp);
+  try{ const r=await shrinkImage(file); it.p.aw=r.w; it.p.ah=r.h; renderCards(); const src=await storeImage(r.blob);
+    IMG[src]={state:'ok',url:IMG[tmp].url,data:IMG[tmp].data}; it.p.src=src; delete it.p.tmp; touch(); renderLayersSoon(); renderCards(); imgRefresh(src); }
+  catch(e){ delete it.p.tmp; renderCards(); const c=e&&e.code; toast(c==='quota_exceeded'?'Image storage is full':c==='too_large'?'That image is too large':c==='unsupported_type'?'That image type isn’t supported':'Couldn’t save the image'); } }
+function addImageFiles(files,w){ const imgs=[...files].filter(f=>/^image\//.test(f.type)); if(!imgs.length){ toast('Drop image files to add them'); return; } if(readOnly) return;
+  if(!cur) createDiagram('blank',null); blankChosen=cur.id; $('#empty').hidden=true;
+  imgs.slice(0,12).forEach((f,i)=>{ const it=addCard('image',w.x-160/PXM0+i*.35,w.y-.6+i*.35); if(!it) return; if(document.activeElement&&cardsEl.contains(document.activeElement)) document.activeElement.blur(); fillImage(it,f); }); }
+const imgPick=document.createElement('input'); imgPick.type='file'; imgPick.accept='image/*'; imgPick.hidden=true; document.body.appendChild(imgPick); let imgPickFor=null;
+function pickImageFor(it){ imgPickFor=it.id; imgPick.value=''; imgPick.click(); }
+imgPick.addEventListener('change',()=>{ const it=imgPickFor&&itemById(imgPickFor), f=imgPick.files&&imgPick.files[0]; imgPickFor=null; if(it&&f){ checkpoint(); fillImage(it,f); } });
+let dropDepth=0;
+const hasFiles=e=>e.dataTransfer && [...(e.dataTransfer.types||[])].includes('Files');
+addEventListener('dragenter',e=>{ if(!hasFiles(e)||readOnly) return; dropDepth++; document.body.classList.add('img-drop'); });
+addEventListener('dragleave',e=>{ if(!hasFiles(e)) return; dropDepth=Math.max(0,dropDepth-1); if(!dropDepth) document.body.classList.remove('img-drop'); });
+addEventListener('dragover',e=>{ if(!hasFiles(e)||readOnly) return; e.preventDefault(); e.dataTransfer.dropEffect='copy'; });
+addEventListener('drop',e=>{ if(!hasFiles(e)) return; e.preventDefault(); dropDepth=0; document.body.classList.remove('img-drop'); if(readOnly) return;
+  const into=e.target.closest&&e.target.closest('.bc-image'), it=into&&itemById(into.dataset.cid), files=e.dataTransfer.files;
+  if(it && !it.p.src && files.length===1){ checkpoint(); fillImage(it,files[0]); return; }   // dropped onto an empty Image card: fill it
+  addImageFiles(files,toWorld(e.clientX,e.clientY)); });
 /* ================= Google Doc cards =================
    A card shows a Google Doc from the viewer's Google Drive connection and keeps it current (re-read about every 30 s while
    the page is open). Only the doc's id, title and link are saved with the plot; its text stays in memory, never in the plot. */
@@ -4673,6 +4884,7 @@ const CARD_DEFAULT = {
   color:()=>({w:180,p:{hex:'#10A0A0',name:''}}),
   column:()=>({w:300,p:{title:'New Column',items:[]}}),
   board:()=>({w:240,p:{target:null}}),
+  image:()=>({w:320,p:{src:'',name:'',aw:4,ah:3}}),
   gdoc:()=>({w:380,nh:420,p:{fileId:null,title:'',url:''}})
 };
 function addCard(type,x,y){
@@ -4873,6 +5085,7 @@ function setCardColor(el,it,hex,fromText){
   if(blk) blk.style.background=hex; if(hi){ hi.style.color=inkOn(hex); if(!fromText) hi.value=hex; } if(nm) nm.placeholder=nearestName(hex); if(pk&&fromText) pk.value=hex.toLowerCase();
 }
 cardsEl.addEventListener('dblclick',e=>{
+  { const ic0=e.target.closest('.bc-image'); if(ic0 && !readOnly){ const it=itemById(ic0.dataset.cid); if(it){ e.preventDefault(); pickImageFor(it); } return; } }
   { const gc=e.target.closest('.bc-gdoc.gd-col'); if(gc){ const it=itemById(gc.dataset.cid); if(it){ e.preventDefault(); gdCollapse(it,false); } return; } }
   { const bd=e.target.closest('.bc-board'); if(bd && !e.target.closest('.bd-title')){ openBoardCard(itemById(bd.dataset.cid)); return; } }
   const blk=e.target.closest('.c-block'); if(!blk||readOnly) return;
@@ -4927,7 +5140,7 @@ function deleteCard(id){ checkpoint(); cur.items=cur.items.filter(i=>i.id!==id);
 function dupCard(id){ const it=itemById(id); if(!it) return; if(it.type==='board'&&it.p.target&&all[it.p.target]){ duplicateSetupById(it.p.target); return; } if(it.type==='column'){ checkpoint(); const out=cloneInto([it],(it.w+24)/PXM0,0); enterPlace(out.map(o=>o.id),{dx:(it.w+24)/PXM0,dy:0}); return; } checkpoint(); const c=JSON.parse(JSON.stringify(it)); c.id=uid(); c.x+=.3; c.y+=.3; if(c.type==='comment') c.p.at=Date.now(); delete c.conns; cur.items.push(c); renderCards(); enterPlace([c.id],{dx:.3,dy:.3}); }
 
 /* right toolbar: click to drop in the middle, or drag onto the board */
-const CARD_TOOLS=[['note','Note','note'],['todo','To-do','todo'],['comment','Comment','comment'],['grid','Table','table'],['color','Colour','swatch'],['column','Column','column'],['gdoc','Doc','gdoc']];
+const CARD_TOOLS=[['note','Note','note'],['todo','To-do','todo'],['comment','Comment','comment'],['grid','Table','table'],['color','Colour','swatch'],['column','Column','column'],['image','Image','image'],['gdoc','Doc','gdoc']];
 const ITEM_TOOLS=[['text','Text','notes'],['arrow','Arrow','arrow'],['measure','Distance','measure'],['sketch','Pen','pen']];
 $('#railR').innerHTML=CARD_TOOLS.map(([t,n,i])=>`<button class="tool" data-card="${t}" aria-label="Add ${n}">${ic(i)}${n}</button>`).join('')+
   `<hr><button class="tool" data-cat="Notes" aria-expanded="false" aria-label="Text, arrows, distances, angles and pen">${ic('notes')}Notes</button>`+
@@ -4980,10 +5193,14 @@ function cardsSVG(items,Q,layers){
       for(let c=1;c<cols;c++) g+=`<line x1="${c*cw}" y1="0" x2="${c*cw}" y2="${h}" stroke="#e3e6ea"/>`;
       for(let r=1;r<rows;r++) g+=`<line x1="0" y1="${r*rh}" x2="${w}" y2="${r*rh}" stroke="#e3e6ea"/>`;
       p.cells.forEach((row,r)=>row.forEach((v,c)=>{ const max=Math.max(3,Math.floor((cw-16)/7.2)); const s=String(v||''); g+=T(c*cw+8,r*rh+22,13,s.length>max?s.slice(0,max-1)+'…':s,`fill="${r===0?'#ffffff':'#1c1f23'}"${r===0?' font-weight="700"':''}`); }));
+    } else if(it.type==='image'){
+      const ih=Math.round(w*(p.ah||3)/(p.aw||4)), dat=imgData(p.src); h=ih;
+      g+=`<clipPath id="ic${it.id}"><rect width="${w}" height="${ih}" rx="8"/></clipPath>`+(dat?`<image href="${dat}" width="${w}" height="${ih}" preserveAspectRatio="xMidYMid slice" clip-path="url(#ic${it.id})"/>`:card(ih,'#f3f4f6')+T(w/2,ih/2+5,13,p.src?'Image':'Empty image',`text-anchor="middle" fill="#8a9099"`));
     } else if(it.type==='board'){
       const d=p.target&&all[p.target], tw=w-16, thh=Math.round(tw*10/16); h=thh+58;
       g+=card(h)+`<rect x="8" y="8" width="${tw}" height="${thh}" rx="6" fill="#eceef0"/>`;
-      if(d&&bdDepth<1){ bdDepth++; try{ g+=thumbSVG(d.items||[],'bx'+it.id.slice(0,6),d.layers).replace('<svg ',`<svg x="8" y="8" width="${tw}" height="${thh}" `); } finally{ bdDepth--; } }
+      if(d&&!(d.items||[]).length) g+=T(8+tw/2,8+thh/2+5,14,'Empty',`text-anchor="middle" fill="#9aa0a6"`);   /* an empty setup's placeholder, drawn at card scale */
+      else if(d&&bdDepth<1){ bdDepth++; try{ g+=thumbSVG(d.items||[],'bx'+it.id.slice(0,6),d.layers).replace('<svg ',`<svg x="8" y="8" width="${tw}" height="${thh}" `); } finally{ bdDepth--; } }
       g+=T(14,thh+38,15,d?d.title||'Setup':'Setup deleted',`font-weight="700" fill="#1c1f23"`);
     } else if(it.type==='column'){
       h=h||200; const n=(p.items||[]).length, bt=78;
