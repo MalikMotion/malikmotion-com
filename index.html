@@ -4533,21 +4533,24 @@ async function fillImage(it,file){ if(!it||!file||!/^image\//.test(file.type)){ 
   try{ const r=await shrinkImage(file); it.p.aw=r.w; it.p.ah=r.h; renderCards(); const src=await storeImage(r.blob);
     IMG[src]={state:'ok',url:IMG[tmp].url,data:IMG[tmp].data}; it.p.src=src; delete it.p.tmp; touch(); renderLayersSoon(); renderCards(); imgRefresh(src); }
   catch(e){ delete it.p.tmp; renderCards(); const c=e&&e.code; toast(c==='quota_exceeded'?'Image storage is full':c==='too_large'?'That image is too large':c==='unsupported_type'?'That image type isn’t supported':'Couldn’t save the image'); } }
-function addImageFiles(files,w){ const imgs=[...files].filter(f=>/^image\//.test(f.type)); if(!imgs.length){ toast('Drop image files to add them'); return; } if(readOnly) return;
+function addImageFiles(files,w){ const imgs=[...files].filter(f=>/^image\//.test(f.type)); if(!imgs.length){ toast('Drop image files to add them'); return []; } if(readOnly) return [];
   if(!cur) createDiagram('blank',null); blankChosen=cur.id; $('#empty').hidden=true;
-  imgs.slice(0,12).forEach((f,i)=>{ const it=addCard('image',w.x-160/PXM0+i*.35,w.y-.6+i*.35); if(!it) return; if(document.activeElement&&cardsEl.contains(document.activeElement)) document.activeElement.blur(); fillImage(it,f); }); }
+  const made=[]; imgs.slice(0,12).forEach((f,i)=>{ const it=addCard('image',w.x-160/PXM0+i*.35,w.y-.6+i*.35); if(!it) return; made.push(it); if(document.activeElement&&cardsEl.contains(document.activeElement)) document.activeElement.blur(); fillImage(it,f); }); return made; }
 const imgPick=document.createElement('input'); imgPick.type='file'; imgPick.accept='image/*'; imgPick.hidden=true; document.body.appendChild(imgPick); let imgPickFor=null;
 function pickImageFor(it){ imgPickFor=it.id; imgPick.value=''; imgPick.click(); }
 imgPick.addEventListener('change',()=>{ const it=imgPickFor&&itemById(imgPickFor), f=imgPick.files&&imgPick.files[0]; imgPickFor=null; if(it&&f){ checkpoint(); fillImage(it,f); } });
 let dropDepth=0;
 const hasFiles=e=>e.dataTransfer && [...(e.dataTransfer.types||[])].includes('Files');
 addEventListener('dragenter',e=>{ if(!hasFiles(e)||readOnly) return; dropDepth++; document.body.classList.add('img-drop'); });
-addEventListener('dragleave',e=>{ if(!hasFiles(e)) return; dropDepth=Math.max(0,dropDepth-1); if(!dropDepth) document.body.classList.remove('img-drop'); });
-addEventListener('dragover',e=>{ if(!hasFiles(e)||readOnly) return; e.preventDefault(); e.dataTransfer.dropEffect='copy'; });
+addEventListener('dragleave',e=>{ if(!hasFiles(e)) return; dropDepth=Math.max(0,dropDepth-1); if(!dropDepth){ document.body.classList.remove('img-drop'); fileColDrop(null); } });
+function fileColDrop(cd){ const k=cd?cd.col+':'+cd.index:'', o=colDrop&&colDrop.file?colDrop.col+':'+colDrop.index:''; if(k===o) return; colDrop=cd?Object.assign(cd,{h:150,file:true}):(colDrop&&colDrop.file?null:colDrop); layoutColumns(); }   // a gap opens in the column where the image will land
+addEventListener('dragover',e=>{ if(!hasFiles(e)||readOnly) return; e.preventDefault(); e.dataTransfer.dropEffect='copy'; fileColDrop(colDropAt(e.clientX,e.clientY,{type:'image',id:'__file'})); });
 addEventListener('drop',e=>{ if(!hasFiles(e)) return; e.preventDefault(); dropDepth=0; document.body.classList.remove('img-drop'); if(readOnly) return;
   const into=e.target.closest&&e.target.closest('.bc-image'), it=into&&itemById(into.dataset.cid), files=e.dataTransfer.files;
+  const cd=colDropAt(e.clientX,e.clientY,{type:'image',id:'__file'}); fileColDrop(null);
   if(it && !it.p.src && files.length===1){ checkpoint(); fillImage(it,files[0]); return; }   // dropped onto an empty Image card: fill it
-  addImageFiles(files,toWorld(e.clientX,e.clientY)); });
+  const made=addImageFiles(files,toWorld(e.clientX,e.clientY));
+  if(cd && made && made.length){ const col=itemById(cd.col); if(col){ col.p.items=col.p.items||[]; col.p.items.splice(cd.index,0,...made.map(m=>m.id)); touch(); renderCards(); draw(); } } });   // dropped on a column: stack them in it, at the column's width
 /* ================= Google Doc cards =================
    A card shows a Google Doc from the viewer's Google Drive connection and keeps it current (re-read about every 30 s while
    the page is open). Only the doc's id, title and link are saved with the plot; its text stays in memory, never in the plot. */
@@ -4774,7 +4777,7 @@ var archOpen=false; try{ archOpen=localStorage.getItem('setplot-arch')==='1'; }c
 function ancestors(d){ const out=[], seen=new Set(); let p=d&&d.parent; while(p&&all[p]&&!seen.has(p)&&out.length<12){ seen.add(p); out.unshift(p); p=all[p].parent; } return out; }
 function descendants(id){ const out=[], q=[id], seen=new Set([id]); while(q.length){ const x=q.shift(); Object.entries(all).forEach(([k,d])=>{ if(d.parent===x&&!seen.has(k)){ seen.add(k); out.push(k); q.push(k); } }); } return out; }
 /* columns (like Milanote): notes, to-dos, tables and colours stack inside; the column keeps their order in p.items */
-const COL_TYPES=new Set(['note','todo','grid','color','board']), COL_PAD=12, COL_GAP=10, COL_MINBODY=120;
+const COL_TYPES=new Set(['note','todo','grid','color','board','image']), COL_PAD=12, COL_GAP=10, COL_MINBODY=120;
 var colDrop=null;
 function colOf(id){ return cur ? cur.items.find(c=>c.type==='column' && (c.p.items||[]).includes(id)) : null; }
 function layoutColumns(){
