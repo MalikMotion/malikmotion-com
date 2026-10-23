@@ -1,4 +1,3 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>Set Plot</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -655,6 +654,11 @@ body.placing .bc:hover{box-shadow:0 1px 2px rgba(20,24,30,.08),0 6px 18px -6px r
 .gd-btn:hover{background:var(--hover,color-mix(in srgb,var(--ink) 7%,transparent));color:var(--ink)}
 .gd-btn svg{width:16px;height:16px}
 .gd-body{flex:1 1 auto;min-height:0;overflow:auto;padding:12px 16px 16px;font-size:13px;line-height:1.55;overscroll-behavior:contain}
+.gd-body:has(.gd-frame){padding:0;overflow:hidden;display:flex;flex-direction:column}
+.gd-frame{flex:1 1 auto;width:100%;min-height:0;border:0;background:#fff;display:block}
+body.ptr-down .gd-frame{pointer-events:none}
+.gd-foot{flex:none;font-size:11.5px;color:var(--muted);padding:6px 12px;border-top:1px solid var(--line)}
+.gd-foot a{color:var(--accent)}
 .gd-doc h3{font-size:16px;margin:14px 0 6px;font-weight:700}.gd-doc h4{font-size:14.5px;margin:12px 0 4px;font-weight:700}.gd-doc h5,.gd-doc h6{font-size:13.5px;margin:10px 0 4px;font-weight:700}
 .gd-doc>:first-child{margin-top:0}
 .gd-doc p{margin:0 0 8px}.gd-doc ul,.gd-doc ol{margin:0 0 8px;padding-left:20px}
@@ -3560,6 +3564,7 @@ function dupSel(){ if(readOnly||!sel.size) return; checkpoint(); const out=clone
 /* placing a duplicate: the copy follows the cursor, a click drops it, Esc throws it away */
 var placing=null, lastPtr=null;
 addEventListener('pointermove',e=>{ lastPtr={x:e.clientX,y:e.clientY,shift:e.shiftKey}; },true);
+addEventListener('pointerdown',()=>document.body.classList.add('ptr-down'),true); ['pointerup','pointercancel','blur'].forEach(t=>addEventListener(t,()=>document.body.classList.remove('ptr-down'),true));   /* while dragging, an embedded doc must not swallow the pointer */
 addEventListener('pointerdown',e=>{ lastPtr={x:e.clientX,y:e.clientY,shift:e.shiftKey}; },true);
 function placeCenter(it){ return isCard(it) ? {x:it.x+it.w/PXM0/2, y:it.y+(it.h||60)/PXM0/2} : {x:it.x, y:it.y}; }
 // delta = how far the copies were created from their originals, so Shift can line them up beside the originals
@@ -4390,7 +4395,7 @@ function gdocBody(it){ const p=it.p, g=p.fileId&&GD[p.fileId];
   const title=(g&&g.title)||p.title||'Google Doc', url=(g&&g.url)||p.url||('https://docs.google.com/document/d/'+p.fileId+'/edit');
   let body;
   if(mcpState==='loading') body=`<div class="gd-msg">Connecting to Google Drive…</div>`;
-  else if(!mcpApi) body=`<div class="gd-msg">This view can’t read Google Drive, so the doc’s text isn’t shown here. Open it in Google Docs instead.</div>`;
+  else if(!mcpApi) body=`<iframe class="gd-frame" src="https://docs.google.com/document/d/${encodeURIComponent(p.fileId)}/edit?rm=minimal" title="${esc(title)}" allow="clipboard-read; clipboard-write"></iframe><div class="gd-foot">Edit right here while signed in to Google. Blank? <a href="${esc(url)}" target="_blank" rel="noopener noreferrer">Open in Google Docs</a></div>`;   // outside claude.ai (e.g. your own site) the real Google Docs editor lives in the card
   else if(g && g.md!=null) body=(g.err?`<div class="gd-warn">${esc(gdErrText(g.err))}</div>`:'')+`<div class="gd-doc">${mdToHtml(g.md)||'<p class="gd-empty">This doc is empty.</p>'}</div>`;
   else if(g && g.err) body=`<div class="gd-msg">${esc(gdErrText(g.err))}</div>`+((g.err==='approval_required'||g.err==='consent_required')?`<button class="btn sm primary gd-allow" data-act="gallow">Allow and load</button>`:'');
   else body=`<div class="gd-msg">Loading the doc…</div>`;
@@ -5032,5 +5037,3 @@ function startLocal(){ mode='local'; all=localRead(); setStatus('Saved in this b
 })();
 
 </script>
-
-</body></html>
