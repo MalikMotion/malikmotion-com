@@ -684,7 +684,12 @@ body.placing .bc:hover{box-shadow:0 1px 2px rgba(20,24,30,.08),0 6px 18px -6px r
 .tr-cards{flex:0 1 auto;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:6px;scrollbar-width:thin;overscroll-behavior:contain}
 .tr-card{background:var(--card);border-radius:8px;padding:7px 9px;box-shadow:0 1px 1px rgba(9,30,66,.18);font-size:13px;line-height:1.35;cursor:grab;position:relative}
 .tr-card:hover{box-shadow:0 0 0 1.5px var(--accent)}
-.tr-card.tr-src{opacity:.35}.tr-card.pend{opacity:.6}
+.tr-card.tr-src{opacity:.35}
+.tr-card.tr-mark-a{box-shadow:0 -3px 0 -1px var(--accent)}.tr-card.tr-mark-b{box-shadow:0 3px 0 -1px var(--accent)}
+.tr-conn{padding:16px 18px;font-size:13px;line-height:1.5;overflow:auto}.tr-conn b{font-size:14px}.tr-conn p{margin:6px 0 8px;color:var(--muted)}.tr-conn ol{margin:0 0 10px;padding-left:18px;color:var(--muted)}.tr-conn li{margin:3px 0}.tr-conn a{color:var(--accent)}
+.tr-conn code{font-size:12px;background:var(--field);padding:1px 5px;border-radius:4px;color:var(--ink)}
+.tr-keyrow{display:flex;gap:8px;align-items:center}.tr-keyrow .gd-q{flex:1}
+.tr-disc{align-self:flex-start;border:0;background:transparent;color:var(--faint);font:inherit;font-size:12px;cursor:pointer;padding:2px 0}.tr-disc:hover{color:var(--ink)}.tr-card.pend{opacity:.6}
 .tr-ghost{position:fixed;z-index:400;pointer-events:none;transform:rotate(2deg);box-shadow:0 10px 24px rgba(0,0,0,.25);font-family:var(--sans);color:var(--ink)}
 .tr-lb{display:flex;gap:4px;margin-bottom:5px;flex-wrap:wrap}.tr-lb i{width:28px;height:7px;border-radius:4px;display:block}
 .tr-cn{display:flex;gap:6px;align-items:flex-start}.tr-cn span{flex:1;min-width:0;word-break:break-word}
@@ -4528,96 +4533,151 @@ function renderCards(){
   layoutColumns();
 }
 /* ================= Trello board cards =================
-   A card on the plot shows a Trello board through the viewer's Trello connection and stays in sync: it re-reads every ~30 s,
-   and changes made here (add a card, rename, move between lists, mark done) go straight to Trello. Only the board's id,
-   name and link are saved with the plot. */
-const TR_SERVER='Trello';
-var TRB={}, trWatch={};
+   A card on the plot shows a Trello board and stays in sync both ways: it re-reads every ~20–30 s, and changes made here
+   (add a card, rename, move between lists, mark done) go straight to Trello. Two ways to reach Trello:
+   · on claude.ai, through the viewer's Trello connector (mcp);
+   · anywhere else (e.g. your own domain), straight to Trello's API with your own API key + a token from "Connect Trello".
+   Only the board's id, name and link are saved with the plot. */
+const TR_SERVER='Trello', TRELLO_KEY_DEFAULT='';   // put your Trello API key here to skip pasting it on each browser
+var TRB={}, trWatch={}, trPoll={};
+var TRK={ key:'', token:'' }; try{ TRK.key=localStorage.getItem('setplot-trello-key')||TRELLO_KEY_DEFAULT; TRK.token=localStorage.getItem('setplot-trello-token')||''; }catch(e){ TRK.key=TRELLO_KEY_DEFAULT; }
+function trMode(){ return mcpApi?'mcp':(TRK.key&&TRK.token)?'rest':'none'; }
 const TR_COL={green:'#4bce97',yellow:'#e2b203',orange:'#faa53d',red:'#f87462',purple:'#9f8fef',blue:'#579dff',sky:'#6cc3e0',lime:'#94c748',pink:'#e774bb',black:'#8590a2'};
 const trLabelCol=c=>{ if(!c) return '#8590a2'; const b=String(c).replace(/_(light|dark)$/,''); return TR_COL[b]||'#8590a2'; };
+const trRid=id=>String(id||'').split('/').pop();   // a connector id (ari:…/board/…/<id>) → Trello's own id
 function trPay(r){ let v=r&&r.payload; if(typeof v==='string'){ try{ v=JSON.parse(v); }catch(e){ v={}; } } return v||{}; }
-function trSig(id){ const B=id&&TRB[id]; if(!B) return ''; return gdHash(JSON.stringify([B.lists,B.cards]))+'|'+(B.err||'')+'|'+(B.busy?1:0)+'|'+(B.cards?1:0); }
+function trSig(id){ const B=id&&TRB[id]; if(!B) return ''; return gdHash(JSON.stringify([B.lists,B.cards]))+'|'+(B.err||'')+'|'+(B.busy?1:0)+'|'+(B.cards?1:0)+'|'+trMode(); }
+function trErrText(code){ return ({ auth:'Trello didn’t accept the saved connection. Connect Trello again.', notfound:'This board couldn’t be found. It may be closed, or not shared with your Trello account.', net:'Trello isn’t answering right now. Trying again shortly.' })[code] || gdErrText(code).replace(/Google Drive/g,'Trello').replace(/this doc/g,'this board').replace(/doc/g,'board'); }
 function trApply(id){ cardsEl.querySelectorAll('.bc-trello').forEach(el=>{ const it=itemById(el.dataset.cid); if(!it||it.p.boardId!==id) return;
   const B=TRB[id]; if(B&&B.name&&B.name!==it.p.name&&!readOnly){ it.p.name=B.name; renderLayersSoon(); }
-  if(el.dataset.trEdit||trDrag) { trAfterFill(el,it,null); return; }   // don't redraw under someone typing or dragging
+  if(el.dataset.trEdit||trDrag){ trAfterFill(el,it,null); return; }   // don't redraw under someone typing or dragging
   if(el.dataset.sig!==cardSig(it)) fillCard(el,it); else trAfterFill(el,it,null); }); }
+function trSet(id,lists,cards){ const B=TRB[id]||(TRB[id]={}); if(lists) B.lists=lists.slice().sort((a,b)=>(a.position||0)-(b.position||0)); if(cards) B.cards=cards.filter(c=>c&&!c.closed); B.err=null; B.at=Date.now(); }
 function trOn(id,kind,ev){ const B=TRB[id]||(TRB[id]={});
-  if(ev.type==='data'){ const v=trPay(ev.result); if(kind==='lists') B.lists=(v.lists||[]).slice().sort((a,b)=>(a.position||0)-(b.position||0));
-    else B.cards=((v.cards&&v.cards.nodes)||[]).filter(c=>c&&!c.closed); B.err=null; B.at=ev.result.cache&&ev.result.cache.storedAt||Date.now(); }
+  if(ev.type==='data'){ const v=trPay(ev.result); if(kind==='lists') trSet(id,v.lists||[],null); else trSet(id,null,(v.cards&&v.cards.nodes)||[]); if(ev.result.cache&&ev.result.cache.storedAt) B.at=ev.result.cache.storedAt; }
   else { B.err=ev.error&&ev.error.code||'upstream_error'; if(GD_DENY.has(B.err)){ B.lists=null; B.cards=null; } }
   trApply(id); }
-function trSyncWatches(items){ if(!mcpApi) return; const want=new Set(items.filter(i=>i.type==='trello'&&i.p&&i.p.boardId).map(i=>i.p.boardId));
-  want.forEach(id=>{ if(trWatch[id]) return; const o={cache:{staleTime:15000,gcTime:86400000},refetchInterval:30000};
-    try{ trWatch[id]=[mcpApi.watchTool(TR_SERVER,'trelloReadList',{action:'list_by_board',boardId:id,limit:50},ev=>trOn(id,'lists',ev),o),
-                     mcpApi.watchTool(TR_SERVER,'trelloReadCard',{action:'list_by_board',boardIdOrUrl:id,limit:50},ev=>trOn(id,'cards',ev),o)]; }catch(e){} });
-  Object.keys(trWatch).forEach(id=>{ if(!want.has(id)){ trWatch[id].forEach(u=>{ try{ u(); }catch(e){} }); delete trWatch[id]; } }); }
-async function trRefresh(id){ if(!id||!mcpApi) return; const B=TRB[id]||(TRB[id]={}); B.busy=true; trApply(id);
-  try{ const [l,c]=await Promise.all([mcpApi.callTool(TR_SERVER,'trelloReadList',{action:'list_by_board',boardId:id,limit:50},{cache:{refresh:true,gcTime:86400000,staleTime:15000}}),
-                                      mcpApi.callTool(TR_SERVER,'trelloReadCard',{action:'list_by_board',boardIdOrUrl:id,limit:50},{cache:{refresh:true,gcTime:86400000,staleTime:15000}})]);
-    trOn(id,'lists',{type:'data',result:l}); trOn(id,'cards',{type:'data',result:c}); }
-  catch(e){ trOn(id,'err',{type:'error',error:e}); }
+/* ---- Trello's own API (outside claude.ai) ---- */
+async function trApi(method,path,params){ const q=new URLSearchParams(Object.assign({key:TRK.key,token:TRK.token},method==='GET'?params||{}:{}));
+  let r; try{ r=await fetch('https://api.trello.com/1'+path+'?'+q.toString(), method==='GET'?{}:{method,headers:{'Content-Type':'application/json'},body:JSON.stringify(params||{})}); }catch(e){ throw {code:'net'}; }
+  if(r.status===401){ TRK.token=''; try{ localStorage.removeItem('setplot-trello-token'); }catch(e){} renderCards(); throw {code:'auth'}; }
+  if(r.status===404||r.status===400) throw {code:'notfound'}; if(!r.ok) throw {code:'net'}; return r.json(); }
+function trRestBoard(it){ const p=it&&it.p; return p&&p.boardId?trRid(p.boardId):null; }
+async function trRestLoad(id){ const bid=trRid(id);
+  const [ls,cs]=await Promise.all([trApi('GET',`/boards/${bid}/lists`,{filter:'open',fields:'name,pos'}), trApi('GET',`/boards/${bid}/cards/open`,{fields:'name,idList,labels,due,dueComplete,desc,url,shortUrl,pos,closed'})]);
+  trSet(id, ls.map(l=>({id:l.id,name:l.name,position:l.pos})), cs.slice().sort((a,b)=>a.pos-b.pos).map(c=>({id:c.id,name:c.name,list:{id:c.idList},labels:c.labels||[],due:c.due,dueComplete:c.dueComplete,complete:!!c.dueComplete,desc:c.desc,url:c.shortUrl||c.url,pos:c.pos}))); }
+function trConnect(){ if(!TRK.key){ toast('Add your Trello API key first'); return; }
+  const ret=location.origin+location.pathname, u=`https://trello.com/1/authorize?expiration=never&name=${encodeURIComponent('Set Plot')}&scope=read,write&response_type=token&key=${encodeURIComponent(TRK.key)}&return_url=${encodeURIComponent(ret)}&callback_method=postMessage`;
+  const w=window.open(u,'trelloauth','width=560,height=720'); if(!w) toast('Allow pop-ups for this site to connect Trello'); }
+addEventListener('message',e=>{ if(e.origin!=='https://trello.com') return; const d=e.data, tok=typeof d==='string'?d:d&&d.token;
+  if(d&&d.error){ toast('Trello connection was cancelled'); return; } if(!tok||!/^[A-Za-z0-9]{32,}$/.test(tok)) return;
+  TRK.token=tok; try{ localStorage.setItem('setplot-trello-token',tok); }catch(err){} toast('Trello connected'); cardsEl.querySelectorAll('.bc-trello').forEach(el=>{ const it=itemById(el.dataset.cid); if(it) fillCard(el,it); }); renderCards(); });
+function trDisconnect(){ TRK.token=''; try{ localStorage.removeItem('setplot-trello-token'); }catch(e){} Object.keys(trPoll).forEach(k=>{ clearInterval(trPoll[k]); delete trPoll[k]; }); renderCards(); cardsEl.querySelectorAll('.bc-trello').forEach(el=>{ const it=itemById(el.dataset.cid); if(it) fillCard(el,it); }); }
+function trSaveKey(el){ const v=(el.querySelector('[data-f="trkey"]')||{}).value||''; const k=v.trim(); if(!/^[0-9a-f]{32}$/i.test(k)){ toast('That doesn’t look like a Trello API key (32 letters and numbers)'); return; }
+  TRK.key=k; try{ localStorage.setItem('setplot-trello-key',k); }catch(e){} cardsEl.querySelectorAll('.bc-trello').forEach(x=>{ const it=itemById(x.dataset.cid); if(it) fillCard(x,it); }); }
+/* ---- keeping boards fresh ---- */
+function trSyncWatches(items){ const mode=trMode(), boards=items.filter(i=>i.type==='trello'&&i.p&&i.p.boardId), want=new Set(boards.map(i=>i.p.boardId));
+  if(mode==='mcp') boards.forEach(it=>{ const id=it.p.boardId; if(trWatch[id]) return; const arg=id.startsWith('ari:')?id:(it.p.url||id), o={cache:{staleTime:15000,gcTime:86400000},refetchInterval:30000};
+    try{ trWatch[id]=[mcpApi.watchTool(TR_SERVER,'trelloReadList',{action:'list_by_board',boardId:arg,limit:50},ev=>trOn(id,'lists',ev),o),
+                     mcpApi.watchTool(TR_SERVER,'trelloReadCard',{action:'list_by_board',boardIdOrUrl:arg,limit:50},ev=>trOn(id,'cards',ev),o)]; }catch(e){} });
+  if(mode==='rest') want.forEach(id=>{ if(trPoll[id]) return; trRefresh(id); trPoll[id]=setInterval(()=>{ if(!document.hidden) trRefresh(id,true); },20000); });
+  Object.keys(trWatch).forEach(id=>{ if(mode!=='mcp'||!want.has(id)){ trWatch[id].forEach(u=>{ try{ u(); }catch(e){} }); delete trWatch[id]; } });
+  Object.keys(trPoll).forEach(id=>{ if(mode!=='rest'||!want.has(id)){ clearInterval(trPoll[id]); delete trPoll[id]; } }); }
+async function trRefresh(id,quiet){ const mode=trMode(); if(!id||mode==='none') return; const B=TRB[id]||(TRB[id]={}); if(!quiet){ B.busy=true; trApply(id); }
+  try{ if(mode==='rest') await trRestLoad(id);
+    else { const it=cur&&cur.items.find(i=>i.type==='trello'&&i.p.boardId===id), arg=id.startsWith('ari:')?id:((it&&it.p.url)||id), C={cache:{refresh:true,gcTime:86400000,staleTime:15000}};
+      const [l,c]=await Promise.all([mcpApi.callTool(TR_SERVER,'trelloReadList',{action:'list_by_board',boardId:arg,limit:50},C), mcpApi.callTool(TR_SERVER,'trelloReadCard',{action:'list_by_board',boardIdOrUrl:arg,limit:50},C)]);
+      trOn(id,'lists',{type:'data',result:l}); trOn(id,'cards',{type:'data',result:c}); } }
+  catch(e){ B.err=e&&e.code||'upstream_error'; if(GD_DENY.has(B.err)||B.err==='auth'||B.err==='notfound'){ B.lists=null; B.cards=null; } }
   B.busy=false; trApply(id); }
-async function trWrite(id,input,okMsg){ try{ await mcpApi.callTool(TR_SERVER,'trelloWriteCard',input,{cache:false}); if(okMsg) toast(okMsg); }
-  catch(e){ const c=e&&e.code; toast(c==='approval_required'||c==='consent_required'?'Trello needs your OK to make changes. Try again and allow it.':c==='needs_reauth'?'Reconnect Trello in claude.ai Settings → Connectors':'Trello didn’t accept that change'); }
-  try{ await mcpApi.invalidate(TR_SERVER); }catch(e){} trRefresh(id); }
-function trLink(it,id,name,url){ if(!id) return; checkpoint(); it.p.boardId=id; it.p.name=name||it.p.name||''; it.p.url=url||''; touch(); renderLayersSoon(); refill(it); renderCards(); if(!trWatch[id]) trRefresh(id); }
-async function trCreate(it,inp){ const el=inp.closest('.bc'), lid=(el.dataset.trEdit||'').slice(4), name=inp.value.trim(); delete el.dataset.trEdit;
-  const B=TRB[it.p.boardId]; if(name && B && B.cards){ B.cards.push({id:'tmp'+uid(),name,list:{id:lid},labels:[],pending:true}); }
-  fillCard(el,it); if(name) trWrite(it.p.boardId,{action:'create',listId:lid,name,pos:'bottom'},null); }
-async function trRename(it,inp){ const el=inp.closest('.bc'), cid=(el.dataset.trEdit||'').slice(5), name=inp.value.trim(); delete el.dataset.trEdit;
-  const B=TRB[it.p.boardId], c=B&&B.cards&&B.cards.find(x=>x.id===cid); if(c&&name&&name!==c.name){ c.name=name; fillCard(el,it); trWrite(it.p.boardId,{action:'update',cardId:cid,name},null); } else fillCard(el,it); }
-function trDone(it,cid){ const B=TRB[it.p.boardId], c=B&&B.cards&&B.cards.find(x=>x.id===cid); if(!c||c.complete) return; c.complete=true; trApply(it.p.boardId); trWrite(it.p.boardId,{action:'mark_done',cardId:cid},'Marked done in Trello'); }
-async function trPickLoad(el){ const list=el.querySelector('.tr-pick-list'); if(!list) return;
-  if(!mcpApi){ list.innerHTML=`<div class="gd-msg">${mcpState==='loading'?'Connecting to Trello…':'Trello sync works when Set Plot is opened from its claude.ai link. Here you can still keep a link to the board.'}</div>`; return; }
+/* ---- writes: one helper per action, sent the right way for this view ---- */
+async function trSend(id,act){ const mode=trMode();
+  try{ if(mode==='rest'){
+      if(act.type==='create') await trApi('POST','/cards',{idList:trRid(act.listId),name:act.name,pos:act.pos||'bottom'});
+      else if(act.type==='rename') await trApi('PUT',`/cards/${trRid(act.cardId)}`,{name:act.name});
+      else if(act.type==='move') await trApi('PUT',`/cards/${trRid(act.cardId)}`,{idList:trRid(act.listId),pos:act.pos});
+      else if(act.type==='done') await trApi('PUT',`/cards/${trRid(act.cardId)}`,{dueComplete:act.on}); }
+    else if(mode==='mcp'){ const I=act.type==='create'?{action:'create',listId:act.listId,name:act.name,pos:typeof act.pos==='number'?'bottom':act.pos||'bottom'}
+        :act.type==='rename'?{action:'update',cardId:act.cardId,name:act.name}:act.type==='move'?{action:'move',cardId:act.cardId,listId:act.listId,pos:typeof act.pos==='number'?(act.top?'top':'bottom'):act.pos}:{action:'mark_done',cardId:act.cardId};
+      await mcpApi.callTool(TR_SERVER,'trelloWriteCard',I,{cache:false}); }
+    if(act.ok) toast(act.ok); }
+  catch(e){ const c=e&&e.code; toast(c==='approval_required'||c==='consent_required'?'Trello needs your OK to make changes. Try again and allow it.':c==='needs_reauth'?'Reconnect Trello in claude.ai Settings → Connectors':c==='auth'?'Connect Trello again to make changes':'Trello didn’t accept that change'); }
+  if(mode==='mcp'){ try{ await mcpApi.invalidate(TR_SERVER); }catch(e){} } trRefresh(id,true); }
+function trLink(it,id,name,url){ if(!id) return; checkpoint(); it.p.boardId=id; it.p.name=name||it.p.name||''; it.p.url=url||''; touch(); renderLayersSoon(); refill(it); renderCards(); trRefresh(id); }
+function trCreate(it,inp){ const el=inp.closest('.bc'), lid=(el.dataset.trEdit||'').slice(4), name=inp.value.trim(); delete el.dataset.trEdit;
+  const B=TRB[it.p.boardId]; if(name && B && B.cards) B.cards.push({id:'tmp'+uid(),name,list:{id:lid},labels:[],pending:true});
+  fillCard(el,it); if(name) trSend(it.p.boardId,{type:'create',listId:lid,name,pos:'bottom'}); }
+function trRename(it,inp){ const el=inp.closest('.bc'), cid=(el.dataset.trEdit||'').slice(5), name=inp.value.trim(); delete el.dataset.trEdit;
+  const B=TRB[it.p.boardId], c=B&&B.cards&&B.cards.find(x=>x.id===cid); if(c&&name&&name!==c.name){ c.name=name; fillCard(el,it); trSend(it.p.boardId,{type:'rename',cardId:cid,name}); } else fillCard(el,it); }
+function trDone(it,cid){ const B=TRB[it.p.boardId], c=B&&B.cards&&B.cards.find(x=>x.id===cid); if(!c) return; const mode=trMode();
+  if(c.complete && mode!=='rest') return;   // the claude.ai connector can only mark done, not undo it
+  c.complete=!c.complete; c.dueComplete=c.complete; trApply(it.p.boardId); trSend(it.p.boardId,{type:'done',cardId:cid,on:c.complete,ok:c.complete?'Marked done in Trello':'Marked not done in Trello'}); }
+/* ---- picking a board ---- */
+async function trPickLoad(el){ const list=el.querySelector('.tr-pick-list'); if(!list) return; const mode=trMode();
+  if(mode==='none'){ list.innerHTML=''; return; }
   list.innerHTML='<div class="gd-msg">Loading your boards…</div>';
-  try{ let all2=[], cur2=null; for(let i=0;i<4;i++){ const r=await mcpApi.callTool(TR_SERVER,'trelloReadBoard',Object.assign({action:'list',limit:100},cur2?{cursor:cur2}:{}),{cache:{staleTime:60000}}); const v=trPay(r), nodes=(v.cards&&v.cards.nodes)||v.boards||[];
-      all2=all2.concat(nodes); const pi=(v.cards&&v.cards.pageInfo)||{}; if(!pi.hasNextPage) break; cur2=pi.endCursor; }
+  try{ let all2=[];
+    if(mode==='rest'){ const bs=await trApi('GET','/members/me/boards',{filter:'open',fields:'name,url,dateLastActivity'}); all2=bs.sort((a,b)=>String(b.dateLastActivity||'').localeCompare(String(a.dateLastActivity||''))).map(b=>({id:b.id,name:b.name,url:b.url})); }
+    else { let cur2=null; for(let i=0;i<4;i++){ const r=await mcpApi.callTool(TR_SERVER,'trelloReadBoard',Object.assign({action:'list',limit:100},cur2?{cursor:cur2}:{}),{cache:{staleTime:60000}}); const v=trPay(r), nodes=(v.cards&&v.cards.nodes)||v.boards||[];
+        all2=all2.concat(nodes); const pi=(v.cards&&v.cards.pageInfo)||{}; if(!pi.hasNextPage) break; cur2=pi.endCursor; } all2.reverse(); }   // newest boards first
     list._boards=all2; trPickFilter(el,(el.querySelector('.tr-q')||{}).value||''); }
-  catch(e){ list.innerHTML=`<div class="gd-msg">${esc(gdErrText(e&&e.code).replace(/Google Drive/g,'Trello').replace(/doc/g,'board'))}</div>`; } }
-function trPickFilter(el,q){ const list=el.querySelector('.tr-pick-list'); if(!list||!list._boards) return; q=String(q||'').trim().toLowerCase();
-  const bs=list._boards.filter(b=>!q||String(b.name||'').toLowerCase().includes(q)).slice().reverse();   // newest boards first
+  catch(e){ list.innerHTML=`<div class="gd-msg">${esc(trErrText(e&&e.code))}</div>`; } }
+function trPickFilter(el,q){ const list=el.querySelector('.tr-pick-list'); if(!list) return;
+  const raw=String(q||'').trim(), m=raw.match(/trello\.com\/b\/([A-Za-z0-9]{6,})/);
+  if(m){ list.innerHTML=`<button class="gd-row" data-act="trpick" data-id="${esc(m[1])}" data-name="" data-url="${esc(raw.split('?')[0])}"><span class="gd-ric tr-ric">${ic('trello')}</span><span class="gd-rt"><b>Use this board link</b><small>Press Enter or click</small></span></button>`; return; }   // a pasted board link works too
+  if(!list._boards) return; q=raw.toLowerCase();
+  const bs=list._boards.filter(b=>!q||String(b.name||'').toLowerCase().includes(q));
   list.innerHTML=bs.length?bs.map(b=>`<button class="gd-row" data-act="trpick" data-id="${esc(b.id)}" data-name="${esc(b.name||'')}" data-url="${esc(b.url||b.webUrl||'')}"><span class="gd-ric tr-ric">${ic('trello')}</span><span class="gd-rt"><b>${esc(b.name||'Untitled board')}</b><small>${esc((b.board&&b.board.name)||'')}</small></span></button>`).join(''):`<div class="gd-msg">${q?'No boards match that name.':'No boards found.'}</div>`; }
 function trAfterFill(el,it,sc){ const B=it.p.boardId&&TRB[it.p.boardId], w=el.querySelector('.tr-when');
-  if(w) w.textContent=B&&B.busy?'Syncing…':B&&B.at?'Live · synced '+new Date(B.at).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}):mcpApi?'Loading…':'';
+  if(w) w.textContent=B&&B.busy?'Syncing…':B&&B.at?'Live · synced '+new Date(B.at).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}):trMode()!=='none'?'Loading…':'';
   if(sc){ const tl=el.querySelector('.tr-lists'); if(tl) tl.scrollLeft=sc[0]; el.querySelectorAll('.tr-cards').forEach((c,i)=>{ if(sc[1][i]!=null) c.scrollTop=sc[1][i]; }); }
   const pl=el.querySelector('.tr-pick-list'); if(pl && !pl.dataset.done){ pl.dataset.done='1'; trPickLoad(el); } }
 function trDue(c){ const d=c.due&&Date.parse(c.due); if(!d) return ''; const late=!c.dueComplete && d<Date.now(); return `<span class="tr-due${c.dueComplete?' ok':late?' late':''}">${esc(new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'short'}))}</span>`; }
-function trelloBody(it){ const p=it.p, B=p.boardId&&TRB[p.boardId], el=cardsEl.querySelector(`[data-cid="${it.id}"]`), edit=(el&&el.dataset.trEdit)||'';
+function trConnectHTML(){   // outside claude.ai: connect with your own Trello API key
+  if(!TRK.key) return `<div class="tr-conn"><b>Connect Trello on this site</b><p>Outside claude.ai, Set Plot talks to Trello directly. It needs a Trello API key once:</p><ol><li>Open <a href="https://trello.com/power-ups/admin" target="_blank" rel="noopener noreferrer">trello.com/power-ups/admin</a> and create a Power-Up called “Set Plot”.</li><li>In its <b>API key</b> tab, generate a key, and under allowed origins add <code>${esc(location.origin)}</code>.</li><li>Paste the key here:</li></ol><div class="tr-keyrow"><input class="gd-q" data-f="trkey" placeholder="Trello API key" spellcheck="false" autocomplete="off"><button class="btn sm primary" data-act="trkey">Save</button></div></div>`;
+  return `<div class="tr-conn"><b>Connect Trello</b><p>Sign in to Trello and allow Set Plot to read and update your boards. The connection is kept in this browser only.</p><div class="tr-keyrow"><button class="btn sm primary" data-act="trconnect">Connect Trello</button><button class="btn sm" data-act="trforget">Change API key</button></div></div>`; }
+function trelloBody(it){ const p=it.p, B=p.boardId&&TRB[p.boardId], el=cardsEl.querySelector(`[data-cid="${it.id}"]`), edit=(el&&el.dataset.trEdit)||'', mode=trMode();
+  const head=(t,sub,btns)=>`<div class="gd-head"><span class="gd-ic tr-ic">${ic('trello')}</span><div class="gd-tt"><b title="${esc(t)}">${esc(t)}</b><small class="${sub?'':'tr-when'}">${sub||''}</small></div>${btns||''}</div>`;
+  if(mode==='none' && mcpState!=='loading' && !readOnly && !p.boardId) return head('Trello board','Connect to place a live board')+`<div class="tr-body">${trConnectHTML()}</div>`;
   if(!p.boardId){
-    if(readOnly) return `<div class="gd-head"><span class="gd-ic tr-ic">${ic('trello')}</span><div class="gd-tt"><b>Trello board</b><small>No board chosen yet</small></div></div>`;
-    return `<div class="gd-head"><span class="gd-ic tr-ic">${ic('trello')}</span><div class="gd-tt"><b>Place a Trello board</b><small>Pick one of your boards; it stays in sync both ways</small></div></div><div class="gd-pick"><input class="gd-q tr-q" data-f="trq" placeholder="Search your boards" spellcheck="false" aria-label="Search Trello boards"><div class="gd-list tr-pick-list" role="list"></div></div>`; }
+    if(readOnly) return head('Trello board','No board chosen yet');
+    return head('Place a Trello board','Pick a board, or paste a board link')+`<div class="gd-pick"><input class="gd-q tr-q" data-f="trq" placeholder="Search your boards or paste a link" spellcheck="false" aria-label="Search Trello boards"><div class="gd-list tr-pick-list" role="list"></div>${mode==='rest'?'<button class="tr-disc" data-act="trdisc">Disconnect Trello</button>':''}</div>`; }
   const url=p.url||'https://trello.com';
   let body;
   if(mcpState==='loading') body=`<div class="gd-msg">Connecting to Trello…</div>`;
-  else if(!mcpApi) body=`<div class="gd-msg">Trello sync works when Set Plot is opened from its claude.ai link. <a href="${esc(url)}" target="_blank" rel="noopener noreferrer">Open the board in Trello</a></div>`;
-  else if(!B||!B.lists||!B.cards) body=B&&B.err?`<div class="gd-msg">${esc(gdErrText(B.err).replace(/Google Drive/g,'Trello').replace(/this doc/g,'this board').replace(/doc/g,'board'))}</div>`+(B.err==='approval_required'||B.err==='consent_required'?`<button class="btn sm primary gd-allow" data-act="trrefresh">Allow and load</button>`:''):`<div class="gd-msg">Loading the board…</div>`;
+  else if(mode==='none') body=readOnly?`<div class="gd-msg"><a href="${esc(url)}" target="_blank" rel="noopener noreferrer">Open the board in Trello</a></div>`:trConnectHTML();
+  else if(!B||!B.lists||!B.cards) body=B&&B.err?`<div class="gd-msg">${esc(trErrText(B.err))}</div>`+(B.err==='approval_required'||B.err==='consent_required'?`<button class="btn sm primary gd-allow" data-act="trrefresh">Allow and load</button>`:''):`<div class="gd-msg">Loading the board…</div>`;
   else body=`<div class="tr-lists">`+B.lists.map(l=>{ const cs=B.cards.filter(c=>c.list&&c.list.id===l.id);
       return `<div class="tr-list" data-list="${esc(l.id)}"><div class="tr-lh"><b>${esc(l.name)}</b><span>${cs.length}</span></div><div class="tr-cards">`+
         cs.map(c=>{ const ren=edit==='name:'+c.id, lb=(c.labels||[]).map(x=>`<i style="background:${trLabelCol(x.color)}" title="${esc(x.name||x.color||'')}"></i>`).join('');
           return `<div class="tr-card${c.complete?' done':''}${c.pending?' pend':''}" data-card="${esc(c.id)}" data-list="${esc(l.id)}">${lb?`<div class="tr-lb">${lb}</div>`:''}`+
-            (ren?`<input class="tr-in" data-f="trname" value="${esc(c.name)}">`:`<div class="tr-cn">${readOnly||c.pending?'':`<button class="tr-chk" data-act="trdone" data-card="${esc(c.id)}" title="${c.complete?'Done':'Mark done'}" aria-label="Mark done" ${c.complete?'disabled':''}></button>`}<span>${esc(c.name)}</span></div>`)+
+            (ren?`<input class="tr-in" data-f="trname" value="${esc(c.name)}">`:`<div class="tr-cn">${readOnly||c.pending?'':`<button class="tr-chk" data-act="trdone" data-card="${esc(c.id)}" title="${c.complete?(mode==='rest'?'Done · click to undo':'Done'):'Mark done'}" aria-label="Mark done" ${c.complete&&mode!=='rest'?'disabled':''}></button>`}<span>${esc(c.name)}</span></div>`)+
             `<div class="tr-meta">${trDue(c)}${c.desc?'<span class="tr-ico" title="Has a description">≡</span>':''}${c.url||c.webUrl?`<a class="tr-open" href="${esc(c.url||c.webUrl)}" target="_blank" rel="noopener noreferrer" title="Open in Trello">${ic('ext')}</a>`:''}</div></div>`; }).join('')+
         `</div>`+(readOnly?'':(edit==='new:'+l.id?`<input class="tr-in tr-new" data-f="trnew" placeholder="Card name, then Enter">`:`<button class="tr-add" data-act="tradd" data-list="${esc(l.id)}">+ Add a card</button>`))+`</div>`; }).join('')+`</div>`;
-  return `<div class="gd-head"><span class="gd-ic tr-ic">${ic('trello')}</span><div class="gd-tt"><b title="${esc(p.name||'Trello board')}">${esc(p.name||'Trello board')}</b><small class="tr-when"></small></div>`+
-    (mcpApi?`<button class="gd-btn" data-act="trrefresh" title="Sync now" aria-label="Sync now">${ic('refresh')}</button>`:'')+
+  return head(p.name||'Trello board','',(mode!=='none'?`<button class="gd-btn" data-act="trrefresh" title="Sync now" aria-label="Sync now">${ic('refresh')}</button>`:'')+
     `<a class="gd-btn" href="${esc(url)}" target="_blank" rel="noopener noreferrer" title="Open in Trello" aria-label="Open in Trello">${ic('ext')}</a>`+
-    (readOnly?'':`<button class="gd-btn" data-act="trchange" title="Show a different board" aria-label="Show a different board">${ic('swap')}</button>`)+`</div><div class="tr-body">${body}</div>`; }
-/* drag a Trello card to another list (or the top/bottom of its own) */
+    (readOnly?'':`<button class="gd-btn" data-act="trchange" title="Show a different board" aria-label="Show a different board">${ic('swap')}</button>`))+`<div class="tr-body">${body}</div>`; }
+/* drag a Trello card to another list, or to another spot in its list */
 var trDrag=null;
-cardsEl.addEventListener('pointerdown',e=>{ const tc=e.target.closest('.tr-card'); if(!tc||e.button!==0||readOnly||!mcpApi||e.target.closest('button,a,input')) return;
+cardsEl.addEventListener('pointerdown',e=>{ const tc=e.target.closest('.tr-card'); if(!tc||e.button!==0||readOnly||trMode()==='none'||e.target.closest('button,a,input')) return;
   e.stopPropagation(); const r=tc.getBoundingClientRect(); trDrag={el:tc,board:tc.closest('.bc'),sx:e.clientX,sy:e.clientY,ox:e.clientX-r.left,oy:e.clientY-r.top,w:r.width,moved:false,ghost:null,pid:e.pointerId}; },true);
 addEventListener('pointermove',e=>{ const D=trDrag; if(!D) return; if(!D.moved && Math.hypot(e.clientX-D.sx,e.clientY-D.sy)<5) return;
   if(!D.moved){ D.moved=true; const g=D.el.cloneNode(true); g.classList.add('tr-ghost'); g.style.width=D.w+'px'; document.body.appendChild(g); D.ghost=g; D.el.classList.add('tr-src'); }
   D.ghost.style.left=(e.clientX-D.ox)+'px'; D.ghost.style.top=(e.clientY-D.oy)+'px';
-  const u=document.elementFromPoint(e.clientX,e.clientY), L=u&&u.closest('.tr-list'); D.board.querySelectorAll('.tr-list').forEach(x=>x.classList.toggle('tr-over',x===L&&L.closest('.bc')===D.board)); D.to=L&&L.closest('.bc')===D.board?L:null;
-  if(D.to){ const cs=D.to.querySelector('.tr-cards'), rr=cs.getBoundingClientRect(); D.top=e.clientY<rr.top+Math.min(rr.height,cs.scrollHeight)/2; } },true);
-addEventListener('pointerup',e=>{ const D=trDrag; if(!D) return; trDrag=null; if(D.ghost) D.ghost.remove(); D.el.classList.remove('tr-src'); D.board.querySelectorAll('.tr-over').forEach(x=>x.classList.remove('tr-over')); if(!D.moved||!D.to) return;
+  const u=document.elementFromPoint(e.clientX,e.clientY), L=u&&u.closest('.tr-list'); D.to=L&&L.closest('.bc')===D.board?L:null;
+  D.board.querySelectorAll('.tr-list').forEach(x=>x.classList.toggle('tr-over',x===D.to));
+  D.board.querySelectorAll('.tr-card.tr-mark-a,.tr-card.tr-mark-b').forEach(x=>x.classList.remove('tr-mark-a','tr-mark-b'));
+  if(D.to){ const rows=[...D.to.querySelectorAll('.tr-card')].filter(x=>x!==D.el); let i=rows.findIndex(x=>{ const b=x.getBoundingClientRect(); return e.clientY<b.top+b.height/2; }); if(i<0) i=rows.length; D.index=i; D.rows=rows.map(x=>x.dataset.card);
+    if(rows[i]) rows[i].classList.add('tr-mark-a'); else if(rows.length) rows[rows.length-1].classList.add('tr-mark-b'); } },true);   // a thin line shows where it will land
+addEventListener('pointerup',e=>{ const D=trDrag; if(!D) return; trDrag=null; if(D.ghost) D.ghost.remove(); D.el.classList.remove('tr-src'); D.board.querySelectorAll('.tr-over').forEach(x=>x.classList.remove('tr-over')); D.board.querySelectorAll('.tr-mark-a,.tr-mark-b').forEach(x=>x.classList.remove('tr-mark-a','tr-mark-b')); if(!D.moved||!D.to) return;
   const it=itemById(D.board.dataset.cid), B=it&&TRB[it.p.boardId], cid=D.el.dataset.card, lid=D.to.dataset.list, from=D.el.dataset.list; if(!B||!B.cards) return;
-  const i=B.cards.findIndex(c=>c.id===cid); if(i<0) return; const c=B.cards.splice(i,1)[0]; c.list={id:lid,name:''};
-  const firstIdx=B.cards.findIndex(x=>x.list&&x.list.id===lid), lastIdx=B.cards.map(x=>x.list&&x.list.id).lastIndexOf(lid);
-  if(D.top) B.cards.splice(firstIdx<0?B.cards.length:firstIdx,0,c); else B.cards.splice(lastIdx<0?B.cards.length:lastIdx+1,0,c);
+  const i=B.cards.findIndex(c=>c.id===cid); if(i<0) return; const c=B.cards.splice(i,1)[0], before=D.rows[D.index-1]&&B.cards.find(x=>x.id===D.rows[D.index-1]), after=D.rows[D.index]&&B.cards.find(x=>x.id===D.rows[D.index]);
+  let pos=after&&before&&after.pos!=null&&before.pos!=null?(before.pos+after.pos)/2:!before?'top':!after?'bottom':'bottom';
+  if(typeof pos==='number') c.pos=pos; c.list={id:lid,name:''};
+  const at=after?B.cards.indexOf(after):(before?B.cards.indexOf(before)+1:B.cards.length); B.cards.splice(at,0,c);
+  if(from===lid && D.index===D.rows.indexOf(cid)) { trApply(it.p.boardId); return; }
   trApply(it.p.boardId); fillCard(D.board,it);
-  trWrite(it.p.boardId,{action:'move',cardId:cid,listId:lid,pos:D.top?'top':'bottom'},from===lid?null:'Moved in Trello'); },true);
+  trSend(it.p.boardId,{type:'move',cardId:cid,listId:lid,pos,top:D.index===0,ok:from===lid?null:'Moved in Trello'}); },true);
 /* ================= Image cards =================
    Drop image files on the plot (or double-click an Image card) to add them. Big photos are scaled to 2400 px.
    On claude.ai they're stored with the artifact; elsewhere they're kept in this browser (IndexedDB). */
@@ -5194,7 +5254,7 @@ cardsEl.addEventListener('input',e=>{
   const el=t.closest('.bc'), f=t.dataset.f, p=it.p;
   if(f==='gq'){ gdSearchSoon(el,t.value); return; }
   if(f==='trq'){ trPickFilter(el,t.value); return; }
-  if(f==='trnew'||f==='trname') return;
+  if(f==='trnew'||f==='trname'||f==='trkey') return;
   if(f==='text'){ p.text=t.value; autoGrow(t); }
   else if(f==='title') p.title=t.value;
   else if(f==='item') p.items[+t.dataset.i].t=t.value;
@@ -5215,7 +5275,7 @@ function setCardColor(el,it,hex,fromText){
   if(blk) blk.style.background=hex; if(hi){ hi.style.color=inkOn(hex); if(!fromText) hi.value=hex; } if(nm) nm.placeholder=nearestName(hex); if(pk&&fromText) pk.value=hex.toLowerCase();
 }
 cardsEl.addEventListener('dblclick',e=>{
-  { const tc=e.target.closest('.tr-card'); if(tc && !readOnly && mcpApi){ const el=tc.closest('.bc'), it=itemById(el.dataset.cid); if(it){ e.preventDefault(); el.dataset.trEdit='name:'+tc.dataset.card; fillCard(el,it); const q=el.querySelector('[data-f="trname"]'); if(q){ q.focus(); q.select(); } } return; } }
+  { const tc=e.target.closest('.tr-card'); if(tc && !readOnly && trMode()!=='none'){ const el=tc.closest('.bc'), it=itemById(el.dataset.cid); if(it){ e.preventDefault(); el.dataset.trEdit='name:'+tc.dataset.card; fillCard(el,it); const q=el.querySelector('[data-f="trname"]'); if(q){ q.focus(); q.select(); } } return; } }
   { const ic0=e.target.closest('.bc-image'); if(ic0 && !readOnly){ const it=itemById(ic0.dataset.cid); if(it){ e.preventDefault(); pickImageFor(it); } return; } }
   { const gc=e.target.closest('.bc-gdoc.gd-col'); if(gc){ const it=itemById(gc.dataset.cid); if(it){ e.preventDefault(); gdCollapse(it,false); } return; } }
   { const bd=e.target.closest('.bc-board'); if(bd && !e.target.closest('.bd-title')){ openBoardCard(itemById(bd.dataset.cid)); return; } }
@@ -5230,6 +5290,7 @@ cardsEl.addEventListener('keydown',e=>{
   if(t.dataset.f==='hex' && e.key==='Enter'){ e.preventDefault(); t.blur(); return; }
   if(e.key==='Escape'){ e.preventDefault(); e.stopPropagation(); t.blur(); setCardSel(it.id); return; }
   if((t.dataset.f==='trnew'||t.dataset.f==='trname') && (e.key==='Enter'||e.key==='Escape')){ e.preventDefault(); e.stopPropagation(); if(e.key==='Enter') (t.dataset.f==='trnew'?trCreate:trRename)(it,t); else { delete t.closest('.bc').dataset.trEdit; fillCard(t.closest('.bc'),it); } return; }
+  if(t.dataset.f==='trkey' && e.key==='Enter'){ e.preventDefault(); trSaveKey(t.closest('.bc')); return; }
   if(t.dataset.f==='trq' && e.key==='Enter'){ e.preventDefault(); const first=t.closest('.bc').querySelector('[data-act="trpick"]'); if(first) first.click(); return; }
   if(t.dataset.f==='gq' && e.key==='Enter'){ e.preventDefault(); const id=gdIdFromUrl(t.value); if(id) gdLink(it,id,'',''); else { const first=t.closest('.bc').querySelector('[data-act="gpick"]'); if(first) first.click(); } return; }
   if(it.type==='todo' && t.dataset.f==='item'){
@@ -5263,6 +5324,10 @@ cardsEl.addEventListener('click',e=>{
   if(a==='trrefresh'){ trRefresh(it.p.boardId); return; }
   if(a==='tradd'){ const el=b.closest('.bc'); el.dataset.trEdit='new:'+b.dataset.list; fillCard(el,it); const q=el.querySelector('[data-f="trnew"]'); if(q) q.focus(); return; }
   if(a==='trdone'){ trDone(it,b.dataset.card); return; }
+  if(a==='trkey'){ trSaveKey(b.closest('.bc')); return; }
+  if(a==='trconnect'){ trConnect(); return; }
+  if(a==='trforget'){ TRK.key=''; try{ localStorage.removeItem('setplot-trello-key'); }catch(e){} fillCard(b.closest('.bc'),it); return; }
+  if(a==='trdisc'){ trDisconnect(); return; }
   if(a==='gchange'){ checkpoint(); it.p.fileId=null; touch(); refill(it,'.gd-q'); return; }
   if(a==='grefresh'){ gdRefresh(it.p.fileId,true); return; }
   if(a==='gallow'){ gdRefresh(it.p.fileId,true); return; }
