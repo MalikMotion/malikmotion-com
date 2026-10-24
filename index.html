@@ -759,8 +759,14 @@ body.ptr-down .gd-frame{pointer-events:none}
 .c-plus.bottom{left:50%;bottom:calc(-1*(var(--s) + var(--g)));margin-left:calc(-.5*var(--s))}
 .c-plus.left{top:50%;left:calc(-1*(var(--s) + var(--g)));margin-top:calc(-.5*var(--s))}
 .c-plus.right{top:50%;right:calc(-1*(var(--s) + var(--g)));margin-top:calc(-.5*var(--s))}
-.bc-note:hover .c-plus,.bc-note.solo .c-plus{opacity:1;visibility:visible;transform:none;transition-delay:0s}
+.c-plus.near{opacity:1;visibility:visible;transform:none;transition-delay:0s}   /* only the + nearest the cursor shows */
+@media (hover:none){.bc-note.solo .c-plus{opacity:1;visibility:visible;transform:none;transition-delay:0s}}
 .c-plus:hover,.col-plus:hover{transform:scale(1.12)!important}
+/* quieter + buttons: small, outlined in the card colour, they only turn blue under the cursor */
+.c-plus,.col-plus{--s:calc(22px*var(--inv,1));--g:calc(8px*var(--inv,1));background:var(--card);color:var(--muted);box-shadow:0 0 0 calc(1px*var(--inv,1)) var(--line2);transition:opacity .18s,transform .18s,background .15s,color .15s,box-shadow .15s}
+.c-plus svg,.col-plus svg{width:calc(13px*var(--inv,1));height:calc(13px*var(--inv,1));stroke-width:2.2}
+.c-plus.near,.bc-column.hov-l .col-plus.left,.bc-column.hov-r .col-plus.right{opacity:.75}
+.c-plus:hover,.col-plus:hover{opacity:1!important;background:var(--accent);color:#fff;box-shadow:0 calc(2px*var(--inv,1)) calc(6px*var(--inv,1)) calc(-2px*var(--inv,1)) rgba(30,60,140,.45)}
 .bc-column{border-radius:6px}
 .bc-board{border-radius:10px}
 .bc-board .bd-th{border-radius:10px 10px 0 0;overflow:hidden}
@@ -3830,11 +3836,12 @@ var KEY_ACTIONS=[
   ['Right toolbar','c_grid','Table','shift+4'], ['Right toolbar','c_color','Colour','shift+5'], ['Right toolbar','c_column','Column','shift+8'], ['Right toolbar','g_notes','Notes (text, arrow, distance, angle, pen)','shift+6'], ['Right toolbar','g_align','Align & distribute','shift+7'],
   ['View','present','Focus mode (hide the toolbars)','shift+f'], ['View','isolate','Highlight selection (dim the rest)','shift+h'], ['View','fit','Fit plot to screen','z'], ['View','zoomin','Zoom in','+'], ['View','zoomout','Zoom out','-'], ['View','zoom100','Zoom to 100%','shift+0'],
   ['View','snap','Snap on / off','s'], ['View','beams','Beams on / off','b'], ['View','specs','Fixture specs on / off','i'],
+  ['Mind map','tidy','Tidy the mind map (all maps if nothing is selected)','shift+t'],
   ['Help','keys','Show shortcuts','?'], ['Help','guide','Helper bar on / off','h']
 ];
 var KEY_FIXED=[ // shown for reference, not rebindable
   ['Space + drag','Pan the board'], ['Middle mouse drag','Pan the board'], ['Two-finger drag','Pan the board'], ['Pinch · ⌘/Ctrl + scroll · mouse wheel','Zoom'], ['Arrow keys','Nudge 10 cm (⇧ for 50 cm)'],
-  ['Esc','Cancel · deselect'], ['⇧ + click','Add to selection'], ['⌥/Alt + drag','Drag a copy'], ['⇧ while aiming / rotating','15° steps'], ['Delete','Delete selected'], ['Double-click or ↵ Enter','Rename object']
+  ['Esc','Cancel · deselect'], ['⇧ + click','Add to selection'], ['⌥/Alt + drag','Drag a copy'], ['⇧ while aiming / rotating','15° steps'], ['Delete','Delete selected'], ['Tab (in or on a note)','Mind map: add an idea, continuing the branch'], ['⇧ Tab','Mind map: idea on the left · above / below when taken'], ['Double-click or ↵ Enter','Rename object']
 ];
 var keyCustom={}; try{ keyCustom=JSON.parse(localStorage.getItem('setplot-keys')||'{}')||{}; }catch(e){}
 const IS_MAC_K=/Mac|iPhone|iPad/.test(navigator.platform||navigator.userAgent);
@@ -3940,8 +3947,10 @@ document.addEventListener('keydown',e=>{
     else openGroupAtCursor({lights:'Lights',grip:'Grip',camera:'Camera',subjects:'Talent',set:'Set',notes:'Notes',align:'Align'}[g]); return; }
   if(act==='isolate' && !typing){ e.preventDefault(); toggleIso(); return; }
   if(act==='present' && !typing){ e.preventDefault(); startPresent(); return; }
+  if(e.key==='Tab' && !typing && !readOnly && !e.metaKey && !e.ctrlKey && !e.altKey && sel.size===1){ const n0=itemById([...sel][0]); if(n0&&n0.type==='note'){ e.preventDefault(); if(e.shiftKey) mmLeft(n0); else mmChild(n0); return; } }
   if(act==='addmenu' && !typing && !readOnly){ e.preventDefault(); openAddSearch(); return; }
   if(typing||readOnly||!cur) return;
+  if(act==='tidy'){ e.preventDefault(); const n0=sel.size===1?itemById([...sel][0]):null; mmTidy(n0&&isCard(n0)&&mmComp(n0).length>1?n0:null); return; }
   if(act && act.startsWith('c_')){ e.preventDefault(); const t=act.slice(2); if(hoverWorld) addCard(t,hoverWorld.x-.4,hoverWorld.y-.2); else addCard(t); return; }
   if(cableSel && (act==='del'||e.key==='Delete'||e.key==='Backspace')){ e.preventDefault(); unplugCable(cableSel); return; }
   if(act==='del' && sel.size){ e.preventDefault(); deleteSel(); }
@@ -4700,8 +4709,8 @@ async function extractPalette(it){ if(readOnly||!it) return; const el=cardsEl.qu
   try{ if(!im.complete) await im.decode(); }catch(e){}
   let cols; try{ cols=paletteOf(im,5); }catch(e){ toast('Couldn’t read the colours of this image'); return; }
   if(!cols.length){ toast('No colours found'); return; }
-  checkpoint(); const R=cardRect(it), gap=10, n=cols.length, cw=Math.max(128,Math.round((it.w-gap*(n-1))/n)), y=R.y+R.h+18/PXM0, made=[];
-  cols.forEach((hx,i)=>{ const c={id:uid(),type:'color',x:Math.round((R.x+i*(cw+gap)/PXM0)*1000)/1000,y:Math.round(y*1000)/1000,rot:0,w:cw,h:0,label:'',p:{hex:hx,name:''}}; cur.items.push(c); made.push(c); });
+  checkpoint(); const R=cardRect(it), gap=10, n=cols.length, cw=Math.max(128,Math.round((it.w-gap*(n-1))/n)), y=R.y+R.h+18/PXM0, made=[], x0=R.x+(R.w-(n*cw+(n-1)*gap)/PXM0)/2;   // the row is centred under the image
+  cols.forEach((hx,i)=>{ const c={id:uid(),type:'color',x:Math.round((x0+i*(cw+gap)/PXM0)*1000)/1000,y:Math.round(y*1000)/1000,rot:0,w:cw,h:0,label:'',p:{hex:hx,name:''}}; cur.items.push(c); made.push(c); });
   touch(); renderLayersSoon(); renderCards(); draw();
   if(!matchMedia('(prefers-reduced-motion: reduce)').matches) made.forEach((c,i)=>{ const e=cardsEl.querySelector(`[data-cid="${c.id}"]`); if(e) e.animate([{opacity:0,transform:'translateY(-10px) scale(.94)'},{opacity:1,transform:'none'}],{duration:320,delay:i*55,easing:'cubic-bezier(.2,.8,.2,1)',fill:'backwards'}); });   // the swatches drop in one after another
   toast(`${n} colours added`); }
@@ -5032,6 +5041,13 @@ function addColumnBeside(col,side){
     const nel=cardsEl.querySelector(`.bc[data-cid="${it.id}"]`); if(nel) nel.animate([{opacity:0,transform:`translateX(${-dir*18}px) scale(.97)`},{opacity:1,transform:'none'}],{duration:320,easing:'cubic-bezier(.2,.8,.2,1)'}); }   // the new column slides out of the one you clicked
   const t=cardsEl.querySelector(`.bc[data-cid="${it.id}"] .col-title`); if(t){ t.focus({preventScroll:true}); t.select(); }
 }
+let plusNear=null;
+addEventListener('pointermove',e=>{   // a note's + appears only when the cursor comes close to that side, one at a time
+  if(e.pointerType==='touch') return; let best=null, bd=44;
+  if(!cdrag && !readOnly && !placing && !drawMode) cardsEl.querySelectorAll('.bc-note:not(.in-col):not(.locked) .c-plus').forEach(b=>{ const r=b.getBoundingClientRect(), d=Math.hypot(e.clientX-(r.left+r.width/2), e.clientY-(r.top+r.height/2)); if(d<bd){ bd=d; best=b; } });
+  if(conDrag && conDrag.btn) best=conDrag.btn;   // keep the one being dragged from
+  if(best!==plusNear){ if(plusNear) plusNear.classList.remove('near'); if(best) best.classList.add('near'); plusNear=best; }
+},{passive:true});
 addEventListener('pointermove',e=>{   // a column's + buttons show while the cursor is over its left or right side
   const cols=cardsEl.querySelectorAll('.bc-column'); if(!cols.length) return;
   const busy=cdrag||conDrag||readOnly;
@@ -5117,7 +5133,7 @@ function addCard(type,x,y){
 }
 /* brainstorm: + on a note's side adds a connected note there */
 function cardRect(it){ const h=(it.h||Math.max(it.nh||0,60)); return {x:it.x, y:it.y, w:it.w/PXM0, h:h/PXM0}; }
-function addLinkedNote(par,side){
+function addLinkedNote(par,side,beforeId){
   if(readOnly||!par) return;
   const gap=56/PXM0, R=cardRect(par), nw=R.w, nh=Math.max(R.h, (par.nh||0)/PXM0, 60/PXM0);
   let x=R.x, y=R.y;
@@ -5126,8 +5142,109 @@ function addLinkedNote(par,side){
   for(let i=0;i<14 && hits(x,y);i++){ if(side==='left'||side==='right') y+=nh+gap*.6; else x+=nw+gap*.6; }   // fan out instead of stacking on top
   const it=addCard('note',x,y); if(!it) return;
   par.conns=par.conns||[]; par.conns.push({id:uid(),to:it.id,side}); it.w=par.w; if(par.nh) it.nh=par.nh;
-  touch(); draw();
+  layoutTree(par,side,it.id,beforeId?{before:beforeId}:null);
+  touch(); draw(); return it;
 }
+/* tidy mind-map layout: the whole tree on that side is re-stacked so no branch collides with another,
+   with the smallest gap between them; each parent sits centred on its ideas. The top idea stays put. */
+function layoutTree(par,side,newId,ord){ if(!cur||!par) return; finishTween();
+  const horiz=side==='left'||side==='right', gapX=56/PXM0, gap=24/PXM0;
+  let top=par; const up0=new Set([par.id]);
+  for(;;){ const up=mmParent(top); if(!up||up.side!==side||up0.has(up.par.id)) break; top=up.par; up0.add(top.id); }
+  renderCards();
+  const hOf=k=>{ const el=cardsEl.querySelector(`[data-cid="${k.id}"]`); return el&&el.offsetHeight?el.offsetHeight/PXM0:cardRect(k).h; }, wOf=k=>cardRect(k).w, sz=k=>horiz?hOf(k):wOf(k);
+  const seen=new Set([top.id]);
+  const kidsOf=n=>(n.conns||[]).filter(c=>(c.side||'right')===side).map(c=>itemById(c.to)).filter(k=>k&&isCard(k)&&!colOf(k.id)&&!seen.has(k.id));
+  const build=n=>{ const ks=kidsOf(n); ks.forEach(k=>seen.add(k.id));
+    const P=k=>horiz?k.y:k.x, K=k=>{ if(ord&&ord.rank&&ord.rank.has(k.id)) return ord.rank.get(k.id); if(k.id===newId){ const bf=ord&&ord.before&&itemById(ord.before); return bf?P(bf)-1e-6:Infinity; } return P(k); };
+    ks.sort((a,b)=>K(a)-K(b));   // keep their order; the new one goes last (or right before the idea it was added in front of)
+    const subs=ks.map(build), offs=[], merged=[];
+    subs.forEach((sb,i)=>{ let off=0;
+      if(i){ off=-Infinity; for(let d=0;d<Math.min(merged.length,sb.cont.length);d++) off=Math.max(off,merged[d][1]-sb.cont[d][0]+gap); }   // closest it can sit without touching any level
+      offs.push(off); sb.cont.forEach((c,d)=>{ const lo=c[0]+off, hi=c[1]+off; merged[d]=merged[d]?[Math.min(merged[d][0],lo),Math.max(merged[d][1],hi)]:[lo,hi]; }); });
+    const sh=subs.length?-(offs[0]+offs[offs.length-1])/2:0, s=sz(n);
+    return {n, subs, offs:offs.map(o=>o+sh), cont:[[-s/2,s/2]].concat(merged.map(m=>[m[0]+sh,m[1]+sh]))}; };
+  const T=build(top), tgt=new Map([[top.id,{x:top.x,y:top.y}]]);
+  const place=b=>{ const p=tgt.get(b.n.id), pw=wOf(b.n), ph=hOf(b.n), pc=horiz?p.y+ph/2:p.x+pw/2;
+    b.subs.forEach((sb,i)=>{ const k=sb.n, w=wOf(k), h=hOf(k), c=pc+b.offs[i]; let x, y;
+      if(horiz){ x=side==='right'?p.x+pw+gapX:p.x-w-gapX; y=c-h/2; } else { y=side==='bottom'?p.y+ph+gapX:p.y-h-gapX; x=c-w/2; }
+      tgt.set(k.id,{x:Math.round(x*1000)/1000,y:Math.round(y*1000)/1000}); place(sb); }); };
+  place(T);
+  // ideas on a moved idea's other sides ride along with it
+  [...tgt.keys()].forEach(id=>{ const k=itemById(id), p=tgt.get(id); if(!k||id===top.id) return; const dx=p.x-k.x, dy=p.y-k.y; if(Math.abs(dx)<1e-4&&Math.abs(dy)<1e-4) return;
+    (k.conns||[]).forEach(c=>{ const t=itemById(c.to); if(!t||!isCard(t)||tgt.has(t.id)) return;
+      branchOf(t).forEach(o=>{ if(!tgt.has(o.id)&&isCard(o)&&!colOf(o.id)) tgt.set(o.id,{x:o.x+dx,y:o.y+dy}); }); }); });
+  pushAside(tgt,top,gap,hOf,wOf);
+  const moves=[];
+  tgt.forEach((p,id)=>{ const k=itemById(id); if(!k) return;
+    if(id===newId){ k.x=p.x; k.y=p.y; return; }
+    if(Math.abs(p.x-k.x)<1e-4&&Math.abs(p.y-k.y)<1e-4) return;
+    moves.push({it:k,x0:k.x,y0:k.y,x1:p.x,y1:p.y}); });
+  if(moves.length) tweenItems(moves); }
+/* after a tree is tidied, any other card it would now hit is pushed out of the way, with its whole branch:
+   a branch hanging off the map moves outward along its own side; a loose card takes the shortest way out. Pushed cards can push others in turn. */
+function pushAside(tgt,top,gap,hOf,wOf){ const LF=LFc(), par=new Map();
+  cur.items.forEach(o=>{ if(isCard(o)&&o.conns) o.conns.forEach(c=>{ if(!par.has(c.to)) par.set(c.to,{p:o,side:c.side||'right'}); }); });
+  const fixed=new Set(tgt.keys()); for(let a=par.get(top.id),n=0; a&&n<200; a=par.get(a.p.id),n++) fixed.add(a.p.id);   // the tree and the ideas it hangs from stay put
+  const pos=k=>tgt.get(k.id)||{x:k.x,y:k.y}, box=k=>{ const p=pos(k); return {id:k.id,x:p.x,y:p.y,w:wOf(k),h:hOf(k)}; };
+  const movable=k=>isCard(k)&&!colOf(k.id)&&!LF.lock(k)&&!fixed.has(k.id);
+  const hit=(a,b)=>a.x<b.x+b.w+gap-1e-6&&b.x<a.x+a.w+gap-1e-6&&a.y<b.y+b.h+gap-1e-6&&b.y<a.y+a.h+gap-1e-6;
+  const need=(a,b,d)=>d==='right'?b.x+b.w+gap-a.x:d==='left'?a.x+a.w+gap-b.x:d==='bottom'?b.y+b.h+gap-a.y:a.y+a.h+gap-b.y;
+  const soft=new Set();   // loose cards already nudged: they block other loose cards, but a branch may push them again
+  const fixedBoxes=withSoft=>[...fixed,...(withSoft?soft:[])].map(itemById).filter(k=>k&&isCard(k)).map(box);
+  const shiftFor=(unit,d,withSoft)=>{ const FB=fixedBoxes(withSoft); let t=0;
+    for(let i=0;i<60;i++){ let m=0; unit.forEach(k=>{ const b=box(k), a={x:b.x+(d==='right'?t:d==='left'?-t:0), y:b.y+(d==='bottom'?t:d==='top'?-t:0), w:b.w, h:b.h};
+        FB.forEach(f=>{ if(hit(a,f)) m=Math.max(m,need(a,f,d)); }); }); if(m<=1e-6) return t; t+=m; }
+    return t; };
+  for(let guard=0; guard<80; guard++){
+    const FB=fixedBoxes(false), FS=fixedBoxes(true); const u=cur.items.find(k=>movable(k)&&(soft.has(k.id)?FB:FS).some(f=>hit(box(k),f)&&!(f.id===k.id))); if(!u) break;
+    let r=u, seen=new Set([u.id]); for(let a=par.get(r.id); a&&!fixed.has(a.p.id)&&!seen.has(a.p.id)&&isCard(a.p)&&!colOf(a.p.id); a=par.get(r.id)){ r=a.p; seen.add(r.id); }   // move the whole branch it belongs to
+    const a=par.get(r.id), side=a&&fixed.has(a.p.id)?a.side:null, dirs=side?[side]:['right','left','bottom','top'];
+    const roots=side?(a.p.conns||[]).filter(c=>(c.side||'right')===side).map(c=>itemById(c.to)).filter(k=>k&&movable(k)):[r];   // a fanned row of ideas moves together, so it stays lined up
+    const unit=[...new Set(roots.flatMap(branchOf))].filter(movable); if(!unit.length){ fixed.add(u.id); continue; }
+    let best=null; dirs.forEach(d=>{ const t=shiftFor(unit,d,!side); if(!best||t<best.t) best={d,t}; });
+    unit.forEach(k=>{ soft.delete(k.id); const p=pos(k), t=best.t, d=best.d; tgt.set(k.id,{x:Math.round((p.x+(d==='right'?t:d==='left'?-t:0))*1000)/1000, y:Math.round((p.y+(d==='bottom'?t:d==='top'?-t:0))*1000)/1000}); (side?fixed:soft).add(k.id); });
+  } }
+function branchOf(k){ const out=[], seen=new Set(), walk=n=>{ if(!n||seen.has(n.id)) return; seen.add(n.id); out.push(n); (n.conns||[]).forEach(c=>{ const t=itemById(c.to); if(t&&isCard(t)) walk(t); }); }; walk(k); return out; }
+let tweenCur=null;
+function finishTween(){ const T=tweenCur; if(!T) return; tweenCur=null; T.forEach(m=>{ m.it.x=Math.round(m.x1*1000)/1000; m.it.y=Math.round(m.y1*1000)/1000; }); }
+var tweenOff=false;
+function tweenItems(moves){ if(tweenOff){ moves.forEach(m=>{ m.it.x=Math.round(m.x1*1000)/1000; m.it.y=Math.round(m.y1*1000)/1000; }); return; } const D=matchMedia('(prefers-reduced-motion: reduce)').matches?1:280, t0=performance.now(); tweenCur=moves;
+  const step=now=>{ if(tweenCur!==moves) return; const t=Math.min(1,(now-t0)/D), e=1-Math.pow(1-t,3); moves.forEach(m=>{ m.it.x=m.x0+(m.x1-m.x0)*e; m.it.y=m.y0+(m.y1-m.y0)*e; }); draw();
+    if(t<1) requestAnimationFrame(step); else { tweenCur=null; moves.forEach(m=>{ m.it.x=Math.round(m.x1*1000)/1000; m.it.y=Math.round(m.y1*1000)/1000; }); touch(); draw(); } };
+  requestAnimationFrame(step); }
+/* mind-map keys: in a note, Tab adds a connected idea, Shift+Tab adds an idea on the left (or above / below) */
+function mmParent(it){ if(!cur||!it) return null; for(const o of cur.items){ const c=o.conns&&o.conns.find(c=>c.to===it.id); if(c&&isCard(o)) return {par:o,side:c.side||'right'}; } return null; }
+function mmFocus(it){ renderCards(); const el=cardsEl.querySelector(`[data-cid="${it.id}"] textarea`); if(el){ el.focus({preventScroll:true}); const L=el.value.length; try{ el.setSelectionRange(L,L); }catch(e){} } setCardSel(it.id); dropNoopCheckpoint(); mmReveal(it); }
+function mmReveal(it){ const R=cardRect(it), x0=(R.x-view.x)*view.s+W/2, y0=(R.y-view.y)*view.s+H/2, x1=x0+R.w*view.s, y1=y0+R.h*view.s, m=90;   // keep the new idea on screen
+  let dx=0, dy=0; if(x1>W-m) dx=(x1-(W-m))/view.s; else if(x0<m) dx=(x0-m)/view.s; if(y1>H-m) dy=(y1-(H-m))/view.s; else if(y0<m) dy=(y0-m)/view.s;
+  if(dx||dy) glideView({x:view.x+dx,y:view.y+dy,s:view.s},320); }
+function mmChild(it){ const up=mmParent(it), side=up?up.side:'right'; if(document.activeElement) document.activeElement.blur(); const h=hist.length, n=addLinkedNote(it,side); if(n) mmFocus(n); mmOneStep(h); }
+/* Shift+Tab: an idea on the left; if the left is where it hangs from, or both left and right are in use, above; if above is taken too, below */
+function mmSides(it){ const u={left:0,right:0,top:0,bottom:0}, opp={right:'left',left:'right',top:'bottom',bottom:'top'};
+  (it.conns||[]).forEach(c=>{ u[c.side||'right']=1; });
+  cur.items.forEach(o=>{ if(o!==it&&o.conns) o.conns.forEach(c=>{ if(c.to===it.id) u[opp[c.side||'right']]=2; }); });   // where it is connected in from
+  return u; }
+function mmLeft(it){ if(readOnly||!it) return; const u=mmSides(it), side=(u.left===2||(u.left&&u.right))?(u.top?'bottom':'top'):'left';
+  if(document.activeElement) document.activeElement.blur(); const h=hist.length, n=addLinkedNote(it,side); if(n) mmFocus(n); mmOneStep(h); }
+function mmComp(it){ const adj=new Map(), add=(a,b)=>{ (adj.get(a)||adj.set(a,[]).get(a)).push(b); };
+  cur.items.forEach(o=>{ if(isCard(o)&&o.conns) o.conns.forEach(c=>{ const t=itemById(c.to); if(t&&isCard(t)){ add(o.id,t.id); add(t.id,o.id); } }); });
+  const out=[], seen=new Set([it.id]), q=[it.id]; while(q.length){ const id=q.shift(), k=itemById(id); if(k) out.push(k); (adj.get(id)||[]).forEach(n=>{ if(!seen.has(n)){ seen.add(n); q.push(n); } }); } return out; }
+function mmRoot(it){ let r=it; const seen=new Set([it.id]); for(let up=mmParent(r); up&&!seen.has(up.par.id); up=mmParent(r)){ r=up.par; seen.add(r.id); } return r; }
+/* Shift+T: tidy a whole map — every side of every idea is re-stacked without collisions; with nothing selected, every map on the board */
+function mmTidy(it){ if(!cur||readOnly) return; finishTween();
+  let roots; if(it) roots=[mmRoot(it)]; else { const kids=new Set(); cur.items.forEach(o=>{ if(isCard(o)&&o.conns) o.conns.forEach(c=>kids.add(c.to)); }); roots=cur.items.filter(o=>isCard(o)&&o.conns&&o.conns.some(c=>isCard(itemById(c.to)))&&!kids.has(o.id)); }
+  if(!roots.length){ toast('No mind map to tidy'); return; }
+  const orig=new Map(cur.items.filter(isCard).map(k=>[k.id,{x:k.x,y:k.y}])); checkpoint(); tweenOff=true;
+  try{ const done=new Set(), q=[...roots];
+    while(q.length){ const n=q.shift(); if(!n||done.has(n.id)) continue; done.add(n.id); const up=mmParent(n);
+      [...new Set((n.conns||[]).map(c=>c.side||'right'))].forEach(sd=>{ if(up&&up.side===sd&&done.has(up.par.id)) return;
+        if((n.conns||[]).some(c=>(c.side||'right')===sd&&isCard(itemById(c.to))&&!colOf(c.to))) layoutTree(n,sd,null); });
+      (n.conns||[]).forEach(c=>{ const t=itemById(c.to); if(t&&isCard(t)) q.push(t); }); } }
+  finally{ tweenOff=false; }
+  const moves=[]; cur.items.forEach(k=>{ const o=orig.get(k.id); if(o&&(Math.abs(o.x-k.x)>1e-4||Math.abs(o.y-k.y)>1e-4)){ moves.push({it:k,x0:o.x,y0:o.y,x1:k.x,y1:k.y}); k.x=o.x; k.y=o.y; } });
+  if(moves.length) tweenItems(moves); else { dropNoopCheckpoint(); toast('Already tidy'); } }
+function mmOneStep(h){ if(hist.length>h+1){ hist.splice(h+1); updUndo(); } }   // adding an idea is one undo step, however many focus changes it took
 // connections: curved (default) or straight, leaving from the sides that face each other (or the side they were added on)
 function connEnds(a,b,side){
   if(!isCard(b)){   // to a plot object: aim at its centre, stop just outside it
@@ -5316,6 +5433,9 @@ cardsEl.addEventListener('keydown',e=>{
   const t=e.target, it=cardItem(t); if(!it||readOnly) return;
   if(t.dataset.f==='hex' && e.key==='Enter'){ e.preventDefault(); t.blur(); return; }
   if(e.key==='Escape'){ e.preventDefault(); e.stopPropagation(); t.blur(); setCardSel(it.id); return; }
+  if(it.type==='note' && t.dataset.f==='text' && !e.metaKey && !e.ctrlKey && !e.altKey){
+    if(e.key==='Tab'){ e.preventDefault(); e.stopPropagation(); if(e.shiftKey) mmLeft(it); else mmChild(it); return; }
+  }
   if((t.dataset.f==='trnew'||t.dataset.f==='trname') && (e.key==='Enter'||e.key==='Escape')){ e.preventDefault(); e.stopPropagation(); if(e.key==='Enter') (t.dataset.f==='trnew'?trCreate:trRename)(it,t); else { delete t.closest('.bc').dataset.trEdit; fillCard(t.closest('.bc'),it); } return; }
   if(t.dataset.f==='trkey' && e.key==='Enter'){ e.preventDefault(); trSaveKey(t.closest('.bc')); return; }
   if(t.dataset.f==='trq' && e.key==='Enter'){ e.preventDefault(); const first=t.closest('.bc').querySelector('[data-act="trpick"]'); if(first) first.click(); return; }
