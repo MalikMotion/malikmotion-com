@@ -3204,7 +3204,7 @@ function mapSVG(it,Q,k){ const w=it.w, h=it.h, p=it.p||{};
   if(p.lat==null||p.lon==null||p.lat===''){   // not placed yet: a little map-ish placeholder
     let o=`<rect x="${f(-w/2)}" y="${f(-h/2)}" width="${f(w)}" height="${f(h)}" rx="${f(Math.min(w,h)*.02)}" fill="#7fa36b" fill-opacity=".22" stroke="${Q.ink}" stroke-opacity=".45" stroke-width="${f(1.3*k)}" stroke-dasharray="${f(6*k)} ${f(4*k)}"/>`
       +`<path d="M${f(-w/2)} ${f(h*.18)}C${f(-w*.15)} ${f(h*.05)} ${f(w*.1)} ${f(h*.32)} ${f(w/2)} ${f(h*.12)}M${f(-w*.12)} ${f(-h/2)}L${f(w*.05)} ${f(h/2)}" fill="none" stroke="${Q.paper}" stroke-opacity=".8" stroke-width="${f(Math.min(w,h)*.05)}" stroke-linecap="round"/>`;
-    if(w/k>140) o+=`<text x="0" y="${f(-h*.05)}" font-size="${f(13*k)}" font-family="${FONT}" font-weight="700" fill="${Q.ink}" text-anchor="middle" stroke="${Q.paper}" stroke-width="${f(3*k)}" paint-order="stroke">Satellite map</text><text x="0" y="${f(-h*.05+18*k)}" font-size="${f(11*k)}" font-family="${FONT}" fill="${Q.muted}" text-anchor="middle" stroke="${Q.paper}" stroke-width="${f(3*k)}" paint-order="stroke">Search an address in the panel</text>`;
+    if(w/k>140) o+=`<text x="0" y="${f(-h*.05)}" font-size="${f(13*k)}" font-family="${FONT}" font-weight="700" fill="${Q.ink}" text-anchor="middle" stroke="${Q.paper}" stroke-width="${f(3*k)}" paint-order="stroke">Satellite map</text><text x="0" y="${f(-h*.05+18*k)}" font-size="${f(11*k)}" font-family="${FONT}" fill="${Q.muted}" text-anchor="middle" stroke="${Q.paper}" stroke-width="${f(3*k)}" paint-order="stroke">Search an address, or paste a Google Maps link</text>`;
     return o; }
   const G=mapGeo(it), ox=+p.ox||0, oy=+p.oy||0, T=256*G.mpp;
   const x0=Math.floor((G.gx+(-w/2-ox)/G.mpp)/256), x1=Math.floor((G.gx+(w/2-ox)/G.mpp)/256), y0=Math.floor((G.gy+(-h/2-oy)/G.mpp)/256), y1=Math.floor((G.gy+(h/2-oy)/G.mpp)/256);
@@ -3240,18 +3240,47 @@ function mapHTML(it,dis){ const p=it.p, has=p.lat!=null&&p.lat!=='', sp=cur.item
   if(has) s+=`<div class="aimrow">${sp?`<button class="btn sm" data-act="mapsun" ${dis}>Use for sun path</button>`:''}<button class="btn sm ghost" data-act="mapcentre" ${dis}>Re-centre</button></div>`;
   s+=`<p class="muted" style="margin:6px 0 0;font-size:11.5px">Imagery © Esri, Maxar, Earthstar Geographics · Search © OpenStreetMap contributors</p>`;
   return s; }
-function mapParse(q){ q=String(q||'').trim(); let m=q.match(/@(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/)||q.match(/[?&](?:q|ll|query)=(-?\d+(?:\.\d+)?),\s*(-?\d+(?:\.\d+)?)/)||q.match(/^\s*(-?\d{1,2}(?:\.\d+)?)\s*[,; ]\s*(-?\d{1,3}(?:\.\d+)?)\s*$/);
-  if(m){ const lat=+m[1], lon=+m[2]; if(Math.abs(lat)<=90&&Math.abs(lon)<=180) return {lat,lon}; } return null; }
-async function mapFind(it){ const inp=insp.querySelector('[data-mapq]'), q=inp?inp.value.trim():''; if(!q){ if(inp) inp.focus(); return; }
+/* read a place out of whatever was pasted: a Google Maps link (place pin first, then the view centre), plain or DMS coordinates */
+function mapParse(q){ q=String(q||'').trim(); if(!q) return null; let u=q; try{ u=decodeURIComponent(q.replace(/\+/g,' ')); }catch(e){}
+  const ok=(a,b)=>{ a=+a; b=+b; return isFinite(a)&&isFinite(b)&&Math.abs(a)<=90&&Math.abs(b)<=180&&(a||b)?{lat:a,lon:b}:null; };
+  const N='(-?\\d{1,3}(?:\\.\\d+)?)';
+  let hit=null, m;
+  if((m=u.match(new RegExp('!3d'+N+'!4d'+N)))) hit=ok(m[1],m[2]);   // the dropped pin of a /place/ link
+  if(!hit&&(m=u.match(new RegExp('[?&](?:q|ll|query|center|destination|daddr|sll)='+N+'\\s*,\\s*'+N)))) hit=ok(m[1],m[2]);
+  if(!hit&&(m=u.match(new RegExp('/(?:search|place|dir)/'+N+'\\s*,\\s*'+N)))) hit=ok(m[1],m[2]);
+  if(!hit&&(m=u.match(new RegExp('@'+N+','+N)))) hit=ok(m[1],m[2]);   // the centre of the view
+  if(!hit&&(m=u.match(/^\s*(-?\d{1,2}(?:\.\d+)?)\s*[,; ]\s*(-?\d{1,3}(?:\.\d+)?)\s*$/))) hit=ok(m[1],m[2]);
+  if(!hit&&(m=u.match(/(\d{1,2})°\s*(\d{1,2})['′]\s*([\d.]+)["″]?\s*([NS])[\s,]+(\d{1,3})°\s*(\d{1,2})['′]\s*([\d.]+)["″]?\s*([EW])/i))){   // 56°27'38.5"N 10°02'11.0"E
+    const d=(D,M,S,h)=>(+D+M/60+S/3600)*(/[SW]/i.test(h)?-1:1); hit=ok(d(m[1],m[2],m[3],m[4]),d(m[5],m[6],m[7],m[8])); }
+  if(hit){ const pm=u.match(/\/place\/([^/@]+)/); if(pm&&!/^-?\d/.test(pm[1])) hit.name=pm[1].trim(); }
+  return hit; }
+const isMapsLink=q=>/^https?:\/\/(?:(?:www\.|maps\.)?google\.[a-z.]+\/maps|maps\.google\.[a-z.]+|goo\.gl\/maps|maps\.app\.goo\.gl)/i.test(String(q||'').trim());
+const isShortMapsLink=q=>/^https?:\/\/(?:goo\.gl\/maps|maps\.app\.goo\.gl)\//i.test(String(q||'').trim());
+const SHORT_MSG='Short share links can\'t be read here — open it, then copy the full link from the address bar (or right-click the spot in Google Maps and copy the coordinates)';
+function mapPlace(it,hit,q){ checkpoint(); Object.assign(it.p,{lat:Math.round(hit.lat*1e6)/1e6,lon:Math.round(hit.lon*1e6)/1e6,addr:hit.name||hit.addr||`${hit.lat.toFixed(5)}, ${hit.lon.toFixed(5)}`,q:q||'',ox:0,oy:0}); if(hit.cc) it.p.cc=hit.cc; else delete it.p.cc;
+  const sp=cur.items.find(i=>i.type==='sunpath'); if(sp) mapToSun(it,sp,true);
+  touch(); renderInspector(); draw(); return sp; }
+/* paste or drop a Google Maps link (or coordinates) on the board: the selected map moves there, otherwise a new map is placed */
+function mapFromLink(q,at){ if(readOnly) return false; q=String(q||'').trim(); const coords=/^\s*-?\d{1,2}(?:\.\d+)?\s*[,; ]\s*-?\d{1,3}(?:\.\d+)?\s*$/.test(q)||/°/.test(q);
+  if(!isMapsLink(q)&&!coords) return false;
+  if(isShortMapsLink(q)){ toast(SHORT_MSG); return true; }
+  const hit=mapParse(q), nm=!hit&&mapsName(q); if(!hit&&!nm){ toast('That link has no location in it — open the place in Google Maps and copy the link again'); return true; }
+  let it=sel.size===1?itemById([...sel][0]):null; const h=hist.length;
+  if(!it||it.type!=='map'){ const P=at||hoverWorld||{x:view.x,y:view.y}; it=addItem('map',P.x,P.y); if(!it) return true; }
+  if(!hit){ mapFind(it,q).then(()=>mmOneStep(h)); return true; }   // adding the map and placing it is one undo step
+  const sp=mapPlace(it,hit,q); mmOneStep(h); sel=new Set([it.id]); renderInspector(); draw(); toast(`Map placed${hit.name?' at '+hit.name:''}${sp?' · the sun path moved there too':''}`); return true; }
+const mapsName=q=>{ let u=q; try{ u=decodeURIComponent(q.replace(/\+/g,' ')); }catch(e){} const m=u.match(/\/(?:place|search)\/([^/@?]+)/); return m&&!/^-?\d/.test(m[1])?m[1].trim():''; };
+async function mapFind(it,q0){ const inp=insp.querySelector('[data-mapq]'), q=(q0||(inp?inp.value:'')).trim(); if(!q){ if(inp) inp.focus(); return; }
+  if(isShortMapsLink(q)){ toast(SHORT_MSG); return; }
   let hit=mapParse(q), addr='';
+  const sq=!hit&&isMapsLink(q)?mapsName(q):q;   // a link with only a place name: look the name up
+  if(!hit&&!sq){ toast('That link has no location in it — open the place in Google Maps and copy the link again'); return; }
   if(!hit){ toast('Searching…');
-    try{ const r=await fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&addressdetails=1&q='+encodeURIComponent(q),{headers:{'Accept-Language':navigator.language||'en'}}); const j=await r.json();
+    try{ const r=await fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&addressdetails=1&q='+encodeURIComponent(sq),{headers:{'Accept-Language':navigator.language||'en'}}); const j=await r.json();
       if(!j.length){ toast('No place found — try another spelling, or paste coordinates'); return; }
       hit={lat:+j[0].lat,lon:+j[0].lon,cc:j[0].address&&j[0].address.country_code}; addr=String(j[0].display_name||'').split(',').slice(0,3).join(',').trim(); }
     catch(e){ toast('Search isn\'t reachable here — paste coordinates or a Google Maps link instead'); return; } }
-  checkpoint(); Object.assign(it.p,{lat:Math.round(hit.lat*1e6)/1e6,lon:Math.round(hit.lon*1e6)/1e6,addr:addr||`${hit.lat.toFixed(5)}, ${hit.lon.toFixed(5)}`,q,ox:0,oy:0}); if(hit.cc) it.p.cc=hit.cc;
-  const sp=cur.items.find(i=>i.type==='sunpath'); if(sp) mapToSun(it,sp,true);
-  touch(); renderInspector(); draw(); toast(sp?'Map placed · the sun path moved there too':'Map placed at true scale'); }
+  if(addr) hit.addr=addr; const sp=mapPlace(it,hit,q); toast(sp?'Map placed · the sun path moved there too':'Map placed at true scale'); }
 function mapToSun(it,sp,quiet){ const g=mapCentre(it); Object.assign(sp.p,{lat:Math.round(g.lat*1000)/1000,lon:Math.round(g.lon*1000)/1000,place:(it.p.addr||'Map').split(',')[0]}); if(it.p.cc==='dk') sp.p.tz='Europe/Copenhagen'; sp.rot=it.rot||0; if(!quiet) toast('Sun path uses the map\'s place and north'); }
 function mapCentre(it){ const G=mapGeo(it), n=256*Math.pow(2,G.z), gx=G.gx-(+it.p.ox||0)/G.mpp, gy=G.gy-(+it.p.oy||0)/G.mpp, lon=gx/n*360-180, lat=Math.atan(Math.sinh(Math.PI*(1-2*gy/n)))/D2R; return {lat,lon}; }
 /* ================= sun path: where the sun is over the set for a place, date and time ================= */
@@ -3842,6 +3871,7 @@ function syncInspector(){
 }
 function syncSetupFields(){ const el=insp.querySelector('[data-k="m.title"]'); if(el&&document.activeElement!==el) el.value=cur.title; }
 insp.addEventListener('focusin',e=>{ if(e.target.dataset&&e.target.dataset.k&&!readOnly) checkpoint(); });
+insp.addEventListener('paste',e=>{ if(!(e.target.matches&&e.target.matches('[data-mapq]'))) return; const t=(e.clipboardData&&e.clipboardData.getData('text'))||''; if(!mapParse(t)&&!isShortMapsLink(t)) return; setTimeout(()=>{ const it=itemById([...sel][0]); if(it&&it.type==='map') mapFind(it); },0); });
 insp.addEventListener('keydown',e=>{ if(e.key==='Enter'&&e.target.matches&&e.target.matches('[data-mapq]')){ e.preventDefault(); const it=itemById([...sel][0]); if(it&&it.type==='map') mapFind(it); } });
 insp.addEventListener('pointerdown',e=>{ if(e.target.closest('.seg button')&&!readOnly) checkpoint(); });
 function applyField(el){
@@ -4026,7 +4056,15 @@ addEventListener('contextmenu',e=>{ if(placing){ e.preventDefault(); e.stopPropa
 addEventListener('keyup',e=>{ if(e.key==='Shift' && lastPtr) lastPtr.shift=false; if(placing&&e.key==='Shift') placeAtPointer(); },true);
 addEventListener('keydown',e=>{ if(!placing) return; if(e.key==='Shift'){ if(lastPtr) lastPtr.shift=true; placeAtPointer(); return; } if(e.key==='Escape'){ e.preventDefault(); e.stopImmediatePropagation(); cancelPlace(); } else if(e.key==='Enter'){ e.preventDefault(); e.stopImmediatePropagation(); commitPlace(); } },true);
 /* clipboard: kept in this browser so it also pastes into other setups and shoots */
-let clipMem=null, pasteN=0, hoverWorld=null;
+let clipMem=null, pasteN=0, hoverWorld=null, pasteWait=0;
+document.addEventListener('paste',e=>{ const a=document.activeElement; if(a&&(a.isContentEditable||/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName))) return;
+  const t=(e.clipboardData&&e.clipboardData.getData('text'))||'';
+  if(t && mapFromLink(t)){ e.preventDefault(); if(pasteWait){ clearTimeout(pasteWait); pasteWait=0; } return; }
+  if(pasteWait){ e.preventDefault(); clearTimeout(pasteWait); pasteWait=0; pasteClip(); } });
+/* drag a Google Maps link from another tab onto the board */
+addEventListener('dragover',e=>{ if(readOnly||!e.dataTransfer||hasFiles(e)) return; const ty=[...(e.dataTransfer.types||[])]; if(ty.includes('text/uri-list')||ty.includes('text/plain')){ e.preventDefault(); e.dataTransfer.dropEffect='copy'; } });
+addEventListener('drop',e=>{ if(readOnly||!e.dataTransfer||hasFiles(e)) return; const t=e.dataTransfer.getData('text/uri-list')||e.dataTransfer.getData('text/plain'); if(!t) return;
+  if(mapFromLink(t.split('\n')[0],toWorld(e.clientX,e.clientY))) e.preventDefault(); });
 function copySel(cut){
   if(!cur||!sel.size) return;
   const items=cur.items.filter(i=>sel.has(i.id)); items.filter(i=>i.type==='column').forEach(col=>(col.p.items||[]).forEach(id=>{ const c=itemById(id); if(c&&!items.includes(c)) items.push(c); })); clipMem=JSON.stringify(items); pasteN=0;
@@ -4183,7 +4221,7 @@ document.addEventListener('keydown',e=>{
   else if(act==='ungroup'){ e.preventDefault(); ungroupSelection(); }
   else if(act==='copy' && sel.size && !String(getSelection&&getSelection()).trim()){ e.preventDefault(); copySel(false); }
   else if(act==='cut' && sel.size){ e.preventDefault(); copySel(true); }
-  else if(act==='paste'){ e.preventDefault(); pasteClip(); }
+  else if(act==='paste'){ pasteWait=setTimeout(()=>{ pasteWait=0; pasteClip(); },120); }   // a paste event follows; if it carries a maps link it wins, otherwise the app clipboard pastes
   else if(act==='layers'){ toggleLayers(); }
   else if(act==='rename' && sel.size===1){ const it=itemById([...sel][0]); if(canRename(it)){ e.preventDefault(); if(!(lastArea==='panel' && renameInPanel(it))) renameOnScene(it); } }
   else if(act==='pen'){ drawMode?exitDraw():enterDraw(); }
