@@ -672,10 +672,10 @@ body.placing .bc:hover{box-shadow:0 1px 2px rgba(20,24,30,.08),0 6px 18px -6px r
 .c-name{padding:14px 18px 16px}
 .c-pick{position:absolute;left:12px;bottom:12px;width:1px;height:1px;opacity:0;pointer-events:none;border:0;padding:0}
 .bc-note{display:flex;flex-direction:column}
-.bc-image{overflow:hidden;border-radius:10px;background:var(--field)}
-.bc-trello{display:flex;flex-direction:column;overflow:hidden;border-radius:10px}
+.bc-image{border-radius:10px;background:var(--field)}   /* no overflow clip here, or the card's Duplicate/Delete bar above it gets cut off */
+.bc-trello{display:flex;flex-direction:column;border-radius:10px}
 .tr-ic{background:color-mix(in srgb,#0c66e4 14%,transparent)!important;color:#0c66e4!important}.tr-ric{color:#0c66e4!important}
-.tr-body{flex:1 1 auto;min-height:0;display:flex;flex-direction:column}
+.tr-body{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;overflow:hidden;border-radius:0 0 10px 10px}
 .tr-body>.gd-msg{padding:14px 16px}.tr-body>.gd-allow{margin:0 16px}
 .tr-lists{flex:1 1 auto;min-height:0;display:flex;gap:10px;overflow-x:auto;overflow-y:hidden;padding:12px;scrollbar-width:thin;overscroll-behavior:contain}
 .tr-list{flex:0 0 232px;display:flex;flex-direction:column;min-height:0;max-height:100%;background:var(--field);border-radius:10px;padding:8px}
@@ -701,7 +701,7 @@ body.placing .bc:hover{box-shadow:0 1px 2px rgba(20,24,30,.08),0 6px 18px -6px r
 .tr-open{margin-left:auto;color:var(--faint);display:grid;place-items:center;opacity:0}.tr-card:hover .tr-open{opacity:1}.tr-open svg{width:13px;height:13px}
 .tr-add{border:0;background:transparent;color:var(--muted);font:inherit;font-size:13px;text-align:left;padding:7px 6px 2px;border-radius:6px;cursor:pointer}.tr-add:hover{color:var(--ink)}
 .bc .tr-in{border:1.5px solid var(--accent)!important;border-radius:7px;padding:6px 8px!important;background:var(--card)!important;font-size:13px;margin-top:6px}
-.im-wrap{position:relative;width:100%}
+.im-wrap{position:relative;width:100%;overflow:hidden;border-radius:10px}
 .im-img{display:block;width:100%;height:100%;object-fit:cover;pointer-events:none;-webkit-user-drag:none}
 .im-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-align:center;padding:16px;color:var(--muted);border:1.5px dashed var(--line2);border-radius:10px;min-height:120px}
 .im-empty svg{width:30px;height:30px;margin-bottom:4px;color:var(--faint)}.im-empty b{color:var(--ink);font-size:14px}.im-empty small{font-size:12px;line-height:1.35;max-width:220px}
@@ -711,7 +711,7 @@ body.placing .bc:hover{box-shadow:0 1px 2px rgba(20,24,30,.08),0 6px 18px -6px r
 @keyframes imSpin{to{transform:rotate(360deg)}}
 body.img-drop #plot{outline:3px dashed color-mix(in srgb,var(--accent) 70%,transparent);outline-offset:-10px}
 body.img-drop .bc-image .im-empty{border-color:var(--accent);color:var(--accent)}
-.bc-gdoc{display:flex;flex-direction:column;overflow:hidden;border-radius:10px}
+.bc-gdoc{display:flex;flex-direction:column;border-radius:10px}
 .bc-gdoc.gd-anim{transition:width .32s cubic-bezier(.2,.8,.2,1),height .32s cubic-bezier(.2,.8,.2,1)}
 .bc-gdoc.gd-col{border-radius:14px}
 .bc-gdoc.gd-col .rz{display:none}
@@ -728,7 +728,7 @@ body.img-drop .bc-image .im-empty{border-color:var(--accent);color:var(--accent)
 .gd-btn{flex:none;width:28px;height:28px;border-radius:7px;display:grid;place-items:center;border:0;background:transparent;color:var(--muted);cursor:pointer;padding:0}
 .gd-btn:hover{background:var(--hover,color-mix(in srgb,var(--ink) 7%,transparent));color:var(--ink)}
 .gd-btn svg{width:16px;height:16px}
-.gd-body{flex:1 1 auto;min-height:0;overflow:auto;padding:12px 16px 16px;font-size:13px;line-height:1.55;overscroll-behavior:contain}
+.gd-body{flex:1 1 auto;min-height:0;overflow:auto;border-radius:0 0 10px 10px;padding:12px 16px 16px;font-size:13px;line-height:1.55;overscroll-behavior:contain}
 .gd-body:has(.gd-frame){padding:0;overflow:hidden;display:flex;flex-direction:column}
 .gd-frame{flex:1 1 auto;width:100%;min-height:0;border:0;background:#fff;display:block}
 body.ptr-down .gd-frame{pointer-events:none}
@@ -3795,7 +3795,7 @@ addEventListener('pointerdown',e=>{ if(!placing) return; e.preventDefault(); e.s
   if(e.button===2){ cancelPlace(); return; }
   movePlace(toWorld(e.clientX,e.clientY),e.shiftKey); commitPlace(); },true);
 addEventListener('contextmenu',e=>{ if(placing){ e.preventDefault(); e.stopPropagation(); } },true);
-addEventListener('keyup',e=>{ if(placing&&e.key==='Shift'){ if(lastPtr) lastPtr.shift=false; placeAtPointer(); } },true);
+addEventListener('keyup',e=>{ if(e.key==='Shift' && lastPtr) lastPtr.shift=false; if(placing&&e.key==='Shift') placeAtPointer(); },true);
 addEventListener('keydown',e=>{ if(!placing) return; if(e.key==='Shift'){ if(lastPtr) lastPtr.shift=true; placeAtPointer(); return; } if(e.key==='Escape'){ e.preventDefault(); e.stopImmediatePropagation(); cancelPlace(); } else if(e.key==='Enter'){ e.preventDefault(); e.stopImmediatePropagation(); commitPlace(); } },true);
 /* clipboard: kept in this browser so it also pastes into other setups and shoots */
 let clipMem=null, pasteN=0, hoverWorld=null;
@@ -3821,14 +3821,14 @@ function pasteClip(){
 // [group, id, label, default]. Combos: optional mod (⌘/Ctrl), alt, shift, then the key, joined by '+'.
 var KEY_ACTIONS=[
   ['Edit','undo','Undo','mod+z'], ['Edit','redo','Redo','mod+shift+z'], ['Edit','copy','Copy','mod+c'], ['Edit','cut','Cut','mod+x'],
-  ['Edit','paste','Paste','mod+v'], ['Edit','dup','Duplicate','mod+d'], ['Edit','group','Group','mod+g'], ['Edit','ungroup','Ungroup','mod+shift+g'], ['Edit','lock','Lock / unlock layer','mod+l'], ['Edit','del','Delete selected','backspace'], ['Edit','rename','Rename selected object','enter'],
+  ['Edit','paste','Paste','mod+v'], ['Edit','dup','Duplicate','mod+d'], ['Edit','group','Group','mod+g'], ['Edit','ungroup','Ungroup','mod+shift+g'], ['Edit','lock','Lock / unlock layer','mod+l'], ['Edit','del','Delete selected','x'], ['Edit','rename','Rename selected object','enter'],
   ['Objects','aim','Aim · rotate a group (several selected)','r'], ['Objects','walk','Walk mode (talent): WASD, Shift to run','mod+enter'], ['Objects','rotl','Turn −15°','['], ['Objects','rotr','Turn +15°',']'],
   ['Tools','addmenu','Search & add at the cursor','shift+a'], ['Tools','pen','Pen','p'], ['Tools','layers','Layers panel','l'],
   ['Left toolbar','c_board','Nested setup','0'], ['Left toolbar','g_shoots','Shoots',''], ['Left toolbar','g_lights','Lights','1'], ['Left toolbar','g_grip','Grip','2'], ['Left toolbar','g_camera','Camera','3'],
   ['Left toolbar','g_subjects','Subjects','4'], ['Left toolbar','g_set','Set','5'], ['Left toolbar','g_layers','Layers','6'],
   ['Right toolbar','c_note','Note','shift+1'], ['Right toolbar','c_todo','To-do','shift+2'], ['Right toolbar','c_comment','Comment','shift+3'],
   ['Right toolbar','c_grid','Table','shift+4'], ['Right toolbar','c_color','Colour','shift+5'], ['Right toolbar','c_column','Column','shift+8'], ['Right toolbar','g_notes','Notes (text, arrow, distance, angle, pen)','shift+6'], ['Right toolbar','g_align','Align & distribute','shift+7'],
-  ['View','present','Focus mode (hide the toolbars)','shift+f'], ['View','isolate','Highlight selection (dim the rest)','shift+h'], ['View','fit','Fit plot to screen','f'], ['View','zoomin','Zoom in','+'], ['View','zoomout','Zoom out','-'], ['View','zoom100','Zoom to 100%','shift+0'],
+  ['View','present','Focus mode (hide the toolbars)','shift+f'], ['View','isolate','Highlight selection (dim the rest)','shift+h'], ['View','fit','Fit plot to screen','z'], ['View','zoomin','Zoom in','+'], ['View','zoomout','Zoom out','-'], ['View','zoom100','Zoom to 100%','shift+0'],
   ['View','snap','Snap on / off','s'], ['View','beams','Beams on / off','b'], ['View','specs','Fixture specs on / off','i'],
   ['Help','keys','Show shortcuts','?'], ['Help','guide','Helper bar on / off','h']
 ];
@@ -3849,6 +3849,7 @@ function comboOf(e){
 function actionFor(combo){ if(!combo) return null; const a=KEY_ACTIONS.find(x=>keyOf(x[1])===combo); if(a) return a[1];
   if(combo==='mod+y' && !KEY_ACTIONS.some(x=>keyOf(x[1])==='mod+y')) return 'redo';            // familiar alternates
   if(combo==='delete' && !KEY_ACTIONS.some(x=>keyOf(x[1])==='delete')) return 'del';
+  if(combo==='backspace' && !KEY_ACTIONS.some(x=>keyOf(x[1])==='backspace')) return 'del';   // Backspace still deletes too
   if(combo==='=' && keyOf('zoomin')==='+') return 'zoomin';
   return null; }
 function keyLabel(combo){
@@ -4469,7 +4470,7 @@ function fmtWhen(t){ try{ return new Date(t).toLocaleString('en-GB',{day:'numeri
 const cardsEl = $('#cards');
 let cdrag = null;
 const cardSig = it=>it.type==='trello'?JSON.stringify([it.p, it.w, trSig(it.p.boardId), mcpState, readOnly]):it.type==='image'?JSON.stringify([it.p, it.w, imgSig(it.p.src), readOnly]):it.type==='gdoc'?JSON.stringify([it.p, it.w, gdSig(it.p.fileId), mcpState, readOnly]):it.type==='board'?JSON.stringify([it.p.target, it.w, (all[it.p.target]||{}).updatedAt, (all[it.p.target]||{}).title]):it.type==='column'?JSON.stringify([it.p.title, it.w]):JSON.stringify([it.p, it.w]);
-function cardInner(it){ return cardBody(it)+(readOnly?'':`<div class="c-acts"><button data-act="dupcard" title="${it.type==='board'?'Duplicate this setup and everything nested in it':'Duplicate'}" aria-label="Duplicate">${ic('copy','style="width:15px;height:15px"')}</button><button data-act="delcard" class="del" title="${it.type==='board'?'Delete this setup (Undo brings it back)':'Delete'}" aria-label="Delete">${ic('trash','style="width:15px;height:15px"')}</button></div>`); }
+function cardInner(it){ return cardBody(it)+(readOnly?'':`<div class="c-acts">${it.type==='image'&&it.p.src?`<button data-act="palette" title="Extract colours: adds its 5 key colours as Colour cards" aria-label="Extract colours">${ic('swatch','style="width:15px;height:15px"')}</button>`:''}<button data-act="dupcard" title="${it.type==='board'?'Duplicate this setup and everything nested in it':'Duplicate'}" aria-label="Duplicate">${ic('copy','style="width:15px;height:15px"')}</button><button data-act="delcard" class="del" title="${it.type==='board'?'Delete this setup (Undo brings it back)':'Delete'}" aria-label="Delete">${ic('trash','style="width:15px;height:15px"')}</button></div>`); }
 function cardBody(it){
   const p=it.p, ro=readOnly?'readonly':'', dis=readOnly?'disabled':'';
   switch(it.type){
@@ -4678,6 +4679,32 @@ addEventListener('pointerup',e=>{ const D=trDrag; if(!D) return; trDrag=null; if
   if(from===lid && D.index===D.rows.indexOf(cid)) { trApply(it.p.boardId); return; }
   trApply(it.p.boardId); fillCard(D.board,it);
   trSend(it.p.boardId,{type:'move',cardId:cid,listId:lid,pos,top:D.index===0,ok:from===lid?null:'Moved in Trello'}); },true);
+/* palette from an image: k-means on a small copy of the picture, the five most-used distinct colours become Colour cards in a row under it */
+function paletteOf(img,n){ const S=96, sc=Math.min(1,S/Math.max(img.naturalWidth,img.naturalHeight)), w=Math.max(1,Math.round(img.naturalWidth*sc)), h=Math.max(1,Math.round(img.naturalHeight*sc));
+  const cv=document.createElement('canvas'); cv.width=w; cv.height=h; const g=cv.getContext('2d',{willReadFrequently:true}); g.drawImage(img,0,0,w,h); const d=g.getImageData(0,0,w,h).data, px=[];
+  for(let i=0;i<d.length;i+=4) if(d[i+3]>200) px.push([d[i],d[i+1],d[i+2]]);
+  if(!px.length) return [];
+  const K=Math.min(9,px.length), dist=(a,b)=>{ const r=(a[0]+b[0])/2, dr=a[0]-b[0], dg=a[1]-b[1], db=a[2]-b[2]; return (2+r/256)*dr*dr+4*dg*dg+(2+(255-r)/256)*db*db; };   // "redmean": closer to how we see colour than plain RGB
+  const C=[px[Math.floor(px.length/2)].slice()];
+  while(C.length<K){ let bi=0, bd=-1; for(let i=0;i<px.length;i+=3){ let m=Infinity; for(const c of C) m=Math.min(m,dist(px[i],c)); if(m>bd){ bd=m; bi=i; } } C.push(px[bi].slice()); }   // spread-out starting points (k-means++ style, deterministic)
+  let cnt=new Array(K).fill(0);
+  for(let it=0;it<12;it++){ const sum=C.map(()=>[0,0,0]); cnt=new Array(K).fill(0);
+    for(const p of px){ let bi=0, bd=Infinity; for(let k=0;k<K;k++){ const v=dist(p,C[k]); if(v<bd){ bd=v; bi=k; } } sum[bi][0]+=p[0]; sum[bi][1]+=p[1]; sum[bi][2]+=p[2]; cnt[bi]++; }
+    for(let k=0;k<K;k++) if(cnt[k]) C[k]=[sum[k][0]/cnt[k],sum[k][1]/cnt[k],sum[k][2]/cnt[k]]; }
+  const order=C.map((c,k)=>({c,n:cnt[k]})).filter(x=>x.n).sort((a,b)=>b.n-a.n), out=[];
+  for(const x of order){ if(out.every(o=>dist(o,x.c)>2200)) out.push(x.c); if(out.length===n) break; }   // skip near-duplicates
+  for(const x of order){ if(out.length===n) break; if(!out.includes(x.c)) out.push(x.c); }
+  return out.map(c=>'#'+c.map(v=>Math.round(v).toString(16).padStart(2,'0')).join('').toUpperCase()); }
+async function extractPalette(it){ if(readOnly||!it) return; const el=cardsEl.querySelector(`[data-cid="${it.id}"]`), im=el&&el.querySelector('img.im-img');
+  if(!im){ toast('Load the image first'); return; }
+  try{ if(!im.complete) await im.decode(); }catch(e){}
+  let cols; try{ cols=paletteOf(im,5); }catch(e){ toast('Couldn’t read the colours of this image'); return; }
+  if(!cols.length){ toast('No colours found'); return; }
+  checkpoint(); const R=cardRect(it), gap=10, n=cols.length, cw=Math.max(128,Math.round((it.w-gap*(n-1))/n)), y=R.y+R.h+18/PXM0, made=[];
+  cols.forEach((hx,i)=>{ const c={id:uid(),type:'color',x:Math.round((R.x+i*(cw+gap)/PXM0)*1000)/1000,y:Math.round(y*1000)/1000,rot:0,w:cw,h:0,label:'',p:{hex:hx,name:''}}; cur.items.push(c); made.push(c); });
+  touch(); renderLayersSoon(); renderCards(); draw();
+  if(!matchMedia('(prefers-reduced-motion: reduce)').matches) made.forEach((c,i)=>{ const e=cardsEl.querySelector(`[data-cid="${c.id}"]`); if(e) e.animate([{opacity:0,transform:'translateY(-10px) scale(.94)'},{opacity:1,transform:'none'}],{duration:320,delay:i*55,easing:'cubic-bezier(.2,.8,.2,1)',fill:'backwards'}); });   // the swatches drop in one after another
+  toast(`${n} colours added`); }
 /* ================= Image cards =================
    Drop image files on the plot (or double-click an Image card) to add them. Big photos are scaled to 2400 px.
    On claude.ai they're stored with the artifact; elsewhere they're kept in this browser (IndexedDB). */
@@ -5313,6 +5340,7 @@ cardsEl.addEventListener('click',e=>{
   const b=e.target.closest('[data-act]'); if(!b) return; const it=cardItem(b); if(!it||readOnly) return;
   const a=b.dataset.act, c=it.p.cells;
   if(a==='delcard'){ deleteCard(it.id); return; }
+  if(a==='palette'){ extractPalette(it); return; }
   if(a==='dupcard'){ dupCard(it.id); return; }
   if(a==='linknote'){ if(!b.dataset.noclick) addLinkedNote(it,b.dataset.side); return; }
   if(a==='newcolumn'){ addColumnBeside(it,b.dataset.side); return; }
