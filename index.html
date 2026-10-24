@@ -755,6 +755,18 @@ body.ptr-down .gd-frame{pointer-events:none}
 .bc-note .c-text{flex:1 1 auto}
 .c-plus,.col-plus{--s:calc(24px*var(--inv,1));--g:calc(10px*var(--inv,1));position:absolute;width:var(--s);height:var(--s);border-radius:50%;border:0;padding:0;display:grid;place-items:center;background:var(--accent);color:#fff;box-shadow:0 calc(2px*var(--inv,1)) calc(8px*var(--inv,1)) calc(-2px*var(--inv,1)) rgba(30,60,140,.45);cursor:pointer;opacity:0;visibility:hidden;transform:scale(.7);transition:opacity .15s .3s,transform .15s .3s,visibility 0s .45s;z-index:2}
 .c-plus svg,.col-plus svg{width:calc(14px*var(--inv,1));height:calc(14px*var(--inv,1));stroke-width:2.4}
+.bc.mm-br:not(.sel){box-shadow:inset 0 0 0 calc(1.5px*var(--inv,1)) color-mix(in srgb,var(--br) 55%,transparent),0 1px 2px rgba(20,24,30,.08),0 6px 18px -6px rgba(20,24,30,.2)}
+.c-fold{--z:calc(18px*var(--inv,1));position:absolute;z-index:4;min-width:var(--z);height:var(--z);padding:0 calc(5px*var(--inv,1));box-sizing:border-box;border-radius:calc(10px*var(--inv,1));border:calc(1.5px*var(--inv,1)) solid var(--br,var(--muted));background:var(--card);color:var(--muted);font:600 calc(10.5px*var(--inv,1))/1 var(--sans);display:grid;place-items:center;cursor:pointer;opacity:0;transition:opacity .15s,background .15s,color .15s}
+.c-fold svg{width:calc(10px*var(--inv,1));height:calc(10px*var(--inv,1));stroke-width:2.6}
+.c-fold.right{right:0;top:50%;transform:translate(50%,-50%)} .c-fold.left{left:0;top:50%;transform:translate(-50%,-50%)}
+.c-fold.top{top:0;left:50%;transform:translate(-50%,-50%)} .c-fold.bottom{bottom:0;left:50%;transform:translate(-50%,50%)}
+.bc:hover>.c-fold,.bc.sel>.c-fold{opacity:1} .c-fold:hover{color:var(--ink);border-color:var(--ink)}
+.c-fold.on{opacity:1;background:var(--br,var(--muted));border-color:var(--br,var(--muted));color:#fff}
+.c-fold.on:hover{filter:brightness(1.12);color:#fff}
+.bc.locked>.c-fold:not(.on),body.ro .c-fold:not(.on){display:none}
+.sunll{display:flex;gap:6px;align-items:center;min-width:0}.sunll .fi{min-width:0;flex:1}
+.suntime{display:flex;gap:8px;align-items:center;min-width:0}.suntime input[type=range]{flex:1;min-width:0}.suntime b{font-variant-numeric:tabular-nums;min-width:3.2em;text-align:right}
+.sunread{font-size:12.5px;line-height:1.55;margin:6px 0 8px;padding:8px 10px;border-radius:8px;background:color-mix(in srgb,#f2b33d 10%,transparent);border:1px solid color-mix(in srgb,#f2b33d 30%,transparent)}
 .c-plus.top{left:50%;top:calc(-1*(var(--s) + var(--g)));margin-left:calc(-.5*var(--s))}
 .c-plus.bottom{left:50%;bottom:calc(-1*(var(--s) + var(--g)));margin-left:calc(-.5*var(--s))}
 .c-plus.left{top:50%;left:calc(-1*(var(--s) + var(--g)));margin-top:calc(-.5*var(--s))}
@@ -1016,6 +1028,7 @@ const TYPES = {
   table:   {cat:'Set',name:'Table',z:2,w:1.2,h:.8,label:'',resize:'wh',noFront:true,p:{notes:''}},
   chair:   {cat:'Set',name:'Chair',z:2,w:.5,h:.5,label:'',p:{notes:''}},
   sofa:    {cat:'Set',name:'Sofa',z:2,w:.9,h:2,label:'',resize:'h',p:{notes:''}},
+  map:     {cat:'Set',name:'Satellite map',z:-1,w:60,h:40,label:'',noFront:true,p:{lat:null,lon:null,addr:'',ox:0,oy:0,dim:20}},
   outlet:  {cat:'Set',name:'Outlet',z:3,w:.36,h:.18,label:'Outlet',p:{circuit:'',sockets:2,notes:''}},
 
   text:    {cat:'Notes',name:'Text',z:9,w:1,h:.3,label:'',noFront:true,p:{text:'Note',size:.25}},
@@ -1024,6 +1037,7 @@ const TYPES = {
   angle:   {cat:'Notes',name:'Angle',z:9,w:.3,h:.3,label:'',noFront:true,p:{ax:1.2,ay:0,bx:.6,by:-1}},
   sketch:  {cat:'Notes',name:'Pen',z:8,w:.5,h:.5,label:'',noFront:true,p:{pts:[],color:'note',width:.035}},
   compass: {cat:'Notes',name:'Compass',z:9,w:1.2,h:1.2,label:'',resize:'s',noFront:true,p:{}},
+  sunpath: {cat:'Notes',name:'Sun path',z:0,w:4,h:4,label:'',resize:'s',noFront:true,p:{place:'Copenhagen',lat:55.676,lon:12.568,tz:'Europe/Copenhagen',date:'',time:14,shadows:true}},
   note:    {cat:'Board',card:true,name:'Note',z:20,w:220,h:0,label:'',noFront:true,p:{text:''}},
   todo:    {cat:'Board',card:true,name:'To-do',z:20,w:240,h:0,label:'',noFront:true,p:{title:'To-do',items:[]}},
   comment: {cat:'Board',card:true,name:'Comment',z:20,w:230,h:0,label:'',noFront:true,p:{text:''}},
@@ -1118,6 +1132,8 @@ function shape(it,Q,k){
       return `<path d="${d}" fill="none" stroke="transparent" stroke-width="${f(Math.max(sw2,14*k))}" stroke-linecap="round" stroke-linejoin="round"/><path d="${d}" fill="none" stroke="${col}" stroke-width="${f(sw2)}" stroke-linecap="round" stroke-linejoin="round"/>`; }
     case 'angle': return angleSVG(it.p,Q,k,it.rot,true);
     case 'compass': return compassSVG(hw,Q,k);
+    case 'sunpath': return sunpathSVG(it,Q,k);
+    case 'map': return mapSVG(it,Q,k);
     case 'measure': { const flip = Math.cos(it.rot*D2R)<0; const tx=`${f(w)} m`.replace(/(\.\d)\d+/, '$1');
       return `<path d="M${f(-hw)} 0L${f(hw)} 0M${f(-hw)} ${f(-.08)}L${f(-hw)} ${f(.08)}M${f(hw)} ${f(-.08)}L${f(hw)} ${f(.08)}" stroke="${Q.muted}" stroke-width="${f(1.2*k)}"/>`+
       `<text x="0" y="${f(-6*k)}" font-size="${f(11*k)}" font-family="${FONT}" font-weight="600" fill="${Q.muted}" text-anchor="middle" ${flip?`transform="rotate(180)" dy="${f(14*k)}"`:''}>${w.toFixed(2)} m</text>`; }
@@ -1341,7 +1357,7 @@ function specLines(it){
   if(it.type==='outlet' && cur && cur.items.includes(it)){ const W=powerOf(cur); return [circName(W,circuitOf(it,W))]; }
   return [];
 }
-function labelSVG(it,Q,k,showSpec){ if(it.type==='sketch') return '';   /* a line's name lives in the Layers panel, not on the plot */
+function labelSVG(it,Q,k,showSpec){ if(it.type==='sketch') return ''; if(it.type==='sunpath') return sunpathLabels(it,Q,k);   /* a line's name lives in the Layers panel, not on the plot */
   const lines = [];
   if(it.label) lines.push([it.label,12,700,Q.ink]);
   if(showSpec) specLines(it).forEach(s=>lines.push([s,10.5,500,Q.muted]));
@@ -1394,7 +1410,8 @@ function plotMarkup(items,Q,o){
       if(o.sel.size===1 && o.handles){
         const r=6*k;
         g += `<line x1="0" y1="${f(-hh)}" x2="0" y2="${f(-hh-20*k)}" stroke="${Q.accent}" stroke-width="${f(1.3*k)}" pointer-events="none"/><circle data-h="rot" cy="${f(-hh-20*k)}" r="${f(r)}" fill="#ffffff" stroke="${Q.accent}" stroke-width="${f(1.8*k)}"/>`;
-        if(t.resize==='w'){ const ex=it.w/2;
+        if(it.type==='map') g+=mapHandles(it,Q,k);
+        else if(t.resize==='w'){ const ex=it.w/2;
           g += [-1,1].map(sg=>`<rect data-h="${sg<0?'end1':'end2'}" x="${f(sg*ex-r)}" y="${f(-r)}" width="${f(2*r)}" height="${f(2*r)}" rx="${f(2.5*k)}" fill="#ffffff" stroke="${Q.accent}" stroke-width="${f(1.8*k)}"/>`).join('');
           if(EXT_TYPES.has(it.type) && !extMode){ const R=8.5*k, off=ex+24*k;
             g += [-1,1].map(sg=>`<g data-h="${sg<0?'add1':'add2'}" transform="translate(${f(sg*off)} 0)"><title>Add a wall, window or door from this end</title><line x1="${f(-sg*(off-ex-r))}" y1="0" x2="${f(-sg*R)}" y2="0" stroke="${Q.accent}" stroke-width="${f(1.2*k)}" stroke-dasharray="${f(2*k)} ${f(2*k)}" pointer-events="none"/><circle r="${f(R)}" fill="${Q.accent}"/><path d="M${f(-R*.45)} 0H${f(R*.45)}M0 ${f(-R*.45)}V${f(R*.45)}" stroke="#ffffff" stroke-width="${f(1.8*k)}" stroke-linecap="round"/></g>`).join(''); } }
@@ -1423,6 +1440,7 @@ function plotMarkup(items,Q,o){
         +`<circle cx="${f(g.B.x)}" cy="${f(g.B.y)}" r="${f(2.2*k)}" fill="${Q.ink}" fill-opacity="${it.on===false?.2:.5}" pointer-events="none"/>`;
       if(on && o.handles) over+=`<circle data-h="cmid" data-pid="${it.id}" cx="${f(g.mid.x)}" cy="${f(g.mid.y)}" r="${f(5.5*k)}" fill="#ffffff" stroke="${Q.accent}" stroke-width="${f(1.8*k)}" style="cursor:move"><title>Drag to reroute the cable · double-click to straighten it again</title></circle>`; });
     body=cab+body; }
+  body=sunShadows(items,Q,k)+body;
   (o.plug||[]).forEach(id=>{ const it=items.find(i=>i.id===id); if(!it||!TYPES[it.type].light||it.type==='sun') return;
     const R=8.5*k, B=fromLocal(it,-it.w/2,0), Pp=fromLocal(it,-it.w/2-20*k,0);
     over+=`<g data-h="plug" data-pid="${it.id}"><title>Drag to an outlet to plug this light in</title><line x1="${f(B.x)}" y1="${f(B.y)}" x2="${f(Pp.x)}" y2="${f(Pp.y)}" stroke="${Q.accent}" stroke-width="${f(1.2*k)}" stroke-dasharray="${f(2*k)} ${f(2*k)}" pointer-events="none"/><circle cx="${f(Pp.x)}" cy="${f(Pp.y)}" r="${f(R+5*k)}" fill="transparent"/><circle cx="${f(Pp.x)}" cy="${f(Pp.y)}" r="${f(R)}" fill="${Q.accent}" stroke="${Q.paper}" stroke-width="${f(1.5*k)}"/><path transform="translate(${f(Pp.x)} ${f(Pp.y)}) scale(${f(R/12*.82)}) translate(-12 -12)" d="M13.2 3 5.8 13.2h5.6L10.6 21l7.6-10.4h-5.7z" fill="#ffffff" pointer-events="none"/></g>`; });
@@ -1597,7 +1615,7 @@ function patternMarkup(Q,x0,y0,vw,vh,k,s,pre){
   const rect=suf=>`<rect x="${f(x0)}" y="${f(y0)}" width="${f(vw)}" height="${f(vh)}" fill="url(#${id}${suf})"/>`;
   return {defs:d, body:(minor?rect('n'):'')+rect('j')};
 }
-function renderPlot(){
+function renderPlot(){ foldUpdate();
   W=Math.max(1,innerWidth); H=Math.max(1,innerHeight);
   const vw=W/view.s, vh=H/view.s, x0=view.x-vw/2, y0=view.y-vh/2;
   svg.setAttribute('viewBox',`${f(x0)} ${f(y0)} ${f(vw)} ${f(vh)}`);
@@ -1633,7 +1651,7 @@ function relText(x,y,F){ F=F||frameOf(); const q=toRel(x,y,F); if(!F.cam) return
 
 /* ================= aim / focus ================= */
 let focusMode=false, focusPt=null, focusHover=null, focusGuide=null;
-const NO_AIM = new Set(['compass','wall','window','door','text','measure','dolly','table','sketch','angle','note','todo','comment','color','grid','outlet']);
+const NO_AIM = new Set(['compass','sunpath','map','wall','window','door','text','measure','dolly','table','sketch','angle','note','todo','comment','color','grid','outlet']);
 const canAim = it=>it && !NO_AIM.has(it.type);
 function aimAt(it){ const f0=it.focus; if(!f0) return; const dx=f0.x-it.x, dy=f0.y-it.y; if(Math.hypot(dx,dy)<.05) return; it.rot=Math.round(Math.atan2(dy,dx)/D2R*10)/10; }
 function reaimAll(){
@@ -2093,10 +2111,13 @@ function extMarkup(k){
 function lockedCardAt(pt){ if(!cur||!pt) return null; const L=LFc();
   return cur.items.filter(isCard).reverse().find(it=>{ if(!L.lock(it)||!L.vis(it)) return false; const r=cardRect(it); return pt.x>=r.x&&pt.x<=r.x+r.w&&pt.y>=r.y&&pt.y<=r.y+r.h; })||null; }
 function pickItemEl(e){
-  const L=LFc(), t=e.target.closest&&e.target.closest('[data-id]'), ti=t&&itemById(t.dataset.id); if(ti && sel.has(ti.id) && !L.lock(ti)) return t;   // a selected (movable) object keeps the click
+  let L=LFc(), t=e.target.closest&&e.target.closest('[data-id]'), ti=t&&itemById(t.dataset.id); if(ti && sel.has(ti.id) && !L.lock(ti)) return t;   // a selected (movable) object keeps the click
   const seen=new Set(), c=[];
   document.elementsFromPoint(e.clientX,e.clientY).forEach((el,ix)=>{ const o=el.closest&&el.closest('#plot [data-id]'); if(!o||seen.has(o.dataset.id)) return; seen.add(o.dataset.id);
     const it=itemById(o.dataset.id); if(it && TYPES[it.type] && L.vis(it)) c.push({o,it,ix,a:(it.w||.2)*(it.h||.2),lk:L.lock(it)?1:0}); });
+  { const near=it=>{ const q=toLocal(it,...Object.values(toWorld(e.clientX,e.clientY))), m=14/view.s; return Math.abs(Math.abs(q.x)-it.w/2)<m&&Math.abs(q.y)<it.h/2+m || Math.abs(Math.abs(q.y)-it.h/2)<m&&Math.abs(q.x)<it.w/2+m; };
+    for(let i=c.length-1;i>=0;i--) if(c[i].it.type==='map' && !sel.has(c[i].it.id) && !near(c[i].it)) c.splice(i,1);
+    if(ti && ti.type==='map' && !sel.has(ti.id) && !c.some(x=>x.it===ti)) t=null; }
   if(!c.length) return t;
   { const walker=c.some(x=>WALK_TYPES.has(x.it.type)); c.forEach(x=>{ x.pr=x.it.type==='sketch'?2:(walker&&x.it.type==='mark')?1:0; }); }   // a pen/walk line or a floor mark under the talent never steals the click from the talent
   c.sort((p,q)=>p.lk-q.lk || p.pr-q.pr || p.a-q.a || TYPES[q.it.type].z-TYPES[p.it.type].z || p.ix-q.ix);
@@ -2401,6 +2422,7 @@ svg.addEventListener('pointermove',e=>{
     L=Math.max(.1,L);
     it.w=Math.round(L*1000)/1000; it.x=F.x+s2*u.x*L/2; it.y=F.y+s2*u.y*L/2;
   }
+  else if(it.type==='map' && /^map[NSEW]$/.test(drag.mode)) mapEdgeDrag(it,pt,snapOn);
   else if(drag.mode==='size'){ const sn=v=>snapOn?Math.round(v*20)/20:v; if(t.resize==='w'||t.resize==='wh') it.w=Math.max(.1,sn(2*Math.abs(lx))); if(t.resize==='h'||t.resize==='wh') it.h=Math.max(.1,sn(2*Math.abs(ly)));
     if(t.resize==='s'){ const d=Math.max(.3,sn(2*Math.hypot(lx,ly))); it.w=it.h=d; } }
   else if(drag.mode==='angA'||drag.mode==='angB'){
@@ -2429,7 +2451,7 @@ function endPtr(e){
 }
 svg.addEventListener('pointerup',endPtr); svg.addEventListener('pointercancel',endPtr);
 svg.addEventListener('lostpointercapture',e=>{ if(ptrs.has(e.pointerId)) endPtr(e); });
-function endDragState(){ if(drag && ['move','rot','size','throw','focus','end1','end2','angA','angB','grot','sunw'].includes(drag.mode) && (drag.mode!=='move'||drag.moved)) touch(); focusGuide=null; svg.classList.remove('grabbing'); }
+function endDragState(){ if(drag && ['move','rot','size','throw','focus','end1','end2','angA','angB','grot','sunw','mapN','mapS','mapE','mapW'].includes(drag.mode) && (drag.mode!=='move'||drag.moved)) touch(); focusGuide=null; svg.classList.remove('grabbing'); }
 addEventListener('blur',()=>{ ptrs.clear(); pinch=null; if(drag){ endDragState(); drag=null; draw(); } });
 /* trackpad: two-finger drag pans, pinch zooms. mouse wheel zooms (Shift pans sideways). ⌘/Ctrl + scroll always zooms.
    The device is decided at the start of each gesture so momentum scrolling can't flip it halfway. */
@@ -2714,7 +2736,7 @@ function layerFns(layers){
   const info=id=>{ if(memo.has(id)) return memo.get(id); const c=[]; let l=by.get(id), g=0; while(l && g++<40){ c.push(l); l=by.get(l.parent); }
     const r={vis:c.every(x=>x.visible!==false), lock:c.some(x=>x.locked), op:c.reduce((a,x)=>a*((x.opacity==null?100:+x.opacity)/100),1)}; memo.set(id,r); return r; };
   const order=flatLayers(layers), rank=new Map(order.map((l,i)=>[l.id,order.length-i]));
-  return { vis:it=>!it.hidden && info(it.layer).vis, lock:it=>!!it.locked || info(it.layer).lock, op:it=>info(it.layer).op, rank:it=>rank.get(it.layer)||0,
+  return { vis:it=>!it.hidden && !(foldHid&&foldHid.has(it.id)) && info(it.layer).vis, lock:it=>!!it.locked || info(it.layer).lock, op:it=>info(it.layer).op, rank:it=>rank.get(it.layer)||0,
            visId:id=>info(id).vis, lockId:id=>info(id).lock };
 }
 const LFc = ()=>layerFns(cur&&cur.layers);
@@ -3143,6 +3165,192 @@ function panelPick(row,e){
 var lpDrag=null;
 
 /* ================= rail + flyout ================= */
+/* ================= satellite map: a true-scale patch of aerial imagery under the plot ================= */
+const MAP_TILE=(z,x,y)=>`https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${z}/${y}/${x}`;
+const MAP_TILES={};
+/* every tile that loads is kept in this browser (IndexedDB), so a map seen once online still shows on set without a connection */
+var tileDBp=null;
+function tileDB(){ if(!tileDBp) tileDBp=new Promise(res=>{ try{ const r=indexedDB.open('setplot-tiles',1); r.onupgradeneeded=()=>{ try{ r.result.createObjectStore('t'); }catch(e){} }; r.onsuccess=()=>res(r.result); r.onerror=()=>res(null); r.onblocked=()=>res(null); }catch(e){ res(null); } }); return tileDBp; }
+function tileGet(k){ return tileDB().then(db=>db&&new Promise(res=>{ try{ const q=db.transaction('t').objectStore('t').get(k); q.onsuccess=()=>res(q.result); q.onerror=()=>res(null); }catch(e){ res(null); } })).catch(()=>null); }
+function tilePut(k,v){ return tileDB().then(db=>db&&new Promise(res=>{ try{ const tx=db.transaction('t','readwrite'); tx.objectStore('t').put(v,k); tx.oncomplete=()=>res(true); tx.onerror=()=>res(false); tx.onabort=()=>res(false); }catch(e){ res(false); } })).catch(()=>false); }
+function loadTile(z,x,y){ const k=z+'/'+x+'/'+y; let t=MAP_TILES[k]; if(t&&t.p) return t.p;
+  t=MAP_TILES[k]=t||{s:'load'}; const url=MAP_TILE(z,x,y);
+  t.p=tileGet(k).then(d=>{ if(d){ t.s='ok'; t.d=d; t.saved=true; return t; }
+      return fetch(url,{mode:'cors'}).then(r=>{ if(!r.ok) throw new Error(r.status); return r.blob(); })
+        .then(b=>new Promise((res,rej)=>{ const fr=new FileReader(); fr.onload=()=>res(fr.result); fr.onerror=rej; fr.readAsDataURL(b); }))
+        .then(d=>{ t.s='ok'; t.d=d; return tilePut(k,d).then(ok=>{ t.saved=!!ok; return t; }); })
+        .catch(()=>{ t.s='direct'; delete t.p; t.failed=(t.failed||0)+1; return t; }); })
+    .then(r=>{ mapRedraw(); return r; });
+  return t.p; }
+function mapTile(z,x,y){ const k=z+'/'+x+'/'+y, t=MAP_TILES[k]; if(!t) loadTile(z,x,y); const u=MAP_TILES[k];   // kept as data so exports and offline use include the imagery
+  return u.s==='ok'?u.d:u.s==='direct'?MAP_TILE(z,x,y):null; }
+function mapTileList(it,margin){ if(it.p.lat==null||it.p.lat==='') return []; const G=mapGeo(it), ox=+it.p.ox||0, oy=+it.p.oy||0, m=margin||0, w=it.w/2+m, h=it.h/2+m, out=[];
+  const x0=Math.floor((G.gx+(-w-ox)/G.mpp)/256), x1=Math.floor((G.gx+(w-ox)/G.mpp)/256), y0=Math.floor((G.gy+(-h-oy)/G.mpp)/256), y1=Math.floor((G.gy+(h-oy)/G.mpp)/256);
+  for(let x=x0;x<=x1;x++) for(let y=y0;y<=y1;y++) out.push([G.z,x,y]); return out; }
+const MAP_MARGIN=30;   // "save for offline" also grabs 30 m around the crop, in case it grows on the day
+function mapOfflineState(it){ const L=mapTileList(it,0); let saved=0; L.forEach(([z,x,y])=>{ const t=MAP_TILES[z+'/'+x+'/'+y]; if(t&&t.saved) saved++; }); return {n:L.length,saved}; }
+var mapSaving=null;
+async function mapSaveOffline(it){ if(mapSaving) return; const L=mapTileList(it,MAP_MARGIN); mapSaving={id:it.id,done:0,n:L.length,fail:0}; renderInspector();
+  let i=0; const next=async()=>{ while(i<L.length){ const [z,x,y]=L[i++], t=await loadTile(z,x,y); if(!t||!t.saved) mapSaving.fail++; mapSaving.done++; const el=insp.querySelector('#mapOff'); if(el) el.textContent=`Saving ${mapSaving.done} of ${mapSaving.n}…`; } };
+  await Promise.all([next(),next(),next(),next()]);   // four at a time is gentle on the tile server
+  const r=mapSaving; mapSaving=null; renderInspector();
+  toast(r.fail?`Saved ${r.n-r.fail} of ${r.n} tiles · ${r.fail} couldn't be saved (no connection or storage?)`:`Map saved for offline use · ${r.n} tiles, ${MAP_MARGIN} m around the crop included`); }
+var mapRedrawT=0; function mapRedraw(){ if(!mapRedrawT) mapRedrawT=setTimeout(()=>{ mapRedrawT=0; draw(); const el=insp.querySelector('#mapOff'), it=itemById([...sel][0]); if(el&&it&&it.type==='map'&&!mapSaving){ const st=mapOfflineState(it); el.textContent=st.n&&st.saved>=st.n?'✓ Saved for offline use in this browser':st.saved?`${st.saved} of ${st.n} tiles saved offline`:'Not saved for offline use yet'; } },60); }
+function mapGeo(it){ const lat=+it.p.lat, lon=+it.p.lon, area=it.w*it.h; let z=19; const mppAt=z=>156543.03392*Math.cos(lat*D2R)/Math.pow(2,z);
+  while(z>15 && area/Math.pow(256*mppAt(z),2)>70) z--;   // big areas drop a zoom level so it stays light
+  const n=256*Math.pow(2,z), s=Math.sin(lat*D2R), gx=(lon+180)/360*n, gy=(.5-Math.log((1+s)/(1-s))/(4*Math.PI))*n;
+  return {z,mpp:mppAt(z),gx,gy}; }
+function mapSVG(it,Q,k){ const w=it.w, h=it.h, p=it.p||{};
+  if(p.lat==null||p.lon==null||p.lat===''){   // not placed yet: a little map-ish placeholder
+    let o=`<rect x="${f(-w/2)}" y="${f(-h/2)}" width="${f(w)}" height="${f(h)}" rx="${f(Math.min(w,h)*.02)}" fill="#7fa36b" fill-opacity=".22" stroke="${Q.ink}" stroke-opacity=".45" stroke-width="${f(1.3*k)}" stroke-dasharray="${f(6*k)} ${f(4*k)}"/>`
+      +`<path d="M${f(-w/2)} ${f(h*.18)}C${f(-w*.15)} ${f(h*.05)} ${f(w*.1)} ${f(h*.32)} ${f(w/2)} ${f(h*.12)}M${f(-w*.12)} ${f(-h/2)}L${f(w*.05)} ${f(h/2)}" fill="none" stroke="${Q.paper}" stroke-opacity=".8" stroke-width="${f(Math.min(w,h)*.05)}" stroke-linecap="round"/>`;
+    if(w/k>140) o+=`<text x="0" y="${f(-h*.05)}" font-size="${f(13*k)}" font-family="${FONT}" font-weight="700" fill="${Q.ink}" text-anchor="middle" stroke="${Q.paper}" stroke-width="${f(3*k)}" paint-order="stroke">Satellite map</text><text x="0" y="${f(-h*.05+18*k)}" font-size="${f(11*k)}" font-family="${FONT}" fill="${Q.muted}" text-anchor="middle" stroke="${Q.paper}" stroke-width="${f(3*k)}" paint-order="stroke">Search an address in the panel</text>`;
+    return o; }
+  const G=mapGeo(it), ox=+p.ox||0, oy=+p.oy||0, T=256*G.mpp;
+  const x0=Math.floor((G.gx+(-w/2-ox)/G.mpp)/256), x1=Math.floor((G.gx+(w/2-ox)/G.mpp)/256), y0=Math.floor((G.gy+(-h/2-oy)/G.mpp)/256), y1=Math.floor((G.gy+(h/2-oy)/G.mpp)/256);
+  let img='', missing=0;
+  for(let tx=x0;tx<=x1;tx++) for(let ty=y0;ty<=y1;ty++){ const src=mapTile(G.z,tx,ty), X=(tx*256-G.gx)*G.mpp+ox, Y=(ty*256-G.gy)*G.mpp+oy;
+    if(src) img+=`<image href="${src}" x="${f(X)}" y="${f(Y)}" width="${f(T+.02)}" height="${f(T+.02)}" preserveAspectRatio="none"/>`; else missing++; }
+  const dim=clamp(p.dim==null?20:+p.dim,0,90)/100;
+  return `<svg x="${f(-w/2)}" y="${f(-h/2)}" width="${f(w)}" height="${f(h)}" viewBox="${f(-w/2)} ${f(-h/2)} ${f(w)} ${f(h)}" overflow="hidden"><rect x="${f(-w/2)}" y="${f(-h/2)}" width="${f(w)}" height="${f(h)}" fill="#5d6b5a"/>${img}`
+    +(dim?`<rect x="${f(-w/2)}" y="${f(-h/2)}" width="${f(w)}" height="${f(h)}" fill="${Q.paper}" fill-opacity="${f(dim)}"/>`:'')
+    +`<text x="${f(w/2-6*k)}" y="${f(h/2-6*k)}" font-size="${f(8.5*k)}" font-family="${FONT}" fill="#fff" fill-opacity=".85" text-anchor="end" stroke="#000" stroke-opacity=".45" stroke-width="${f(2.2*k)}" paint-order="stroke">Imagery © Esri, Maxar, Earthstar Geographics</text></svg>`
+    +`<rect x="${f(-w/2)}" y="${f(-h/2)}" width="${f(w)}" height="${f(h)}" fill="none" stroke="${Q.ink}" stroke-opacity=".35" stroke-width="${f(1.2*k)}"/>`; }
+function mapHandles(it,Q,k){ const r=6*k, hw=it.w/2, hh=it.h/2, L=22*k, Tk=8*k;
+  const bar=(h,x,y,horiz,cur)=>`<g data-h="${h}" style="cursor:${cur}"><title>Drag to crop the map · it stays at true scale</title><rect x="${f(x-(horiz?L:Tk*1.6)/2-6*k)}" y="${f(y-(horiz?Tk*1.6:L)/2-6*k)}" width="${f((horiz?L:Tk*1.6)+12*k)}" height="${f((horiz?Tk*1.6:L)+12*k)}" fill="transparent"/><rect x="${f(x-(horiz?L:Tk)/2)}" y="${f(y-(horiz?Tk:L)/2)}" width="${f(horiz?L:Tk)}" height="${f(horiz?Tk:L)}" rx="${f(Tk/2)}" fill="#ffffff" stroke="${Q.accent}" stroke-width="${f(1.8*k)}"/></g>`;
+  return bar('mapN',0,-hh,true,'ns-resize')+bar('mapS',0,hh,true,'ns-resize')+bar('mapW',-hw,0,false,'ew-resize')+bar('mapE',hw,0,false,'ew-resize')
+    +`<text x="0" y="${f(hh+22*k)}" font-size="${f(11*k)}" font-family="${FONT}" font-weight="700" fill="${Q.accent}" text-anchor="middle" stroke="${Q.paper}" stroke-width="${f(3*k)}" paint-order="stroke" pointer-events="none">${fmtM(it.w)} × ${fmtM(it.h)}</text>`; }
+const fmtM=v=>(v>=10?Math.round(v):Math.round(v*10)/10)+' m';
+function mapEdgeDrag(it,pt,snap){ if(!drag.o) drag.o={x:it.x,y:it.y,w:it.w,h:it.h,ox:+it.p.ox||0,oy:+it.p.oy||0,rot:it.rot};
+  const o=drag.o, r=-o.rot*D2R, dx=pt.x-o.x, dy=pt.y-o.y, lx=dx*Math.cos(r)-dy*Math.sin(r), ly=dx*Math.sin(r)+dy*Math.cos(r), MIN=4, MAX=400;
+  let L=-o.w/2, R=o.w/2, T=-o.h/2, B=o.h/2; const sn=v=>snap?Math.round(v):v;
+  if(drag.mode==='mapE') R=L+clamp(sn(lx-L),MIN,MAX); if(drag.mode==='mapW') L=R-clamp(sn(R-lx),MIN,MAX);
+  if(drag.mode==='mapS') B=T+clamp(sn(ly-T),MIN,MAX); if(drag.mode==='mapN') T=B-clamp(sn(B-ly),MIN,MAX);
+  const cx=(L+R)/2, cy=(T+B)/2, rr=o.rot*D2R;   // the opposite edge stays put and the imagery doesn't move: it's a crop, never a scale
+  it.w=Math.round((R-L)*100)/100; it.h=Math.round((B-T)*100)/100; it.x=o.x+cx*Math.cos(rr)-cy*Math.sin(rr); it.y=o.y+cx*Math.sin(rr)+cy*Math.cos(rr);
+  it.p.ox=Math.round((o.ox-cx)*1000)/1000; it.p.oy=Math.round((o.oy-cy)*1000)/1000; }
+function mapHTML(it,dis){ const p=it.p, has=p.lat!=null&&p.lat!=='', sp=cur.items.find(i=>i.type==='sunpath');
+  let s=row('Find',`<div class="sunll"><input class="fi" data-mapq placeholder="Address, place, coordinates or a Google Maps link" value="${esc(p.q||'')}" ${dis}><button class="btn sm" data-act="mapfind" ${dis}>Find</button></div>`);
+  s+=`<div class="sunread" style="background:color-mix(in srgb,#5d9b6a 10%,transparent);border-color:color-mix(in srgb,#5d9b6a 32%,transparent)">${has?`<div><b>${esc(p.addr||'Location')}</b></div><div class="muted">${(+p.lat).toFixed(5)}, ${(+p.lon).toFixed(5)} · ${fmtM(it.w)} × ${fmtM(it.h)} at true scale</div>`:'<div>Find a place to drop in the aerial photo. Drag the white bars on the edges to crop it; it never scales.</div>'}</div>`;
+  s+=row('Area',`<div class="sunll">${numf('w',Math.round(it.w*10)/10,`min="4" max="400" step="1" aria-label="Width" title="Width (m)" ${dis}`)}<span class="unit">×</span>${numf('h',Math.round(it.h*10)/10,`min="4" max="400" step="1" aria-label="Height" title="Height (m)" ${dis}`)}<span class="unit">m</span></div>`);
+  s+=row('Fade',rng('p.dim',p.dim==null?20:p.dim,0,90,5,'%'));
+  s+=`<div class="toggle"><span>Lock in place<small class="muted" style="display:block">So working on top never drags the map</small></span><label class="sw"><input type="checkbox" data-k="locked" ${it.locked?'checked':''} ${dis} aria-label="Lock in place"><span></span></label></div>`;
+  if(has){ const st=mapOfflineState(it), all=st.n&&st.saved>=st.n;
+    s+=`<div class="aimrow"><span class="tag" id="mapOff">${mapSaving&&mapSaving.id===it.id?`Saving ${mapSaving.done} of ${mapSaving.n}…`:all?'✓ Saved for offline use in this browser':st.saved?`${st.saved} of ${st.n} tiles saved offline`:'Not saved for offline use yet'}</span><button class="btn sm" data-act="mapoffline" ${dis||(mapSaving?'disabled':'')}>${all?'Save again':'Save for offline'}</button></div>`; }
+  if(has) s+=`<div class="aimrow">${sp?`<button class="btn sm" data-act="mapsun" ${dis}>Use for sun path</button>`:''}<button class="btn sm ghost" data-act="mapcentre" ${dis}>Re-centre</button></div>`;
+  s+=`<p class="muted" style="margin:6px 0 0;font-size:11.5px">Imagery © Esri, Maxar, Earthstar Geographics · Search © OpenStreetMap contributors</p>`;
+  return s; }
+function mapParse(q){ q=String(q||'').trim(); let m=q.match(/@(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/)||q.match(/[?&](?:q|ll|query)=(-?\d+(?:\.\d+)?),\s*(-?\d+(?:\.\d+)?)/)||q.match(/^\s*(-?\d{1,2}(?:\.\d+)?)\s*[,; ]\s*(-?\d{1,3}(?:\.\d+)?)\s*$/);
+  if(m){ const lat=+m[1], lon=+m[2]; if(Math.abs(lat)<=90&&Math.abs(lon)<=180) return {lat,lon}; } return null; }
+async function mapFind(it){ const inp=insp.querySelector('[data-mapq]'), q=inp?inp.value.trim():''; if(!q){ if(inp) inp.focus(); return; }
+  let hit=mapParse(q), addr='';
+  if(!hit){ toast('Searching…');
+    try{ const r=await fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&addressdetails=1&q='+encodeURIComponent(q),{headers:{'Accept-Language':navigator.language||'en'}}); const j=await r.json();
+      if(!j.length){ toast('No place found — try another spelling, or paste coordinates'); return; }
+      hit={lat:+j[0].lat,lon:+j[0].lon,cc:j[0].address&&j[0].address.country_code}; addr=String(j[0].display_name||'').split(',').slice(0,3).join(',').trim(); }
+    catch(e){ toast('Search isn\'t reachable here — paste coordinates or a Google Maps link instead'); return; } }
+  checkpoint(); Object.assign(it.p,{lat:Math.round(hit.lat*1e6)/1e6,lon:Math.round(hit.lon*1e6)/1e6,addr:addr||`${hit.lat.toFixed(5)}, ${hit.lon.toFixed(5)}`,q,ox:0,oy:0}); if(hit.cc) it.p.cc=hit.cc;
+  const sp=cur.items.find(i=>i.type==='sunpath'); if(sp) mapToSun(it,sp,true);
+  touch(); renderInspector(); draw(); toast(sp?'Map placed · the sun path moved there too':'Map placed at true scale'); }
+function mapToSun(it,sp,quiet){ const g=mapCentre(it); Object.assign(sp.p,{lat:Math.round(g.lat*1000)/1000,lon:Math.round(g.lon*1000)/1000,place:(it.p.addr||'Map').split(',')[0]}); if(it.p.cc==='dk') sp.p.tz='Europe/Copenhagen'; sp.rot=it.rot||0; if(!quiet) toast('Sun path uses the map\'s place and north'); }
+function mapCentre(it){ const G=mapGeo(it), n=256*Math.pow(2,G.z), gx=G.gx-(+it.p.ox||0)/G.mpp, gy=G.gy-(+it.p.oy||0)/G.mpp, lon=gx/n*360-180, lat=Math.atan(Math.sinh(Math.PI*(1-2*gy/n)))/D2R; return {lat,lon}; }
+/* ================= sun path: where the sun is over the set for a place, date and time ================= */
+const SUN_PLACES=[['Copenhagen',55.676,12.568,'Europe/Copenhagen'],['Aarhus',56.157,10.211,'Europe/Copenhagen'],['Randers',56.461,10.036,'Europe/Copenhagen'],['Odense',55.403,10.402,'Europe/Copenhagen'],['Aalborg',57.048,9.919,'Europe/Copenhagen'],['Esbjerg',55.476,8.459,'Europe/Copenhagen'],['Skagen',57.72,10.58,'Europe/Copenhagen'],['Tórshavn',62.009,-6.772,'Atlantic/Faroe'],['Nuuk',64.181,-51.694,'America/Nuuk'],
+  ['Oslo',59.913,10.752,'Europe/Oslo'],['Stockholm',59.329,18.069,'Europe/Stockholm'],['Helsinki',60.17,24.94,'Europe/Helsinki'],['Reykjavík',64.146,-21.94,'Atlantic/Reykjavik'],['Berlin',52.52,13.405,'Europe/Berlin'],['Hamburg',53.551,9.994,'Europe/Berlin'],['Amsterdam',52.37,4.895,'Europe/Amsterdam'],['London',51.507,-.128,'Europe/London'],['Paris',48.857,2.352,'Europe/Paris'],
+  ['Madrid',40.417,-3.704,'Europe/Madrid'],['Barcelona',41.387,2.168,'Europe/Madrid'],['Lisbon',38.722,-9.139,'Europe/Lisbon'],['Rome',41.902,12.496,'Europe/Rome'],['Athens',37.984,23.728,'Europe/Athens'],['Istanbul',41.008,28.978,'Europe/Istanbul'],['Dubai',25.205,55.271,'Asia/Dubai'],['Cape Town',-33.925,18.424,'Africa/Johannesburg'],
+  ['New York',40.713,-74.006,'America/New_York'],['Los Angeles',34.052,-118.244,'America/Los_Angeles'],['Mexico City',19.433,-99.133,'America/Mexico_City'],['São Paulo',-23.551,-46.633,'America/Sao_Paulo'],['Tokyo',35.676,139.65,'Asia/Tokyo'],['Bangkok',13.756,100.502,'Asia/Bangkok'],['Sydney',-33.869,151.209,'Australia/Sydney']];
+const SUN_COL='#f2b33d', SUN_GOLD='#ee8a3a', SUN_BLUE='#6f8fd8';
+function tzOff(tz,ms){ try{ const p={}; new Intl.DateTimeFormat('en-US',{timeZone:tz,hourCycle:'h23',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'}).formatToParts(new Date(ms)).forEach(x=>p[x.type]=x.value);
+  return (Date.UTC(+p.year,+p.month-1,+p.day,(+p.hour)%24,+p.minute,+p.second)-ms)/60000; }catch(e){ return -new Date(ms).getTimezoneOffset(); } }
+function sunToday(tz){ try{ const p={}; new Intl.DateTimeFormat('en-US',{timeZone:tz||undefined,year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date()).forEach(x=>p[x.type]=x.value); return `${p.year}-${p.month}-${p.day}`; }catch(e){ return new Date().toISOString().slice(0,10); } }
+function sunPos(ms,lat,lon){ const R=Math.PI/180, jd=ms/864e5+2440587.5, T=(jd-2451545)/36525;
+  const L0=((280.46646+T*(36000.76983+T*.0003032))%360+360)%360, M=357.52911+T*(35999.05029-.0001537*T), e=.016708634-T*(.000042037+.0000001267*T);
+  const C=Math.sin(M*R)*(1.914602-T*(.004817+.000014*T))+Math.sin(2*M*R)*(.019993-.000101*T)+Math.sin(3*M*R)*.000289, om=125.04-1934.136*T, lam=L0+C-.00569-.00478*Math.sin(om*R);
+  const eps=23+(26+(21.448-T*(46.815+T*(.00059-T*.001813)))/60)/60+.00256*Math.cos(om*R), dec=Math.asin(Math.sin(eps*R)*Math.sin(lam*R)), y=Math.tan(eps*R/2)**2;
+  const eot=4/R*(y*Math.sin(2*L0*R)-2*e*Math.sin(M*R)+4*e*y*Math.sin(M*R)*Math.cos(2*L0*R)-.5*y*y*Math.sin(4*L0*R)-1.25*e*e*Math.sin(2*M*R));
+  const um=((ms%864e5)+864e5)%864e5/6e4, tst=((um+eot+4*lon)%1440+1440)%1440; let ha=tst/4-180; if(ha<-180) ha+=360;
+  const la=lat*R, H=ha*R, zen=Math.acos(clamp(Math.sin(la)*Math.sin(dec)+Math.cos(la)*Math.cos(dec)*Math.cos(H),-1,1));
+  let el=90-zen/R; if(el>-1) el+=(1.02/Math.tan((el+10.3/(el+5.11))*R))/60;   // a little atmospheric refraction near the horizon
+  const az=((Math.atan2(Math.sin(H),Math.cos(H)*Math.sin(la)-Math.tan(dec)*Math.cos(la))/R+180)%360+360)%360;
+  return {az,el}; }
+const sunMemo=new Map();
+function sunDay(it){ const p=it.p||{}, lat=+p.lat||0, lon=+p.lon||0, tz=p.tz||'UTC', date=p.date||sunToday(tz), time=clamp(+p.time||0,0,24), key=[lat,lon,tz,date].join('|');
+  let D=sunMemo.get(key);
+  if(!D){ const [Y,Mo,Da]=date.split('-').map(Number), base=Date.UTC(Y,(Mo||1)-1,Da||1), off=tzOff(tz,base+12*36e5), at=h=>base+h*36e5-off*6e4;
+    const S=[]; for(let m=0;m<=1440;m+=5){ const q=sunPos(at(m/60),lat,lon); S.push({h:m/60,az:q.az,el:q.el}); }
+    const cross=(lvl,up)=>{ for(let i=1;i<S.length;i++){ const a=S[i-1].el, b=S[i].el; if(up?(a<lvl&&b>=lvl):(a>=lvl&&b<lvl)) return S[i-1].h+(S[i].h-S[i-1].h)*(lvl-a)/(b-a); } return null; };
+    D={S,at,rise:cross(-.833,true),set:cross(-.833,false),g1:cross(6,false),g0:cross(6,true),b0:cross(-4,true),b1:cross(-4,false),max:Math.max(...S.map(s=>s.el)),date};
+    if(sunMemo.size>40) sunMemo.clear(); sunMemo.set(key,D); }
+  return Object.assign({now:sunPos(D.at(time),lat,lon),time},D); }
+const fmtHM=h=>{ if(h==null) return '—'; const m=Math.round(h*60)%1440; return String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0'); };
+const sunXY=(R,az,el)=>{ const r=R*(1-clamp(el,0,90)/90), a=az*D2R; return {x:r*Math.sin(a), y:-r*Math.cos(a)}; };   // straight up is the centre, the horizon is the ring
+function sunpathSVG(it,Q,k){ const R=it.w/2, D=sunDay(it), sw=1.3*k, red='#e5484d';
+  let o=`<circle r="${f(R)}" fill="${SUN_COL}" fill-opacity=".05" stroke="${Q.ink}" stroke-opacity=".55" stroke-width="${f(sw)}"/>`;
+  [30,60].forEach(e=>{ o+=`<circle r="${f(R*(1-e/90))}" fill="none" stroke="${Q.ink}" stroke-opacity=".18" stroke-width="${f(k)}" stroke-dasharray="${f(3*k)} ${f(4*k)}"/>`; });
+  for(let i=0;i<8;i++){ const a=i*45*D2R, L=i%2?R*.04:R*.08; o+=`<line x1="${f(Math.sin(a)*R)}" y1="${f(-Math.cos(a)*R)}" x2="${f(Math.sin(a)*(R-L))}" y2="${f(-Math.cos(a)*(R-L))}" stroke="${i?Q.ink:red}" stroke-opacity="${i?.5:1}" stroke-width="${f(i?sw:2.2*k)}" stroke-linecap="round"/>`; }
+  let seg='', prev=null; const flush=()=>{};
+  D.S.forEach(s=>{ if(s.el<0){ prev=null; return; } const P=sunXY(R,s.az,s.el); if(prev){ const g=s.el<6;
+      seg+=`<line x1="${f(prev.x)}" y1="${f(prev.y)}" x2="${f(P.x)}" y2="${f(P.y)}" stroke="${g?SUN_GOLD:SUN_COL}" stroke-width="${f((g?2.6:2)*k)}" stroke-linecap="round"/>`; } prev=P; });
+  o+=seg;
+  D.S.forEach(s=>{ if(s.el<0||Math.abs(s.h-Math.round(s.h))>1e-6) return; const P=sunXY(R,s.az,s.el); o+=`<circle cx="${f(P.x)}" cy="${f(P.y)}" r="${f(2*k)}" fill="${Q.paper}" stroke="${SUN_COL}" stroke-width="${f(1.2*k)}"/>`; });
+  const n=D.now; if(n.el>-.833){ const P=sunXY(R,n.az,n.el), rr=Math.max(7*k,R*.07);
+    o+=`<line x1="${f(P.x)}" y1="${f(P.y)}" x2="${f(-P.x/(Math.hypot(P.x,P.y)||1)*R)}" y2="${f(-P.y/(Math.hypot(P.x,P.y)||1)*R)}" stroke="${SUN_COL}" stroke-opacity=".7" stroke-width="${f(1.3*k)}" stroke-dasharray="${f(4*k)} ${f(3*k)}"/>`
+      +`<circle cx="${f(P.x)}" cy="${f(P.y)}" r="${f(rr*1.9)}" fill="${n.el<6?SUN_GOLD:SUN_COL}" fill-opacity=".22"/><circle cx="${f(P.x)}" cy="${f(P.y)}" r="${f(rr)}" fill="${n.el<6?SUN_GOLD:SUN_COL}" stroke="${Q.paper}" stroke-width="${f(1.5*k)}"/>`; }
+  else { const a=n.az*D2R; o+=`<circle cx="${f(Math.sin(a)*R)}" cy="${f(-Math.cos(a)*R)}" r="${f(5*k)}" fill="${Q.paper}" stroke="${SUN_BLUE}" stroke-width="${f(1.6*k)}"/>`; }
+  return o; }
+function sunpathLabels(it,Q,k){ const R=it.w/2, D=sunDay(it), n=D.now, fs=10*k, rot=(it.rot||0)*D2R;
+  const W=(x,y)=>({x:it.x+x*Math.cos(rot)-y*Math.sin(rot), y:it.y+x*Math.sin(rot)+y*Math.cos(rot)});
+  const T=(p,s,sz,wt,col,anc='middle')=>`<text x="${f(p.x)}" y="${f(p.y)}" font-size="${f(sz)}" font-family="${FONT}" font-weight="${wt}" fill="${col}" text-anchor="${anc}" dominant-baseline="middle" stroke="${Q.paper}" stroke-width="${f(3*k)}" paint-order="stroke">${esc(s)}</text>`;
+  let o=T(W(0,-R-12*k),'N',11*k,700,'#e5484d');
+  if(R/k>70) D.S.forEach(s=>{ if(s.el<0||Math.abs(s.h-Math.round(s.h))>1e-6||Math.round(s.h)%(R/k>140?1:3)) return; const P=sunXY(R,s.az,s.el), L=Math.hypot(P.x,P.y)||1, q=W(P.x+P.x/L*11*k,P.y+P.y/L*11*k); o+=T(q,String(Math.round(s.h)),9*k,600,Q.muted); });
+  [[D.rise,'↑'],[D.set,'↓']].forEach(([h,a])=>{ if(h==null) return; const s=sunPos(D.at(h),+it.p.lat||0,+it.p.lon||0), ang=s.az*D2R; o+=T(W(Math.sin(ang)*(R+16*k),-Math.cos(ang)*(R+16*k)),a+' '+fmtHM(h),9.5*k,600,SUN_GOLD); });
+  let y=it.y+R+18*k; const line=(s,sz,wt,col)=>{ const t=T({x:it.x,y},s,sz,wt,col); y+=sz*1.35; return t; };
+  o+=line(`${fmtHM(D.time)} · `+(n.el>-.833?`sun ${Math.round(n.el)}° up, from ${Math.round(n.az)}° ${compassWord(n.az)}`:n.el>-6?'blue hour':'sun is down'),11.5*k,700,Q.ink);
+  if(it.p.place) o+=line(`${it.p.place} · ${D.date}`,10*k,500,Q.muted);
+  return `<g data-id="${it.id}" class="it">${o}</g>`; }
+function compassWord(az){ return ['N','NE','E','SE','S','SW','W','NW'][Math.round(az/45)%8]; }
+/* shadows: everything with some height throws one, away from the sun, as long as height ÷ tan(elevation) */
+function shadowHeight(it){ const t=TYPES[it.type]; if(!t||t.card||t.light||t.cat==='Notes') return 0;
+  const H={person:1.75,seated:1.25,interviewer:1.25,product:.35,mark:0,wall:2.6,window:0,door:0,backdrop:2.7,table:.75,chair:.9,sofa:.85,outlet:0,dolly:0,monitor:1.6,camera:1.5};
+  return it.type in H ? (it.type==='camera'?(+it.p.height||1.5):H[it.type]) : (+(it.p&&it.p.height)||1.5); }
+function sunShadows(items,Q,k){ const sp=items.find(i=>i.type==='sunpath'&&i.p&&i.p.shadows!==false); if(!sp) return '';
+  const n=sunDay(sp).now; if(n.el<=.5) return '';
+  const r=(sp.rot||0)*D2R, a=n.az*D2R, lx=Math.sin(a), ly=-Math.cos(a), sx=lx*Math.cos(r)-ly*Math.sin(r), sy=lx*Math.sin(r)+ly*Math.cos(r), cot=1/Math.tan(n.el*D2R), dark=lumHex(cssHex(Q.paper))<.35, op=clamp(.1+n.el/400,.1,.2)*(dark?2.6:1);   // a dark board needs a deeper shadow to read
+  let o='';
+  items.forEach(it=>{ const h=shadowHeight(it); if(!h) return; const L=Math.min(h*cot,60), v={x:-sx*L,y:-sy*L};
+    const pts=[]; [[-1,-1],[1,-1],[1,1],[-1,1]].forEach(([u,w])=>{ const P=fromLocal(it,u*it.w/2,w*it.h/2); pts.push(P,{x:P.x+v.x,y:P.y+v.y}); });
+    o+=`<path d="${hullPath(pts)}" fill="#0b0d12" fill-opacity="${f(op)}"/>`; });
+  return o?`<g pointer-events="none">${o}</g>`:''; }
+function hullPath(P){ P=P.slice().sort((a,b)=>a.x-b.x||a.y-b.y); const cr=(o,a,b)=>(a.x-o.x)*(b.y-o.y)-(a.y-o.y)*(b.x-o.x), lo=[], up=[];
+  P.forEach(p=>{ while(lo.length>1&&cr(lo[lo.length-2],lo[lo.length-1],p)<=0) lo.pop(); lo.push(p); });
+  P.slice().reverse().forEach(p=>{ while(up.length>1&&cr(up[up.length-2],up[up.length-1],p)<=0) up.pop(); up.push(p); });
+  const H=lo.slice(0,-1).concat(up.slice(0,-1)); return 'M'+H.map(p=>f(p.x)+' '+f(p.y)).join('L')+'Z'; }
+function sunpathHTML(it,dis){ const p=it.p, D=sunDay(it), n=D.now, known=SUN_PLACES.some(c=>c[0]===p.place);
+  let s=row('Place',`<select data-sunplace ${dis}>${known?'':`<option selected>${esc(p.place||'Custom')}</option>`}${SUN_PLACES.map(c=>`<option ${c[0]===p.place?'selected':''}>${esc(c[0])}</option>`).join('')}</select>`);
+  s+=row('',`<div class="sunll">${numf('p.lat',p.lat,`step="0.001" min="-90" max="90" aria-label="Latitude" title="Latitude" ${dis}`)}${numf('p.lon',p.lon,`step="0.001" min="-180" max="180" aria-label="Longitude" title="Longitude" ${dis}`)}<button class="btn sm ghost" data-act="sunloc" title="Use where I am now" ${dis}>${ic('pin')||'◎'}</button></div>`);
+  s+=row('Date',`<div class="sunll"><input class="fi" type="date" data-k="p.date" value="${esc(p.date||D.date)}" ${dis}><button class="btn sm ghost" data-act="suntoday" ${dis}>Today</button></div>`);
+  s+=row('Time',`<div class="suntime"><input type="range" data-k="p.time" min="0" max="24" step="${1/12}" value="${esc(p.time)}" aria-label="Time of day" ${dis}><b id="sunClock">${fmtHM(+p.time)}</b><button class="btn sm ghost" data-act="sunplay" aria-label="Play the day" title="Play the day" ${dis}>${sunPlay?'❚❚':'▶'}</button></div>`);
+  s+=`<div class="sunread" id="sunRead">${sunReadHTML(it)}</div>`;
+  s+=`<div class="toggle"><span>Cast shadows</span><label class="sw"><input type="checkbox" data-k="p.shadows" ${p.shadows===false?'':'checked'} ${dis} aria-label="Cast shadows"><span></span></label></div>`;
+  s+=`<div class="aimrow"><span class="tag">Turn it so <b style="color:#e5484d">N</b> points north on your set.</span>${cur.items.some(i=>i.type==='sun')?`<button class="btn sm" data-act="sunaim" ${dis}>Aim sun lights</button>`:''}</div>`;
+  return s; }
+function sunReadHTML(it){ const D=sunDay(it), n=D.now, up=n.el>-.833, cot=n.el>.5?1/Math.tan(n.el*D2R):null;
+  return `<div><b>${up?`${Math.round(n.el)}° up · from ${Math.round(n.az)}° ${compassWord(n.az)}`:n.el>-6?'Blue hour':'Sun is down'}</b></div>`
+    +`<div>Sunrise <b>${fmtHM(D.rise)}</b> · Sunset <b>${fmtHM(D.set)}</b></div>`
+    +(D.g1!=null||D.g0!=null?`<div>Golden hour ${D.g0!=null?`<b>${fmtHM(D.rise)}–${fmtHM(D.g0)}</b>`:''}${D.g0!=null&&D.g1!=null?' and ':''}${D.g1!=null?`<b>${fmtHM(D.g1)}–${fmtHM(D.set)}</b>`:''}</div>`:'')
+    +(cot!=null?`<div class="muted">A 1.75 m person throws a ${(1.75*cot).toFixed(1)} m shadow</div>`:''); }
+function sunSync(it){ const c=insp.querySelector('#sunClock'), r=insp.querySelector('#sunRead'), sl=insp.querySelector('[data-k="p.time"]'); if(c) c.textContent=fmtHM(+it.p.time); if(r) r.innerHTML=sunReadHTML(it); if(sl&&document.activeElement!==sl) sl.value=it.p.time; }
+var sunPlay=null;
+function sunToggle(it){ if(sunPlay){ cancelAnimationFrame(sunPlay.raf); sunPlay=null; touch(); renderInspector(); return; }
+  checkpoint(); const D=sunDay(it); if((D.set!=null&&+it.p.time>=D.set)||+it.p.time>=23.9) it.p.time=Math.max(0,(D.rise||5)-.5);
+  let last=performance.now(); sunPlay={id:it.id,raf:0};
+  const step=now=>{ if(!sunPlay) return; const x=itemById(sunPlay.id); if(!x){ sunPlay=null; return; } x.p.time=Math.min(24,+x.p.time+(now-last)/1000*1.2); last=now;   // about 1.2 hours a second
+    const d=sunDay(x); draw(); sunSync(x); if(x.p.time>=24||(d.set!=null&&x.p.time>=d.set+.75)){ sunPlay=null; x.p.time=Math.round(x.p.time*12)/12; touch(); renderInspector(); return; } sunPlay.raf=requestAnimationFrame(step); };
+  sunPlay.raf=requestAnimationFrame(step); renderInspector(); }
+function sunAim(it){ const n=sunDay(it).now, r=(it.rot||0)*D2R, a=n.az*D2R, lx=Math.sin(a), ly=-Math.cos(a), sx=lx*Math.cos(r)-ly*Math.sin(r), sy=lx*Math.sin(r)+ly*Math.cos(r);
+  const suns=cur.items.filter(i=>i.type==='sun'); if(!suns.length) return; checkpoint();
+  suns.forEach(s=>{ s.rot=Math.round(Math.atan2(-sy,-sx)/D2R*10)/10; delete s.focus; s.p.time=fmtHM(+it.p.time); if(n.el<6) s.p.cct=n.el<1?2800:3500; });
+  touch(); draw(); toast(`${suns.length} sun light${suns.length>1?'s':''} aimed from ${Math.round(n.az)}° ${compassWord(n.az)}`); }
 // compass rose: north points up the plan at 0°, turn it to match the real location
 function compassSVG(R,Q,k){   // minimal: a thin black ring, four ticks, a slim needle with a red north
   const C=Q.ink, red='#e5484d', sw=1.4*k, tk=Math.min(R*.12,7*k), px=R/k, words=px>=30;
@@ -3160,6 +3368,7 @@ function iconSVG(type){
   if(type==='door'){ oy=-it.w/2; }
   if(type==='text'){ it.p.text='Aa'; it.p.size=.42; vbw=1; vbh=.72; }
   if(type==='angle'){ it.p={ax:.62,ay:0,bx:.34,by:-.5,noLabel:true}; vbw=1; vbh=.72; ox=.26; oy=-.2; }
+  if(type==='map'){ it.w=1.2; it.h=.8; vbw=1.5; vbh=1.08; }
   if(type==='sketch'){ it.p.pts=[[-.38,.12],[-.26,-.08],[-.12,-.14],[0,.02],[.1,.14],[.24,.08],[.36,-.12]]; it.p.width=.05; vbw=1; vbh=.72; }
   const sh=shape(it,UIP,vbw/44);
   return `<svg viewBox="${f(-vbw/2+ox)} ${f(-vbh/2+oy)} ${f(vbw)} ${f(vbh)}" aria-hidden="true"><defs><linearGradient id="gSweep" x1="0" x2="1"><stop offset="0" stop-color="${UIP.ink}" stop-opacity=".16"/><stop offset="1" stop-color="${UIP.ink}" stop-opacity="0"/></linearGradient></defs>${sh}</svg>`;
@@ -3565,6 +3774,8 @@ function renderInspector(){ renderLayersSoon(); if(flyCat==='Align' && !$('#fly'
     if(LFc().lock(it)) h+=`<div class="lockbar">${ic('lock')}<span><b>Locked</b> can't be moved on the plot</span><button class="btn sm" data-act="unlock" title="Unlock · ${esc(keyLabel(keyOf('lock')))}" ${readOnly?'disabled':''}>Unlock</button></div>`;
     h+=sec('',a);
     if(it.type==='outlet') h+=sec('Power',outletPowerHTML(it,dis));
+    if(it.type==='sunpath') h+=sec('Sun',sunpathHTML(it,dis));
+    if(it.type==='map') h+=sec('Location',mapHTML(it,dis));
     if(t.light){
       let b='';
       b+=`<div class="row"><label>Colour</label>${rng('p.cct',p.cct,1900,10000,50,'K','kelvin')}</div>`;
@@ -3631,6 +3842,7 @@ function syncInspector(){
 }
 function syncSetupFields(){ const el=insp.querySelector('[data-k="m.title"]'); if(el&&document.activeElement!==el) el.value=cur.title; }
 insp.addEventListener('focusin',e=>{ if(e.target.dataset&&e.target.dataset.k&&!readOnly) checkpoint(); });
+insp.addEventListener('keydown',e=>{ if(e.key==='Enter'&&e.target.matches&&e.target.matches('[data-mapq]')){ e.preventDefault(); const it=itemById([...sel][0]); if(it&&it.type==='map') mapFind(it); } });
 insp.addEventListener('pointerdown',e=>{ if(e.target.closest('.seg button')&&!readOnly) checkpoint(); });
 function applyField(el){
   if(readOnly||!cur) return;
@@ -3657,10 +3869,11 @@ function applyField(el){
   if(k==='p.color' && it.type==='mark'){ insp.querySelectorAll('[data-mcol]').forEach(b=>b.classList.toggle('on',b.dataset.mcol.toLowerCase()===String(v).toLowerCase())); const th=insp.querySelector('.insp-head .thumb svg'); if(th) th.innerHTML=markSVG(it.p.shape||'x',.7,.7,v,.22,''); }
   if(k==='label'){ const h2=insp.querySelector('.insp-head h2'); if(h2) h2.textContent=v||TYPES[it.type].name; }
   if(k==='p.cct'){ insp.querySelectorAll('[data-seg="p.cct"] button').forEach(b=>b.classList.toggle('on',+b.dataset.v===+v)); if(!it.p.tint){ const ci=insp.querySelector('[data-k="p.tint"]'); if(ci) ci.value=rgbHex(tintOf(it)); } }
+  if(it.type==='sunpath'){ if(k==='p.lat'||k==='p.lon'){ it.p.place='Custom'; const sel2=insp.querySelector('[data-sunplace]'); if(sel2&&!sel2.querySelector('option[data-custom]')){ sel2.insertAdjacentHTML('afterbegin','<option data-custom selected>Custom</option>'); } } sunSync(it); }
   touch(); draw();
 }
 insp.addEventListener('input',e=>{ if(e.target.id==='bevelSize'){ const v=parseFloat(e.target.value); if(isFinite(v)&&v>0) bevelSize=v; return; } if(e.target.dataset.k) applyField(e.target); });
-insp.addEventListener('change',e=>{ if(e.target.hasAttribute('data-lsel') && e.target.value){ moveItemsToLayer([...sel].filter(id=>itemById(id)),e.target.value); } });
+insp.addEventListener('change',e=>{ if(e.target.hasAttribute('data-sunplace')&&!readOnly){ const it=itemById([...sel][0]), c=SUN_PLACES.find(x=>x[0]===e.target.value); if(it&&c){ checkpoint(); Object.assign(it.p,{place:c[0],lat:c[1],lon:c[2],tz:c[3]}); touch(); renderInspector(); draw(); } return; } if(e.target.hasAttribute('data-lsel') && e.target.value){ moveItemsToLayer([...sel].filter(id=>itemById(id)),e.target.value); } });
 insp.addEventListener('change',e=>{ if(e.target.dataset.k==='rot'||e.target.dataset.k==='rx'||e.target.dataset.k==='rf') renderInspector(); });
 insp.addEventListener('change',e=>{ const k=e.target.dataset.k; if(!k) return; if(e.target.tagName==='SELECT'||e.target.type==='checkbox'){ applyField(e.target); if(k==='h'||k==='on'||k==='p.circuit') renderInspector(); } });
 insp.addEventListener('input',e=>{ const k=e.target.dataset&&e.target.dataset.k; if(!k||!/^p\.(watts|power|fixture|batt)$/.test(k)) return; const it=itemById([...sel][0]); if(!isPowered(it)) return; const pr=insp.querySelector('#pwRead'); if(pr) pr.innerHTML=powerLine(it); const w=insp.querySelector('[data-k="p.watts"]'); if(w) w.placeholder=estWatts(it); });
@@ -3692,6 +3905,15 @@ insp.addEventListener('click',e=>{
   else if(act==='unaim'){ checkpoint(); aimables().forEach(i=>delete i.focus); exitFocus(); touch(); renderInspector(); draw(); }
   else if(act==='join-square'||act==='join-bevel'){ joinWalls(act==='join-square'?'square':'bevel'); }
   else if(act==='unlock'){ if(!LFc().lock(itemById([...sel][0])||{})) return; const it=itemById([...sel][0]); if(it.locked){ checkpoint(); delete it.locked; if(!LFc().lock(it)) flashLock([it.id],false); touch(); renderLayers(); renderInspector(); draw(); } if(LFc().lock(it)) toggleLockSel(); }
+  else if(act==='mapfind'){ const it=itemById([...sel][0]); if(it&&it.type==='map') mapFind(it); }
+  else if(act==='mapoffline'){ const it=itemById([...sel][0]); if(it&&it.type==='map') mapSaveOffline(it); }
+  else if(act==='mapcentre'){ const it=itemById([...sel][0]); if(it){ checkpoint(); it.p.ox=0; it.p.oy=0; touch(); draw(); } }
+  else if(act==='mapsun'){ const it=itemById([...sel][0]), sp=cur.items.find(i=>i.type==='sunpath'); if(it&&sp){ checkpoint(); mapToSun(it,sp); touch(); draw(); } }
+  else if(act==='sunplay'){ const it=itemById([...sel][0]); if(it&&it.type==='sunpath') sunToggle(it); }
+  else if(act==='suntoday'){ const it=itemById([...sel][0]); if(it){ checkpoint(); it.p.date=''; touch(); renderInspector(); draw(); } }
+  else if(act==='sunaim'){ const it=itemById([...sel][0]); if(it) sunAim(it); }
+  else if(act==='sunloc'){ const it=itemById([...sel][0]); if(!it) return; if(!navigator.geolocation){ toast('Location isn\'t available here'); return; }
+    navigator.geolocation.getCurrentPosition(pos=>{ checkpoint(); it.p.lat=Math.round(pos.coords.latitude*1000)/1000; it.p.lon=Math.round(pos.coords.longitude*1000)/1000; it.p.place='My location'; try{ it.p.tz=Intl.DateTimeFormat().resolvedOptions().timeZone||it.p.tz; }catch(e){} touch(); renderInspector(); draw(); }, ()=>toast('Couldn\'t get your location — pick a place or type the coordinates'), {timeout:10000}); }
   else if(act==='autotint'){ checkpoint(); const it=itemById([...sel][0]); it.p.tint = it.p.tint ? '' : rgbHex(tintOf(it)); touch(); renderInspector(); draw(); }
   else if(act==='copygear') copyText(gearText(),'Gear list copied');
   else if(act==='powerbudget') openPower();
@@ -3836,7 +4058,7 @@ var KEY_ACTIONS=[
   ['Right toolbar','c_grid','Table','shift+4'], ['Right toolbar','c_color','Colour','shift+5'], ['Right toolbar','c_column','Column','shift+8'], ['Right toolbar','g_notes','Notes (text, arrow, distance, angle, pen)','shift+6'], ['Right toolbar','g_align','Align & distribute','shift+7'],
   ['View','present','Focus mode (hide the toolbars)','shift+f'], ['View','isolate','Highlight selection (dim the rest)','shift+h'], ['View','fit','Fit plot to screen','z'], ['View','zoomin','Zoom in','+'], ['View','zoomout','Zoom out','-'], ['View','zoom100','Zoom to 100%','shift+0'],
   ['View','snap','Snap on / off','s'], ['View','beams','Beams on / off','b'], ['View','specs','Fixture specs on / off','i'],
-  ['Mind map','tidy','Tidy the mind map (all maps if nothing is selected)','shift+t'],
+  ['Mind map','tidy','Tidy the mind map (all maps if nothing is selected)','shift+t'], ['Mind map','fold','Fold / unfold the selected idea\'s branches','f'],
   ['Help','keys','Show shortcuts','?'], ['Help','guide','Helper bar on / off','h']
 ];
 var KEY_FIXED=[ // shown for reference, not rebindable
@@ -3950,6 +4172,7 @@ document.addEventListener('keydown',e=>{
   if(e.key==='Tab' && !typing && !readOnly && !e.metaKey && !e.ctrlKey && !e.altKey && sel.size===1){ const n0=itemById([...sel][0]); if(n0&&n0.type==='note'){ e.preventDefault(); if(e.shiftKey) mmLeft(n0); else mmChild(n0); return; } }
   if(act==='addmenu' && !typing && !readOnly){ e.preventDefault(); openAddSearch(); return; }
   if(typing||readOnly||!cur) return;
+  if(act==='fold'){ const n0=sel.size===1?itemById([...sel][0]):null; if(n0&&isCard(n0)&&foldSides(n0).length){ e.preventDefault(); mmFold(n0); } return; }
   if(act==='tidy'){ e.preventDefault(); const n0=sel.size===1?itemById([...sel][0]):null; mmTidy(n0&&isCard(n0)&&mmComp(n0).length>1?n0:null); return; }
   if(act && act.startsWith('c_')){ e.preventDefault(); const t=act.slice(2); if(hoverWorld) addCard(t,hoverWorld.x-.4,hoverWorld.y-.2); else addCard(t); return; }
   if(cableSel && (act==='del'||e.key==='Delete'||e.key==='Backspace')){ e.preventDefault(); unplugCable(cableSel); return; }
@@ -4527,7 +4750,7 @@ function fillCard(el,it){
 function autoGrow(t){ t.style.height='auto'; t.style.height=(t.scrollHeight+2)+'px'; }
 function renderCards(){
   cardsEl.style.transform=`translate(${W/2-view.x*view.s}px,${H/2-view.y*view.s}px) scale(${view.s/PXM0})`; cardsEl.style.setProperty('--inv',(PXM0/view.s).toFixed(4));
-  const LFk=LFc(), items=cur?cur.items.filter(isCard).filter(LFk.vis):[];
+  const LFk=LFc(), items=cur?cur.items.filter(isCard).filter(LFk.vis):[], BRC=cur?mmBranchColors(cur.items):new Map();
   const keep=new Set();
   items.forEach((it,i)=>{
     let el=cardsEl.querySelector(`[data-cid="${it.id}"]`);
@@ -4535,6 +4758,7 @@ function renderCards(){
     else if(el.dataset.sig!==cardSig(it) && !el.contains(document.activeElement)) fillCard(el,it);
     el.style.left=(it.x*PXM0)+'px'; el.style.top=(it.y*PXM0)+'px'; el.style.width=it.w+'px'; el.style.zIndex=i+1; el.style.minHeight=it.nh?it.nh+'px':''; if(it.type==='trello') el.style.height=(it.nh||460)+'px';
     if(it.type==='gdoc'){ el.style.height=it.p.collapsed?'':(it.nh||420)+'px'; el.classList.toggle('gd-col',!!it.p.collapsed); }
+    { const bc=BRC.get(it.id)||(it.conns&&it.conns.some(c=>BRC.has(c.to))?'':null); el.classList.toggle('mm-br',!!bc); if(bc) el.style.setProperty('--br',bc); else el.style.removeProperty('--br'); } syncFold(el,it);
     el.classList.toggle('sel', sel.has(it.id)); el.classList.toggle('solo', sel.has(it.id) && sel.size===1); el.classList.toggle('key', sel.size>1 && [...sel][0]===it.id); el.classList.toggle('locked', LFk.lock(it)); { const o2=LFk.op(it)*isoOp(it); el.style.opacity=o2<.999?o2:''; }
     keep.add(it.id);
   });
@@ -5141,7 +5365,7 @@ function addLinkedNote(par,side,beforeId){
   const hits=(x,y)=>cur.items.some(o=>{ if(!isCard(o)||o===par) return false; const r=cardRect(o); return x<r.x+r.w+gap*.3 && x+nw>r.x-gap*.3 && y<r.y+r.h+gap*.3 && y+nh>r.y-gap*.3; });
   for(let i=0;i<14 && hits(x,y);i++){ if(side==='left'||side==='right') y+=nh+gap*.6; else x+=nw+gap*.6; }   // fan out instead of stacking on top
   const it=addCard('note',x,y); if(!it) return;
-  par.conns=par.conns||[]; par.conns.push({id:uid(),to:it.id,side}); it.w=par.w; if(par.nh) it.nh=par.nh;
+  par.conns=par.conns||[]; par.conns.push({id:uid(),to:it.id,side}); if(par.fold&&par.fold[side]){ delete par.fold[side]; if(!Object.keys(par.fold).length) delete par.fold; foldUpdate(); } it.w=par.w; if(par.nh) it.nh=par.nh;
   layoutTree(par,side,it.id,beforeId?{before:beforeId}:null);
   touch(); draw(); return it;
 }
@@ -5154,7 +5378,7 @@ function layoutTree(par,side,newId,ord){ if(!cur||!par) return; finishTween();
   renderCards();
   const hOf=k=>{ const el=cardsEl.querySelector(`[data-cid="${k.id}"]`); return el&&el.offsetHeight?el.offsetHeight/PXM0:cardRect(k).h; }, wOf=k=>cardRect(k).w, sz=k=>horiz?hOf(k):wOf(k);
   const seen=new Set([top.id]);
-  const kidsOf=n=>(n.conns||[]).filter(c=>(c.side||'right')===side).map(c=>itemById(c.to)).filter(k=>k&&isCard(k)&&!colOf(k.id)&&!seen.has(k.id));
+  const kidsOf=n=>n.fold&&n.fold[side]?[]:(n.conns||[]).filter(c=>(c.side||'right')===side).map(c=>itemById(c.to)).filter(k=>k&&isCard(k)&&!colOf(k.id)&&!seen.has(k.id));
   const build=n=>{ const ks=kidsOf(n); ks.forEach(k=>seen.add(k.id));
     const P=k=>horiz?k.y:k.x, K=k=>{ if(ord&&ord.rank&&ord.rank.has(k.id)) return ord.rank.get(k.id); if(k.id===newId){ const bf=ord&&ord.before&&itemById(ord.before); return bf?P(bf)-1e-6:Infinity; } return P(k); };
     ks.sort((a,b)=>K(a)-K(b));   // keep their order; the new one goes last (or right before the idea it was added in front of)
@@ -5187,17 +5411,17 @@ function pushAside(tgt,top,gap,hOf,wOf){ const LF=LFc(), par=new Map();
   cur.items.forEach(o=>{ if(isCard(o)&&o.conns) o.conns.forEach(c=>{ if(!par.has(c.to)) par.set(c.to,{p:o,side:c.side||'right'}); }); });
   const fixed=new Set(tgt.keys()); for(let a=par.get(top.id),n=0; a&&n<200; a=par.get(a.p.id),n++) fixed.add(a.p.id);   // the tree and the ideas it hangs from stay put
   const pos=k=>tgt.get(k.id)||{x:k.x,y:k.y}, box=k=>{ const p=pos(k); return {id:k.id,x:p.x,y:p.y,w:wOf(k),h:hOf(k)}; };
-  const movable=k=>isCard(k)&&!colOf(k.id)&&!LF.lock(k)&&!fixed.has(k.id);
+  const movable=k=>isCard(k)&&!colOf(k.id)&&!LF.lock(k)&&!fixed.has(k.id);   // folded-away cards still travel with their branch, they just never block or get bumped
   const hit=(a,b)=>a.x<b.x+b.w+gap-1e-6&&b.x<a.x+a.w+gap-1e-6&&a.y<b.y+b.h+gap-1e-6&&b.y<a.y+a.h+gap-1e-6;
   const need=(a,b,d)=>d==='right'?b.x+b.w+gap-a.x:d==='left'?a.x+a.w+gap-b.x:d==='bottom'?b.y+b.h+gap-a.y:a.y+a.h+gap-b.y;
   const soft=new Set();   // loose cards already nudged: they block other loose cards, but a branch may push them again
-  const fixedBoxes=withSoft=>[...fixed,...(withSoft?soft:[])].map(itemById).filter(k=>k&&isCard(k)).map(box);
+  const fixedBoxes=withSoft=>[...fixed,...(withSoft?soft:[])].map(itemById).filter(k=>k&&isCard(k)&&!foldHid.has(k.id)).map(box);
   const shiftFor=(unit,d,withSoft)=>{ const FB=fixedBoxes(withSoft); let t=0;
     for(let i=0;i<60;i++){ let m=0; unit.forEach(k=>{ const b=box(k), a={x:b.x+(d==='right'?t:d==='left'?-t:0), y:b.y+(d==='bottom'?t:d==='top'?-t:0), w:b.w, h:b.h};
         FB.forEach(f=>{ if(hit(a,f)) m=Math.max(m,need(a,f,d)); }); }); if(m<=1e-6) return t; t+=m; }
     return t; };
   for(let guard=0; guard<80; guard++){
-    const FB=fixedBoxes(false), FS=fixedBoxes(true); const u=cur.items.find(k=>movable(k)&&(soft.has(k.id)?FB:FS).some(f=>hit(box(k),f)&&!(f.id===k.id))); if(!u) break;
+    const FB=fixedBoxes(false), FS=fixedBoxes(true); const u=cur.items.find(k=>movable(k)&&!foldHid.has(k.id)&&(soft.has(k.id)?FB:FS).some(f=>hit(box(k),f)&&!(f.id===k.id))); if(!u) break;
     let r=u, seen=new Set([u.id]); for(let a=par.get(r.id); a&&!fixed.has(a.p.id)&&!seen.has(a.p.id)&&isCard(a.p)&&!colOf(a.p.id); a=par.get(r.id)){ r=a.p; seen.add(r.id); }   // move the whole branch it belongs to
     const a=par.get(r.id), side=a&&fixed.has(a.p.id)?a.side:null, dirs=side?[side]:['right','left','bottom','top'];
     const roots=side?(a.p.conns||[]).filter(c=>(c.side||'right')===side).map(c=>itemById(c.to)).filter(k=>k&&movable(k)):[r];   // a fanned row of ideas moves together, so it stays lined up
@@ -5240,10 +5464,39 @@ function mmTidy(it){ if(!cur||readOnly) return; finishTween();
     while(q.length){ const n=q.shift(); if(!n||done.has(n.id)) continue; done.add(n.id); const up=mmParent(n);
       [...new Set((n.conns||[]).map(c=>c.side||'right'))].forEach(sd=>{ if(up&&up.side===sd&&done.has(up.par.id)) return;
         if((n.conns||[]).some(c=>(c.side||'right')===sd&&isCard(itemById(c.to))&&!colOf(c.to))) layoutTree(n,sd,null); });
-      (n.conns||[]).forEach(c=>{ const t=itemById(c.to); if(t&&isCard(t)) q.push(t); }); } }
+      (n.conns||[]).forEach(c=>{ const t=itemById(c.to); if(t&&isCard(t)&&!(n.fold&&n.fold[c.side||'right'])) q.push(t); }); } }
   finally{ tweenOff=false; }
   const moves=[]; cur.items.forEach(k=>{ const o=orig.get(k.id); if(o&&(Math.abs(o.x-k.x)>1e-4||Math.abs(o.y-k.y)>1e-4)){ moves.push({it:k,x0:o.x,y0:o.y,x1:k.x,y1:k.y}); k.x=o.x; k.y=o.y; } });
   if(moves.length) tweenItems(moves); else { dropNoopCheckpoint(); toast('Already tidy'); } }
+/* fold a branch: a note's ideas on one side hide behind a small count badge; the map closes up around it */
+var foldHid;   // filled by foldUpdate() (it runs before this line is reached at start-up)
+function foldUpdate(){ const H=new Set(); if(cur) cur.items.forEach(o=>{ if(!o.fold||!isCard(o)) return;
+    (o.conns||[]).forEach(c=>{ if(!o.fold[c.side||'right']) return; const t=itemById(c.to); if(t&&isCard(t)) branchOf(t).forEach(k=>{ if(k!==o) H.add(k.id); }); }); });
+  foldHid=H; }
+function foldSides(it){ return ['right','bottom','left','top'].filter(sd=>(it.conns||[]).some(c=>(c.side||'right')===sd&&isCard(itemById(c.to))&&!colOf(c.to))); }
+function foldCount(it,sd){ const S=new Set(); (it.conns||[]).forEach(c=>{ if((c.side||'right')!==sd) return; const t=itemById(c.to); if(t&&isCard(t)) branchOf(t).forEach(k=>{ if(k!==it) S.add(k.id); }); }); return S.size; }
+function mmRelayout(fn){ finishTween(); const orig=new Map(cur.items.filter(isCard).map(k=>[k.id,{x:k.x,y:k.y}])); tweenOff=true; try{ fn(); } finally{ tweenOff=false; }
+  const moves=[]; cur.items.forEach(k=>{ const o=orig.get(k.id); if(o&&(Math.abs(o.x-k.x)>1e-4||Math.abs(o.y-k.y)>1e-4)){ moves.push({it:k,x0:o.x,y0:o.y,x1:k.x,y1:k.y}); k.x=o.x; k.y=o.y; } });
+  if(moves.length) tweenItems(moves); }
+function mmFold(it,side){ if(readOnly||!it) return; const sides=foldSides(it); if(!sides.length) return;
+  const isF=sd=>!!(it.fold&&it.fold[sd]), list=side?[side]:sides, to=side?!isF(side):sides.some(sd=>!isF(sd));
+  checkpoint(); const f=Object.assign({},it.fold||{}); list.forEach(sd=>{ if(to) f[sd]=true; else delete f[sd]; }); if(Object.keys(f).length) it.fold=f; else delete it.fold;
+  foldUpdate(); [...sel].forEach(id=>{ if(foldHid.has(id)) sel.delete(id); });
+  mmRelayout(()=>{ const up=mmParent(it); if(up&&!foldHid.has(it.id)) layoutTree(up.par,up.side,null); if(!to) list.forEach(sd=>layoutTree(it,sd,null)); });
+  touch(); renderInspector(); draw(); }
+function syncFold(el,it){ const sides=LFc().lock(it)?[]:foldSides(it), have=new Map([...el.querySelectorAll(':scope>.c-fold')].map(b=>[b.dataset.side,b]));
+  sides.forEach(sd=>{ let b=have.get(sd); have.delete(sd); if(!b){ b=document.createElement('button'); b.className='c-fold '+sd; b.dataset.side=sd; b.type='button'; el.appendChild(b); }
+    const on=!!(it.fold&&it.fold[sd]), n=on?foldCount(it,sd):0, html=on?String(n):'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M6 12h12"/></svg>';
+    b.classList.toggle('on',on); if(b.dataset.h!==html){ b.innerHTML=html; b.dataset.h=html; } b.title=on?`Show ${n} hidden idea${n===1?'':'s'}`:'Fold this branch'; });
+  have.forEach(b=>b.remove()); }
+/* colours from the root: each main branch gets its own colour on its lines and card edges */
+const BR_COLS=['#e8875b','#3fb3a0','#9686f0','#dcae3f','#5a9ef0','#e46f9f','#78bf63'];
+function mmBranchColors(items){ const map=new Map(), inc=new Set(), by=new Map(items.map(i=>[i.id,i]));
+  items.forEach(o=>{ if(isCard(o)&&o.conns) o.conns.forEach(c=>{ if(isCard(by.get(c.to))) inc.add(c.to); }); });
+  items.forEach(r=>{ if(!isCard(r)||inc.has(r.id)||!r.conns) return; let i=0;
+    r.conns.forEach(c=>{ const k=by.get(c.to); if(!k||!isCard(k)||map.has(k.id)) return; const col=BR_COLS[i++%BR_COLS.length], st=[k];
+      while(st.length){ const n=st.pop(); if(n===r||map.has(n.id)) continue; map.set(n.id,col); (n.conns||[]).forEach(cc=>{ const t=by.get(cc.to); if(t&&isCard(t)) st.push(t); }); } }); });
+  return map; }
 function mmOneStep(h){ if(hist.length>h+1){ hist.splice(h+1); updUndo(); } }   // adding an idea is one undo step, however many focus changes it took
 // connections: curved (default) or straight, leaving from the sides that face each other (or the side they were added on)
 function connEnds(a,b,side){
@@ -5265,12 +5518,13 @@ function connPath(E,style){
   return `M${f(P.x)} ${f(P.y)}C${f(c1.x)} ${f(c1.y)} ${f(c2.x)} ${f(c2.y)} ${f(C.x)} ${f(C.y)}`;
 }
 function linksSVG(items,Q,k,layers,interactive){
-  const LF=layerFns(layers), by=new Map(items.map(i=>[i.id,i])); let out='';
+  const LF=layerFns(layers), by=new Map(items.map(i=>[i.id,i])), BRC=mmBranchColors(items); let out='';
   items.forEach(a=>{ if(!a.conns||!isCard(a)||!LF.vis(a)) return;
     a.conns.forEach(c=>{ const b=by.get(c.to); if(!b||!LF.vis(b)) return;
       const E=connEnds(a,b,c.side), d=connPath(E,c.style||'curve'), on=connSel===c.id;
       if(interactive) out+=`<path d="${d}" fill="none" stroke="transparent" stroke-width="${f(14*k)}" data-conn="${a.id}|${c.id}" style="pointer-events:stroke;cursor:context-menu"/>`;
-      out+=`<path d="${d}" fill="none" stroke="${on?Q.accent:Q.muted}" stroke-width="${f((on?2.4:1.8)*k)}" stroke-linecap="round" pointer-events="none"/><circle cx="${f(E.P.x)}" cy="${f(E.P.y)}" r="${f(3.2*k)}" fill="${on?Q.accent:Q.muted}" pointer-events="none"/><circle cx="${f(E.C.x)}" cy="${f(E.C.y)}" r="${f(3.2*k)}" fill="${on?Q.accent:Q.muted}" pointer-events="none"/>`; }); });
+      const lc=on?Q.accent:(BRC.get(b.id)||Q.muted);
+      out+=`<path d="${d}" fill="none" stroke="${lc}" stroke-width="${f((on?2.4:1.8)*k)}" stroke-linecap="round" pointer-events="none"/><circle cx="${f(E.P.x)}" cy="${f(E.P.y)}" r="${f(3.2*k)}" fill="${lc}" pointer-events="none"/><circle cx="${f(E.C.x)}" cy="${f(E.C.y)}" r="${f(3.2*k)}" fill="${lc}" pointer-events="none"/>`; }); });
   return out?`<g>${out}</g>`:'';
 }
 var connSel=null;
@@ -5429,6 +5683,8 @@ cardsEl.addEventListener('dblclick',e=>{
   checkpoint();
   try{ if(pk.showPicker) pk.showPicker(); else pk.click(); }catch(err){ pk.click(); }
 });
+cardsEl.addEventListener('pointerdown',e=>{ const b=e.target.closest('.c-fold'); if(!b) return; e.stopPropagation(); e.preventDefault(); if(readOnly||e.button!==0) return; const it=cardItem(b); if(it) mmFold(it,b.dataset.side); },true);   // fold buttons never start a drag
+cardsEl.addEventListener('dblclick',e=>{ if(e.target.closest('.c-fold')){ e.stopPropagation(); e.preventDefault(); } },true);
 cardsEl.addEventListener('keydown',e=>{
   const t=e.target, it=cardItem(t); if(!it||readOnly) return;
   if(t.dataset.f==='hex' && e.key==='Enter'){ e.preventDefault(); t.blur(); return; }
