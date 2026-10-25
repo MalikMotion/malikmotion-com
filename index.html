@@ -1615,7 +1615,15 @@ function patternMarkup(Q,x0,y0,vw,vh,k,s,pre){
   const rect=suf=>`<rect x="${f(x0)}" y="${f(y0)}" width="${f(vw)}" height="${f(vh)}" fill="url(#${id}${suf})"/>`;
   return {defs:d, body:(minor?rect('n'):'')+rect('j')};
 }
-function renderPlot(){ foldUpdate();
+/* one north per plot: turning a compass or a sun path turns the others with it; a new one takes the plot's north */
+const northSeen=new Map(); let northDoc=null;
+function northSync(){ if(!cur) return; if(northDoc!==cur.id){ northSeen.clear(); northDoc=cur.id; }
+  const N=cur.items.filter(i=>i.type==='compass'||i.type==='sunpath'); if(N.length<2){ northSeen.clear(); N.forEach(i=>northSeen.set(i.id,i.rot)); return; }
+  const moved=N.find(i=>northSeen.has(i.id)&&Math.abs(northSeen.get(i.id)-i.rot)>1e-6), known=N.find(i=>northSeen.has(i.id)), to=(moved||known||N[0]).rot;
+  let mod=false; N.forEach(i=>{ if(Math.abs(i.rot-to)>1e-6){ i.rot=to; mod=true; } });
+  northSeen.clear(); N.forEach(i=>northSeen.set(i.id,i.rot));
+  if(mod&&!drag) setTimeout(touch,0); }
+function renderPlot(){ foldUpdate(); northSync();
   W=Math.max(1,innerWidth); H=Math.max(1,innerHeight);
   const vw=W/view.s, vh=H/view.s, x0=view.x-vw/2, y0=view.y-vh/2;
   svg.setAttribute('viewBox',`${f(x0)} ${f(y0)} ${f(vw)} ${f(vh)}`);
@@ -2407,7 +2415,7 @@ svg.addEventListener('pointermove',e=>{
   if(drag.mode==='sunT' && it.type==='sunpath'){ const D=sunDay(it), R=it.w/2; let best=null;
     D.S.forEach(s=>{ if(s.el<-.833) return; const P=sunXY(R,s.az,s.el), d=Math.hypot(P.x-lx,P.y-ly); if(!best||d<best.d) best={d,h:s.h}; });
     if(best&&best.h!==+it.p.time){ it.p.time=best.h; sunSync(it); } draw(); return; }
-  if(drag.mode==='rot'){ delete it.focus; let a=Math.atan2(dy,dx)/D2R+90; if(it.type==='sunpath'?e.shiftKey:snapOn) a=Math.round(a/15)*15; it.rot=Math.round((((a+540)%360)-180)*10)/10; }   // the sun path turns freely; Shift snaps to 15°
+  if(drag.mode==='rot'){ delete it.focus; let a=Math.atan2(dy,dx)/D2R+90; if(it.type==='sunpath'||it.type==='compass'?e.shiftKey:snapOn) a=Math.round(a/15)*15; it.rot=Math.round((((a+540)%360)-180)*10)/10; }   // the sun path and compass turn freely; Shift snaps to 15°
   else if((drag.mode==='end1'||drag.mode==='end2') && it.type==='measure'){
     // distance: the dragged end goes anywhere; the other end stays put
     if(!drag.fixed){ const s0=drag.mode==='end2'?1:-1, u0=unit(it.rot); drag.s=s0; drag.fixed={x:it.x-s0*u0.x*it.w/2, y:it.y-s0*u0.y*it.w/2}; }
@@ -3332,33 +3340,50 @@ function sunpathSVG(it,Q,k){ const R=it.w/2, D=sunDay(it), sw=1.3*k, red='#e5484
       +`<g data-h="sunT" style="cursor:grab"><title>Drag the sun along its path to change the time</title><circle cx="${f(P.x)}" cy="${f(P.y)}" r="${f(Math.max(rr*1.9,12*k))}" fill="${n.el<6?SUN_GOLD:SUN_COL}" fill-opacity=".22"/><circle cx="${f(P.x)}" cy="${f(P.y)}" r="${f(rr)}" fill="${n.el<6?SUN_GOLD:SUN_COL}" stroke="${Q.paper}" stroke-width="${f(1.5*k)}"/></g>`; }
   else { const a=n.az*D2R; o+=`<g data-h="sunT" style="cursor:grab"><title>Drag onto the path to set a daytime hour</title><circle cx="${f(Math.sin(a)*R)}" cy="${f(-Math.cos(a)*R)}" r="${f(12*k)}" fill="transparent"/><circle cx="${f(Math.sin(a)*R)}" cy="${f(-Math.cos(a)*R)}" r="${f(5*k)}" fill="${Q.paper}" stroke="${SUN_BLUE}" stroke-width="${f(1.6*k)}"/></g>`; }
   return o; }
-function sunpathLabels(it,Q,k){ const R=it.w/2, D=sunDay(it), n=D.now, fs=10*k, rot=(it.rot||0)*D2R;
+function sunpathLabels(it,Q,k){ const R=it.w/2, D=sunDay(it), n=D.now, up=n.el>-.833, rot=(it.rot||0)*D2R;
   const W=(x,y)=>({x:it.x+x*Math.cos(rot)-y*Math.sin(rot), y:it.y+x*Math.sin(rot)+y*Math.cos(rot)});
-  const T=(p,s,sz,wt,col,anc='middle')=>`<text x="${f(p.x)}" y="${f(p.y)}" font-size="${f(sz)}" font-family="${FONT}" font-weight="${wt}" fill="${col}" text-anchor="${anc}" dominant-baseline="middle" stroke="${Q.paper}" stroke-width="${f(3*k)}" paint-order="stroke">${esc(s)}</text>`;
-  let o=T(W(0,-R-12*k),'N',11*k,700,'#e5484d');
-  if(R/k>70) D.S.forEach(s=>{ if(s.el<0||Math.abs(s.h-Math.round(s.h))>1e-6||Math.round(s.h)%(R/k>140?1:3)) return; const P=sunXY(R,s.az,s.el), L=Math.hypot(P.x,P.y)||1, q=W(P.x+P.x/L*11*k,P.y+P.y/L*11*k); o+=T(q,String(Math.round(s.h)),9*k,600,Q.muted); });
-  [[D.rise,'↑'],[D.set,'↓']].forEach(([h,a])=>{ if(h==null) return; const s=sunPos(D.at(h),+it.p.lat||0,+it.p.lon||0), ang=s.az*D2R; o+=T(W(Math.sin(ang)*(R+16*k),-Math.cos(ang)*(R+16*k)),a+' '+fmtHM(h),9.5*k,600,SUN_GOLD); });
-  let y=it.y+R+18*k; const line=(s,sz,wt,col)=>{ const t=T({x:it.x,y},s,sz,wt,col); y+=sz*1.35; return t; };
-  o+=line(`${fmtHM(D.time)} · `+(n.el>-.833?`sun ${Math.round(n.el)}° up, from ${Math.round(n.az)}° ${compassWord(n.az)}`:n.el>-6?'blue hour':'sun is down'),11.5*k,700,Q.ink);
-  if(it.p.place) o+=line(`${it.p.place} · ${D.date}`,10*k,500,Q.muted);
+  const T=(p,s,sz,wt,col,anc='middle',halo=true)=>`<text x="${f(p.x)}" y="${f(p.y)}" font-size="${f(sz)}" font-family="${FONT}" font-weight="${wt}" fill="${col}" text-anchor="${anc}" xml:space="preserve" dominant-baseline="middle"${halo?` stroke="${Q.paper}" stroke-width="${f(3*k)}" paint-order="stroke"`:''}>${esc(s)}</text>`;
+  const ring=[]; let o='';
+  const sunP=up?(()=>{ const P=sunXY(R,n.az,n.el); return W(P.x,P.y); })():null;
+  { const q=W(0,-R-12*k); ring.push(q); o+=T(q,'N',11*k,700,'#e5484d'); }
+  if(R/k>70) D.S.forEach(s=>{ if(s.el<0||Math.abs(s.h-Math.round(s.h))>1e-6||Math.round(s.h)%(R/k>140?1:3)) return; const P=sunXY(R,s.az,s.el), L=Math.hypot(P.x,P.y)||1, q=W(P.x+P.x/L*11*k,P.y+P.y/L*11*k);
+    if(sunP&&Math.hypot(q.x-sunP.x,q.y-sunP.y)<18*k) return;   // never print an hour under the sun itself
+    o+=T(q,String(Math.round(s.h)),9*k,600,Q.muted); });
+  [[D.rise,'↑'],[D.set,'↓']].forEach(([h,a])=>{ if(h==null) return; const s=sunPos(D.at(h),+it.p.lat||0,+it.p.lon||0), ang=s.az*D2R, e=W(Math.sin(ang)*R,-Math.cos(ang)*R), dx=e.x-it.x, dy=e.y-it.y, L=Math.hypot(dx,dy)||1, ux=dx/L, uy=dy/L;
+    const side=Math.abs(ux)>.35, q={x:e.x+ux*(side?7:14)*k, y:e.y+uy*(side?7:16)*k}; ring.push(q); o+=T(q,a+' '+fmtHM(h),9.5*k,600,SUN_GOLD,side?(ux>0?'start':'end'):'middle'); });   // sits beside the ring, never across it
+  // the readout: a small HUD card under the ring that nothing on the ring can sit on top of
+  const cot=n.el>.5?1/Math.tan(n.el*D2R):null, gold=[D.g0!=null?`${fmtHM(D.rise)}–${fmtHM(D.g0)}`:'',D.g1!=null?`${fmtHM(D.g1)}–${fmtHM(D.set)}`:''].filter(Boolean).join(' · ');
+  const rows=[ [fmtHM(D.time),15,800,Q.ink, up?`${Math.round(n.el)}° up · from ${Math.round(n.az)}° ${compassWord(n.az)}`:n.el>-6?'Blue hour':'Sun is down'],
+    [`↑ ${fmtHM(D.rise)}  ·  ↓ ${fmtHM(D.set)}`+(gold?`  ·  Golden ${gold}`:''),10.5,600,Q.muted],
+    [[it.p.place||'',D.date,cot!=null?`1.75 m → ${(1.75*cot).toFixed(1)} m shadow`:''].filter(Boolean).join(' · '),10,500,Q.muted] ];
+  const est=(t,sz,wt)=>textW(t,sz,wt||600)*k, pad=11*k, gap=4*k;
+  const wRow=r=>r[4]?est(r[0],r[1],r[2])+gap*2+est(r[4],11.5):est(r[0],r[1],r[2]);
+  const cw=Math.max(...rows.map(wRow))+pad*2, lh=rows.map(r=>r[1]*1.45*k), ch=lh.reduce((a,b)=>a+b,0)+pad*1.4;
+  let top=it.y+R+14*k; ring.forEach(q=>{ if(Math.abs(q.x-it.x)<cw/2+30*k && q.y>it.y+R*.4) top=Math.max(top,q.y+12*k); });
+  const x0=it.x-cw/2;
+  o+=`<rect x="${f(x0)}" y="${f(top)}" width="${f(cw)}" height="${f(ch)}" rx="${f(9*k)}" fill="${Q.paper}" fill-opacity=".94" stroke="${Q.ink}" stroke-opacity=".14" stroke-width="${f(k)}"/>`
+    +`<rect x="${f(x0)}" y="${f(top)}" width="${f(3*k)}" height="${f(ch)}" rx="${f(1.5*k)}" fill="${up?(n.el<6?SUN_GOLD:SUN_COL):SUN_BLUE}"/>`;
+  let y=top+pad*.7;
+  rows.forEach((r,i)=>{ y+=lh[i]/2; o+=T({x:x0+pad,y},r[0],r[1]*k,r[2],r[3],'start',false); if(r[4]) o+=T({x:x0+pad+est(r[0],r[1],r[2])+gap*2,y},r[4],11.5*k,600,Q.ink,'start',false); y+=lh[i]/2; });
   return `<g data-id="${it.id}" class="it">${o}</g>`; }
+var textCtx=null; function textW(s,sz,wt){ try{ textCtx=textCtx||document.createElement('canvas').getContext('2d'); textCtx.font=`${wt} ${sz}px ${FONT}`; return textCtx.measureText(s).width; }catch(e){ return s.length*sz*.56; } }   // real text widths, so the HUD card fits its words
 function compassWord(az){ return ['N','NE','E','SE','S','SW','W','NW'][Math.round(az/45)%8]; }
 /* shadows: everything with some height throws one, away from the sun, as long as height ÷ tan(elevation) */
 function shadowHeight(it){ const t=TYPES[it.type]; if(!t||t.card||t.light||t.cat==='Notes') return 0;
   const H={person:1.75,seated:1.25,interviewer:1.25,product:.35,mark:0,wall:2.6,window:0,door:0,backdrop:2.7,table:.75,chair:.9,sofa:.85,outlet:0,dolly:0,monitor:1.6,camera:1.5};
   return it.type in H ? (it.type==='camera'?(+it.p.height||1.5):H[it.type]) : (+(it.p&&it.p.height)||1.5); }
 function sunShadows(items,Q,k,defs,pre){ const sp=items.find(i=>i.type==='sunpath'&&i.p&&i.p.shadows!==false); if(!sp) return '';
-  const n=sunDay(sp).now; if(n.el<=.5) return '';
-  const r=(sp.rot||0)*D2R, a=n.az*D2R, lx=Math.sin(a), ly=-Math.cos(a), sx=lx*Math.cos(r)-ly*Math.sin(r), sy=lx*Math.sin(r)+ly*Math.cos(r), cot=1/Math.tan(n.el*D2R);
-  const dark=lumHex(cssHex(Q.paper))<.35, op=clamp(.13+n.el/500,.13,.22)*(dark?2.1:1), low=clamp(1-n.el/40,0,1);   // low sun: longer, fainter, softer tips
+  const n=sunDay(sp).now; if(n.el<=.05) return '';
+  const r=(sp.rot||0)*D2R, a=n.az*D2R, lx=Math.sin(a), ly=-Math.cos(a), sx=lx*Math.cos(r)-ly*Math.sin(r), sy=lx*Math.sin(r)+ly*Math.cos(r), cot=1/Math.tan(Math.max(n.el,.3)*D2R);
+  const dark=lumHex(cssHex(Q.paper))<.35, fade=(t=>t*t*(3-2*t))(clamp(n.el/12,0,1)), op=clamp(.13+n.el/500,.13,.22)*(dark?2.1:1)*fade, low=clamp(1-n.el/40,0,1);   // shadows fade out smoothly to nothing as the sun reaches the horizon   // low sun: longer, fainter, softer tips
   const id=(pre||'')+'sunsh'; let o='', i=0;
   items.forEach(it=>{ const h=shadowHeight(it); if(!h) return; const L=Math.min(h*cot,60), v={x:-sx*L,y:-sy*L};
     const pts=[]; [[-1,-1],[1,-1],[1,1],[-1,1]].forEach(([u,w])=>{ const P=fromLocal(it,u*it.w/2,w*it.h/2); pts.push(P,{x:P.x+v.x,y:P.y+v.y}); });
     const g=id+'g'+(i++), R=Math.max(it.w,it.h)/2;   // dark at the object's foot, fading out towards the tip
-    defs.push(`<linearGradient id="${g}" gradientUnits="userSpaceOnUse" x1="${f(it.x-sx*R*.5)}" y1="${f(it.y-sy*R*.5)}" x2="${f(it.x+v.x)}" y2="${f(it.y+v.y)}"><stop offset="0" stop-color="#05070a" stop-opacity="1"/><stop offset="${f(.55-.25*low)}" stop-color="#05070a" stop-opacity="${f(.7-.25*low)}"/><stop offset="1" stop-color="#05070a" stop-opacity="${f(.12-.08*low)}"/></linearGradient>`);
+    defs.push(`<linearGradient id="${g}" gradientUnits="userSpaceOnUse" x1="${f(it.x-sx*R*.5)}" y1="${f(it.y-sy*R*.5)}" x2="${f(it.x+v.x)}" y2="${f(it.y+v.y)}"><stop offset="0" stop-color="#000" stop-opacity="1"/><stop offset="${f(.55-.25*low)}" stop-color="#000" stop-opacity="${f(.7-.25*low)}"/><stop offset="1" stop-color="#000" stop-opacity="${f(.12-.08*low)}"/></linearGradient>`);
     o+=`<path d="${hullPath(pts)}" fill="url(#${g})"/>`; });
   if(!o) return '';
-  defs.push(`<filter id="${id}F" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="${f(.07+.08*low)}"/></filter>`);   // a soft penumbra on every edge
+  defs.push(`<filter id="${id}F" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB"><feGaussianBlur stdDeviation="${f(.07+.08*low)}"/></filter>`);   // a soft penumbra on every edge
   return `<g pointer-events="none" opacity="${f(op)}" filter="url(#${id}F)" style="isolation:isolate">${o}</g>`; }   // one layer: overlapping shadows don't get darker
 function hullPath(P){ P=P.slice().sort((a,b)=>a.x-b.x||a.y-b.y); const cr=(o,a,b)=>(a.x-o.x)*(b.y-o.y)-(a.y-o.y)*(b.x-o.x), lo=[], up=[];
   P.forEach(p=>{ while(lo.length>1&&cr(lo[lo.length-2],lo[lo.length-1],p)<=0) lo.pop(); lo.push(p); });
