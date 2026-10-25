@@ -92,6 +92,13 @@ body.connecting,body.connecting *{cursor:crosshair!important}
 .extopts button{border:0;background:var(--field);border-radius:10px;width:74px;padding:8px 4px 6px;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12px;font-weight:600;color:var(--ink);cursor:pointer}
 .extopts button:hover{background:var(--hover);box-shadow:inset 0 0 0 1.5px var(--accent)}
 .extopts svg{width:46px;height:30px;display:block}
+.modmenu{width:min(420px,calc(100vw - 16px));gap:10px}.modmenu .extopts{flex-wrap:wrap}.modmenu .extopts button{width:76px;position:relative;padding-bottom:9px}
+.modmenu .extopts button.on{background:color-mix(in srgb,var(--accent) 14%,var(--field));box-shadow:inset 0 0 0 1.5px var(--accent)}
+.modmenu .extopts button span{font-size:11px;line-height:1.15;text-align:center}
+.modhead{display:flex;align-items:baseline;justify-content:space-between;gap:8px}.modgrp{display:flex;flex-direction:column;gap:5px}
+.softm{display:block;height:3px;width:44px;border-radius:2px;background:linear-gradient(90deg,var(--accent) var(--s),color-mix(in srgb,var(--muted) 30%,transparent) var(--s))}
+.modlegend{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted)}.modlegend .softm{background:linear-gradient(90deg,color-mix(in srgb,var(--accent) 25%,transparent),var(--accent));width:64px}
+.modgrid{display:flex;gap:8px;align-items:center;font-size:12.5px}
 .drawbar{gap:8px;padding-left:16px}
 .drawbar .pc{display:flex;gap:4px;align-items:center}
 .drawbar .pc button{border:0;background:transparent;border-radius:8px;width:30px;height:30px;display:grid;place-items:center;padding:0}
@@ -997,11 +1004,11 @@ const SIZES = [['2×2',0.6],['4×4',1.2],['6×6',1.8],['8×8',2.4],['12×12',3.6
 const FLAGS = [['18×24',0.6],['24×36',0.9],['4×4',1.2]];
 const TYPES = {
   fresnel: LIGHT({name:'Fresnel',w:.38,h:.32,p:{fixture:'650W Fresnel',cct:3200,power:100,beam:30,throw:3,modifier:'Barn doors',gel:'',height:2.2,tint:'',notes:''}}),
-  cob:     LIGHT({name:'LED COB',w:.42,h:.34,p:{fixture:'Aputure 600d',cct:5600,power:70,beam:55,throw:3,modifier:'Hyper reflector',gel:'',height:2.2,tint:'',notes:''}}),
+  cob:     LIGHT({name:'LED COB',w:.32,h:.32,p:{mod:'reflector',fixture:'Aputure 600d',cct:5600,power:70,beam:55,throw:3,modifier:'Reflector',gel:'',height:2.2,tint:'',notes:''}}),
   hmi:     LIGHT({name:'HMI',w:.5,h:.44,p:{fixture:'1.8K HMI',cct:5600,power:100,beam:35,throw:4,modifier:'',gel:'',height:2.5,tint:'',notes:''}}),
-  softbox: LIGHT({name:'Softbox',w:.5,h:1.2,p:{fixture:'Aputure 300d',cct:5600,power:60,beam:100,throw:2.5,modifier:'Softbox 120',gel:'',height:2,tint:'',notes:''}}),
-  octa:    LIGHT({name:'Octabox',w:.55,h:1.5,p:{fixture:'Aputure 600d',cct:5600,power:60,beam:110,throw:2.5,modifier:'Octa 150',gel:'',height:2.1,tint:'',notes:''}}),
-  lantern: LIGHT({name:'Lantern',w:.65,h:.65,omni:true,p:{fixture:'Aputure 300d',cct:3200,power:50,beam:360,throw:2,modifier:'Lantern 65',gel:'',height:2.3,tint:'',notes:''}}),
+  softbox: LIGHT({preset:true,name:'Softbox',w:.5,h:1.2,p:{fixture:'Aputure 300d',cct:5600,power:60,beam:100,throw:2.5,modifier:'Softbox 120',gel:'',height:2,tint:'',notes:''}}),
+  octa:    LIGHT({preset:true,name:'Octabox',w:.55,h:1.5,p:{fixture:'Aputure 600d',cct:5600,power:60,beam:110,throw:2.5,modifier:'Octa 150',gel:'',height:2.1,tint:'',notes:''}}),
+  lantern: LIGHT({preset:true,name:'Lantern',w:.65,h:.65,omni:true,p:{fixture:'Aputure 300d',cct:3200,power:50,beam:360,throw:2,modifier:'Lantern 65',gel:'',height:2.3,tint:'',notes:''}}),
   panel:   LIGHT({name:'LED panel',w:.1,h:.6,p:{fixture:'1×1 LED panel',cct:5600,power:60,beam:60,throw:2.5,modifier:'',gel:'',height:1.8,tint:'',notes:''},resize:'h'}),
   tube:    LIGHT({name:'Tube',w:.06,h:1.2,omni:true,p:{fixture:'Astera Titan tube',cct:3200,power:50,beam:360,throw:1.5,modifier:'',gel:'',height:1.5,tint:'',notes:''},resize:'h'}),
   practical:LIGHT({name:'Practical',w:.4,h:.4,omni:true,z:4,p:{fixture:'Practical 60W',cct:2700,power:100,beam:360,throw:1.6,modifier:'Lamp shade',gel:'',height:1.1,tint:'',notes:''}}),
@@ -1074,7 +1081,9 @@ function shape(it,Q,k){
   const t=TYPES[it.type], w=it.w, h=it.h, hw=w/2, hh=h/2, sw=f(1.3*k), c=t.light?tintOf(it):'';
   const S = `stroke="${Q.ink}" stroke-width="${sw}"`;
   switch(it.type){
-    case 'fresnel': return `<rect x="${f(-hw)}" y="${f(-hh)}" width="${f(w-.07)}" height="${f(h)}" rx=".03" fill="${Q.fixture}" ${S}/>`+
+    case 'cob': case 'hmi': case 'fresnel': if(it.p&&it.p.mod!=null) return fixtureSVG(it,Q,k,c,S);
+      if(it.type!=='fresnel') return fixtureSVG(Object.assign({},it,{p:Object.assign({},it.p,{mod:it.type==='cob'?'reflector':'none'})}),Q,k,c,S);
+      return `<rect x="${f(-hw)}" y="${f(-hh)}" width="${f(w-.07)}" height="${f(h)}" rx=".03" fill="${Q.fixture}" ${S}/>`+
       `<rect x="${f(hw-.07)}" y="${f(-hh*.78)}" width=".07" height="${f(h*.78)}" fill="${c}" ${S}/>`+
       `<path d="M${f(hw)} ${f(-hh*.8)}L${f(hw+.13)} ${f(-hh-.09)}M${f(hw)} ${f(hh*.8)}L${f(hw+.13)} ${f(hh+.09)}" stroke="${Q.ink}" stroke-width="${f(2.2*k)}" fill="none"/>`;
     case 'cob': { const bx=-hw+w*.42; return `<rect x="${f(-hw)}" y="${f(-hh*.6)}" width="${f(w*.42)}" height="${f(h*.6*2)}" rx=".03" fill="${Q.fixture}" ${S}/>`+
@@ -1088,11 +1097,12 @@ function shape(it,Q,k){
     case 'octa': return `<path d="M${f(-hw)} ${f(-.1)}L${f(hw*.55)} ${f(-hh)}Q${f(hw*1.25)} 0 ${f(hw*.55)} ${f(hh)}L${f(-hw)} ${f(.1)}Z" fill="${Q.fixture}" ${S}/>`+
       `<path d="M${f(hw*.55)} ${f(-hh)}Q${f(hw*1.25)} 0 ${f(hw*.55)} ${f(hh)}" fill="none" stroke="${c}" stroke-width="${f(5*k)}" stroke-linecap="round"/>`;
     case 'lantern': return `<circle r="${f(hw)}" fill="${c}" fill-opacity=".55" ${S}/><ellipse rx="${f(hw*.45)}" ry="${f(hw)}" fill="none" stroke="${Q.ink}" stroke-width="${f(.8*k)}"/><line x1="${f(-hw)}" y1="0" x2="${f(hw)}" y2="0" stroke="${Q.ink}" stroke-width="${f(.8*k)}"/>`;
-    case 'panel': return `<rect x="${f(-hw)}" y="${f(-hh)}" width="${f(w)}" height="${f(h)}" rx=".015" fill="${Q.fixture}" ${S}/><line x1="${f(hw)}" y1="${f(-hh+.02)}" x2="${f(hw)}" y2="${f(hh-.02)}" stroke="${c}" stroke-width="${f(4*k)}" stroke-linecap="round"/>`;
+    case 'panel': { const pm=modOf(it); return `<rect x="${f(-hw)}" y="${f(-hh)}" width="${f(w)}" height="${f(h)}" rx=".015" fill="${Q.fixture}" ${S}/><line x1="${f(hw)}" y1="${f(-hh+.02)}" x2="${f(hw)}" y2="${f(hh-.02)}" stroke="${c}" stroke-width="${f(4*k)}" stroke-linecap="round"/>`
+      +(pm==='diff'?`<line x1="${f(hw+.05)}" y1="${f(-hh)}" x2="${f(hw+.05)}" y2="${f(hh)}" stroke="${Q.ink}" stroke-width="${f(1.2*k)}" stroke-dasharray="${f(3*k)} ${f(2.5*k)}"/>`:pm==='barndoors'?`<path d="M${f(hw)} ${f(-hh)}L${f(hw+.14)} ${f(-hh-.08)}M${f(hw)} ${f(hh)}L${f(hw+.14)} ${f(hh+.08)}" stroke="${Q.ink}" stroke-width="${f(2.2*k)}" fill="none"/>`:''); }
     case 'tube': return `<rect x="${f(-Math.max(hw,1.5*k))}" y="${f(-hh)}" width="${f(Math.max(w,3*k))}" height="${f(h)}" rx="${f(Math.max(hw,1.5*k))}" fill="${c}" ${S}/>`;
     case 'practical': return `<circle r="${f(hw)}" fill="${Q.paper}" ${S}/><circle r="${f(hw*.42)}" fill="${c}" ${S}/>`;
     case 'sun': { let r=''; for(let i=0;i<8;i++){ const a=i*45*D2R; r+=`M${f(Math.cos(a)*hw*.55)} ${f(Math.sin(a)*hw*.55)}L${f(Math.cos(a)*hw)} ${f(Math.sin(a)*hw)}`; }
-      return `<path d="${r}" stroke="${c}" stroke-width="${f(2.5*k)}" stroke-linecap="round"/><circle r="${f(hw*.4)}" fill="${c}" ${S}/>`; }
+      return `<path d="${r}" stroke="${c}" stroke-width="${f(2.5*k)}" stroke-linecap="round"/><circle r="${f(hw*.4)}" fill="${c}" ${S}/>`+(modOf(it)==='diff'?`<line x1="${f(hw+.08)}" y1="${f(-hw)}" x2="${f(hw+.08)}" y2="${f(hw)}" stroke="${Q.ink}" stroke-width="${f(1.4*k)}" stroke-dasharray="${f(3*k)} ${f(2.5*k)}"/>`:''); }
     case 'frame': return `<rect x="${f(-hw)}" y="${f(-hh)}" width="${f(Math.max(w,4*k))}" height="${f(h)}" fill="${Q.diff}" ${S}/><line x1="0" y1="${f(-hh)}" x2="0" y2="${f(hh)}" stroke="${Q.ink}" stroke-width="${f(.8*k)}" stroke-dasharray="${f(3*k)} ${f(3*k)}"/>`+stands(hh,Q,k,2);
     case 'bounce': return `<rect x="${f(-hw)}" y="${f(-hh)}" width="${f(Math.max(w,4*k))}" height="${f(h)}" fill="#ffffff" ${S}/>`+stands(hh,Q,k,2);
     case 'neg': return `<rect x="${f(-hw)}" y="${f(-hh)}" width="${f(Math.max(w,4*k))}" height="${f(h)}" fill="${Q.ink}" ${S}/>`+stands(hh,Q,k,2);
@@ -1193,15 +1203,104 @@ function person(it,Q,k,ox,fill,head){ const hw=it.w/2, hh=it.h/2, sw=f(1.3*k); f
     `<path d="M${f(ox+.1)} -.035L${f(ox+.155)} 0L${f(ox+.1)} .035Z" fill="${Q.ink}"/>`+
     `<circle cx="${f(ox+.01)}" r=".105" fill="${head}" stroke="${Q.ink}" stroke-width="${sw}"/>`; }
 
+/* ================= light modifiers: one source, one modifier; diffusion softens the beam's edges, reflectors and lenses harden them ================= */
+const MODS={
+  none:     {n:'Bare',g:'Open'},
+  reflector:{n:'Reflector',g:'Hard',soft:.18,beam:55,md:.14,face:.32},
+  hyper:    {n:'Hyper reflector',g:'Hard',soft:.1,beam:35,md:.22,face:.4},
+  lens:     {n:'Fresnel lens',g:'Hard',soft:.06,beam:30,md:.12,face:.24},
+  barndoors:{n:'Barn doors',g:'Hard',soft:.08,beam:40,md:.16},
+  snoot:    {n:'Snoot',g:'Hard',soft:.05,beam:12,md:.32,face:.1},
+  softbox:  {n:'Softbox',g:'Soft',soft:.72,beam:100,md:.5,face:.9,grid:true},
+  strip:    {n:'Stripbox',g:'Soft',soft:.66,beam:90,md:.36,face:.34,grid:true},
+  octa:     {n:'Octabox',g:'Soft',soft:.85,beam:110,md:.6,face:1.2,grid:true},
+  umbrella: {n:'Umbrella',g:'Soft',soft:.8,beam:120,md:.5,face:1},
+  dome:     {n:'Diffusion dome',g:'Soft',soft:.55,beam:150,md:.2,face:.3},
+  lantern:  {n:'Lantern',g:'Soft',soft:.95,omni:true,size:.65},
+  diff:     {n:'Diffusion',g:'Soft',soft:.78}
+};
+const FIX_MODS={cob:['none','reflector','hyper','lens','barndoors','snoot','softbox','strip','octa','umbrella','dome','lantern'],
+  hmi:['none','barndoors','softbox','strip','octa'], fresnel:['none','barndoors','snoot','softbox','strip'], panel:['none','diff','barndoors'], sun:['none','diff']};
+const BASE_SOFT={cob:.3,hmi:.15,fresnel:.12,panel:.5,tube:.6,practical:.6,sun:.04};
+const FIX_BODY={cob:{bl:.18,bh:.2},hmi:{bl:.3,bh:.3},fresnel:{bl:.3,bh:.32}};
+const modOf=it=>{ const m=it&&it.p&&it.p.mod, L=FIX_MODS[it&&it.type]; return L&&L.includes(m)?m:'none'; };
+function softOf(it){ const p=it.p||{}; if(p.soft!=null&&p.soft!==''&&isFinite(+p.soft)) return clamp(+p.soft/100,0,1);
+  const m=modOf(it), M=MODS[m]; let s=m!=='none'&&M.soft!=null?M.soft:(BASE_SOFT[it.type]??.3); if(p.grid&&M.grid) s*=.85; return s; }
+const isOmniL=it=>!!(TYPES[it.type].omni||MODS[modOf(it)].omni);
+function beamB(it){ const m=modOf(it), M=MODS[m], hh=it.h/2;   // half the width the light leaves from: a softbox face is wide, a snoot is a pinhole
+  if(m==='snoot') return Math.min(hh*.6,.05); if(M.md&&M.face&&M.g==='Soft') return hh*.9;
+  return (it.type==='softbox'||it.type==='octa'||it.type==='panel')?hh*.9:Math.min(hh*.6,.12); }
+function setMod(it,m,keepUndo){ const L=FIX_MODS[it.type]; if(!L||!L.includes(m)) return; if(!keepUndo) checkpoint();
+  const p=it.p, M=MODS[m], T=TYPES[it.type], prevName=MODS[modOf(it)].n; p.mod=m; if(!M.grid) delete p.grid; delete p.soft;
+  if(M.beam) p.beam=Math.round(M.beam*(p.grid?.45:1)); else if(m==='none') p.beam=T.p.beam;
+  const B=FIX_BODY[it.type];
+  if(B){ if(m==='lantern'){ it.w=it.h=M.size; if(!(+p.throw>0)) p.throw=2; }
+    else if(M.md){ it.w=Math.round((B.bl+M.md)*100)/100; it.h=Math.round(Math.max(B.bh,M.face||B.bh+.12)*100)/100; }
+    else { it.w=T.w; it.h=T.h; } }
+  if(!p.modifier||p.modifier===prevName||Object.values(MODS).some(x=>x.n===p.modifier)||/^(open face|hyper reflector|softbox 90|softbox|octa.*|strip.*|light dome.*|lantern.*)$/i.test(p.modifier)) p.modifier=m==='none'?'':M.n+(p.grid?' + grid':'');
+  touch(); renderInspector(); draw(); }
+/* older plots: softbox / octa / lantern were their own lights; they become an LED COB with that modifier */
+function migrateLights(){ if(!cur) return; cur.items.forEach(it=>{ const p=it.p||(it.p={});
+    if(it.type==='softbox'||it.type==='octa'||it.type==='lantern'){ const m=it.type==='octa'?'octa':it.type==='lantern'?'lantern':(/strip/i.test(p.modifier||'')?'strip':'softbox'); it.type='cob'; p.mod=m; return; }
+    if(FIX_MODS[it.type]&&p.mod==null){ const s=p.modifier||'';
+      p.mod=/hyper/i.test(s)?'hyper':/octa/i.test(s)?'octa':/strip/i.test(s)?'strip':/dome|softbox|chimera/i.test(s)?(it.type==='cob'&&/dome/i.test(s)&&!/softbox/i.test(s)?'softbox':'softbox'):/lantern|china/i.test(s)?'lantern':/umbrella/i.test(s)?'umbrella':/snoot/i.test(s)?'snoot':/barn/i.test(s)?'barndoors':/fresnel lens/i.test(s)&&it.type==='cob'?'lens':/diff|silk|grid cloth/i.test(s)&&(it.type==='panel'||it.type==='sun')?'diff':it.type==='cob'?'reflector':'none';
+      if(!FIX_MODS[it.type].includes(p.mod)) p.mod='none'; } }); }
+/* the fixture drawn with its modifier on the front (the light faces +x) */
+function fixtureSVG(it,Q,k,c,S){ const m=modOf(it), M=MODS[m], w=it.w, h=it.h, hw=w/2, hh=h/2, B=FIX_BODY[it.type];
+  if(m==='lantern') return `<circle r="${f(hw)}" fill="${c}" fill-opacity=".55" ${S}/><ellipse rx="${f(hw*.45)}" ry="${f(hw)}" fill="none" stroke="${Q.ink}" stroke-width="${f(.8*k)}"/><line x1="${f(-hw)}" y1="0" x2="${f(hw)}" y2="0" stroke="${Q.ink}" stroke-width="${f(.8*k)}"/>`;
+  const bl=Math.min(B.bl,w*(M.md?.62:.85)), bhh=Math.min(B.bh,h)/2, x0=-hw+bl, face=`stroke="${c}" stroke-width="${f(4*k)}" stroke-linecap="round"`;
+  let o=`<rect x="${f(-hw)}" y="${f(-bhh)}" width="${f(bl)}" height="${f(bhh*2)}" rx=".03" fill="${Q.fixture}" ${S}/>`;
+  if(it.type==='hmi'&&bl>.2) o+=`<text x="${f(-hw+bl/2)}" y="0" font-size="${f(Math.min(bhh*.62,bl*.3))}" font-family="${FONT}" font-weight="700" fill="${Q.paper}" text-anchor="middle" dominant-baseline="central">HMI</text>`;
+  const grid=it.p&&it.p.grid&&M.grid;
+  switch(m){
+    case 'none': if(it.type==='cob') o+=`<rect x="${f(x0)}" y="${f(-bhh*.55)}" width="${f(Math.max(.03,w-bl))}" height="${f(bhh*1.1)}" rx=".02" fill="${Q.furn}" ${S}/><circle cx="${f(Math.min(hw-.015,x0+.04))}" r="${f(Math.min(bhh*.45,.05))}" fill="${c}"/>`;
+      else o+=`<rect x="${f(x0)}" y="${f(-bhh*.8)}" width="${f(Math.max(.05,w-bl))}" height="${f(bhh*1.6)}" fill="${c}" ${S}/>`; break;
+    case 'reflector': case 'hyper': case 'lens': o+=`<path d="M${f(x0)} ${f(-bhh*.6)}L${f(hw)} ${f(-hh)}L${f(hw)} ${f(hh)}L${f(x0)} ${f(bhh*.6)}Z" fill="${m==='lens'?Q.fixture:Q.furn}" ${S}/><line x1="${f(hw)}" y1="${f(-hh)}" x2="${f(hw)}" y2="${f(hh)}" ${face}/>`; break;
+    case 'barndoors': o+=`<line x1="${f(x0)}" y1="${f(-bhh*.85)}" x2="${f(x0)}" y2="${f(bhh*.85)}" ${face}/><path d="M${f(x0)} ${f(-bhh)}L${f(hw)} ${f(-hh)}M${f(x0)} ${f(bhh)}L${f(hw)} ${f(hh)}" stroke="${Q.ink}" stroke-width="${f(2.4*k)}" stroke-linecap="round" fill="none"/>`; break;
+    case 'snoot': o+=`<rect x="${f(x0)}" y="${f(-hh)}" width="${f(hw-x0)}" height="${f(h)}" fill="${Q.fixture}" ${S}/><line x1="${f(hw)}" y1="${f(-hh*.7)}" x2="${f(hw)}" y2="${f(hh*.7)}" ${face}/>`; break;
+    case 'softbox': case 'strip': o+=`<path d="M${f(x0)} ${f(-bhh*.5)}L${f(hw)} ${f(-hh)}L${f(hw)} ${f(hh)}L${f(x0)} ${f(bhh*.5)}Z" fill="${Q.fixture}" ${S}/><line x1="${f(hw)}" y1="${f(-hh)}" x2="${f(hw)}" y2="${f(hh)}" stroke="${c}" stroke-width="${f(5*k)}" stroke-linecap="round"/>`; break;
+    case 'octa': { const mx=x0+(hw-x0)*.62; o+=`<path d="M${f(x0)} ${f(-bhh*.5)}L${f(mx)} ${f(-hh)}Q${f(hw+(hw-mx)*.6)} 0 ${f(mx)} ${f(hh)}L${f(x0)} ${f(bhh*.5)}Z" fill="${Q.fixture}" ${S}/><path d="M${f(mx)} ${f(-hh)}Q${f(hw+(hw-mx)*.6)} 0 ${f(mx)} ${f(hh)}" fill="none" stroke="${c}" stroke-width="${f(5*k)}" stroke-linecap="round"/>`; break; }
+    case 'umbrella': { const ex=x0+(hw-x0)*.35; o+=`<line x1="${f(x0)}" y1="0" x2="${f(hw)}" y2="0" stroke="${Q.ink}" stroke-width="${f(1.6*k)}"/><path d="M${f(ex)} ${f(-hh)}Q${f(hw+(hw-ex)*.35)} 0 ${f(ex)} ${f(hh)}" fill="${c}" fill-opacity=".35" stroke="${Q.ink}" stroke-width="${f(1.3*k)}"/>`; break; }
+    case 'dome': o+=`<path d="M${f(x0)} ${f(-hh)}A${f(hw-x0)} ${f(hh)} 0 0 1 ${f(x0)} ${f(hh)}Z" fill="${c}" fill-opacity=".5" ${S}/>`; break; }
+  if(grid){ const gx=hw+.03; let t=''; for(let i=-3;i<=3;i++) t+=`M${f(gx)} ${f(i*hh/3.5)}L${f(gx+.05)} ${f(i*hh/3.5)}`; o+=`<path d="${t}" stroke="${Q.ink}" stroke-width="${f(1.1*k)}"/>`; }
+  return o; }
+/* the on-plot modifier picker */
+function modMenuHTML(it){ const L=FIX_MODS[it.type]||[], cm=modOf(it), M=MODS[cm];
+  const tile=m=>{ const t=mk(it.type,0,0,0); t.p=Object.assign({},t.p,{mod:m,cct:it.p.cct,tint:it.p.tint}); const B=FIX_BODY[it.type], X=MODS[m];
+      if(B){ if(m==='lantern'){ t.w=t.h=X.size; } else if(X.md){ t.w=B.bl+X.md; t.h=Math.max(B.bh,X.face||B.bh+.12); } }
+      const vb=Math.max(t.w,t.h)*1.25+.08, s=softOf(t);
+      return `<button data-mod="${m}" class="${m===cm?'on':''}" title="${esc(X.n)}"><svg viewBox="${f(-vb/2)} ${f(-vb*.36)} ${f(vb)} ${f(vb*.72)}">${shape(t,UIP,vb/46)}</svg><span>${esc(X.n)}</span><i class="softm" style="--s:${Math.round(s*100)}%"></i></button>`; };
+  const grp=g=>{ const ms=L.filter(m=>MODS[m].g===g); return ms.length?`<div class="modgrp"><span class="eyebrow">${g==='Open'?'Bare':g}</span><div class="extopts">${ms.map(tile).join('')}</div></div>`:''; };
+  return `<div class="modhead"><b>${esc(it.label||TYPES[it.type].name)}</b><span class="muted">Modifier</span></div>`+grp('Open')+grp('Hard')+grp('Soft')
+    +(M.grid?`<label class="modgrid"><input type="checkbox" data-modgrid ${it.p.grid?'checked':''}> Grid · tighter, a touch harder</label>`:'')
+    +`<div class="modlegend"><span>Hard</span><i class="softm" style="--s:100%"></i><span>Soft</span></div>`; }
+var modMenuFor=null;
+function openModMenu(it,cx,cy){ if(!it||!FIX_MODS[it.type]||readOnly) return; let m=$('#modMenu');
+  if(!m){ m=document.createElement('div'); m.id='modMenu'; m.className='card extmenu modmenu'; m.setAttribute('role','menu'); document.body.appendChild(m);
+    m.addEventListener('click',e=>{ const it2=itemById(modMenuFor); if(!it2) return; const b=e.target.closest('[data-mod]'); if(b){ setMod(it2,b.dataset.mod); closeModMenu(); toast(`${it2.label||TYPES[it2.type].name}: ${MODS[b.dataset.mod].n.toLowerCase()} · ${softOf(it2)>=.5?'soft':'hard'} light`); return; } });
+    document.addEventListener('keydown',e=>{ const mm=$('#modMenu'); if(e.key==='Escape'&&mm&&!mm.hidden){ e.preventDefault(); e.stopPropagation(); closeModMenu(); } },true);
+    m.addEventListener('change',e=>{ const it2=itemById(modMenuFor); if(!it2||!e.target.matches('[data-modgrid]')) return; checkpoint(); it2.p.grid=e.target.checked; setMod(it2,modOf(it2),true); m.innerHTML=modMenuHTML(it2); });
+    document.addEventListener('pointerdown',e=>{ const mm=$('#modMenu'); if(mm&&!mm.hidden&&!e.target.closest('#modMenu')&&!e.target.closest('[data-h="modpick"]')) closeModMenu(); },true); }
+  modMenuFor=it.id; m.innerHTML=modMenuHTML(it); m.hidden=false;
+  const w=m.offsetWidth, h=m.offsetHeight; let L=cx-w/2, T=cy+14;
+  if(T+h>innerHeight-8){ L=cx+28; T=cy-h/2; if(L+w>innerWidth-8) L=cx-w-28; }   // no room below: open beside the light so it stays in view
+  m.style.left=Math.round(clamp(L,8,innerWidth-w-8))+'px'; m.style.top=Math.round(clamp(T,8,innerHeight-h-8))+'px'; }
+function closeModMenu(){ const m=$('#modMenu'); if(m) m.hidden=true; modMenuFor=null; }
+function modChipSVG(it,Q,k,o){ const m=modOf(it), M=MODS[m], s=softOf(it), lines=(it.label?1:0)+(o.specs?specLines(it).length:0);
+  const y=it.y+extentY(it)+6*k+(it.label?12*1.1*k:0)+(o.specs?specLines(it).length*10.5*1.1*k:0)+16*k, txt=(m==='none'?'Add modifier':M.n+(it.p.grid&&M.grid?' + grid':''))+' ▾';
+  const w=textW(txt,11,700)*k+34*k, h=20*k, x=it.x-w/2;
+  return `<g data-h="modpick" style="cursor:pointer"><title>Change the light's modifier · ${esc(keyLabel(keyOf('modifier'))||'M')}</title><rect x="${f(x)}" y="${f(y)}" width="${f(w)}" height="${f(h)}" rx="${f(h/2)}" fill="${Q.paper}" stroke="${Q.accent}" stroke-width="${f(1.4*k)}"/>`
+    +`<circle cx="${f(x+12*k)}" cy="${f(y+h/2)}" r="${f(4.5*k)}" fill="none" stroke="${Q.accent}" stroke-width="${f(1.2*k)}"/><path d="M${f(x+12*k)} ${f(y+h/2-4.5*k)}A${f(4.5*k)} ${f(4.5*k)} 0 0 1 ${f(x+12*k)} ${f(y+h/2+4.5*k)}Z" fill="${Q.accent}" fill-opacity="${f(.25+.75*s)}"/>`
+    +`<text x="${f(x+22*k)}" y="${f(y+h/2)}" font-size="${f(11*k)}" font-family="${FONT}" font-weight="700" fill="${Q.accent}" dominant-baseline="central">${esc(txt)}</text></g>`; }
 /* beam wedge in the light's own frame: front edge points F (hw,±b), outer corners C (±), apex at (ax,0) */
 /* beam angle in degrees (0 = a parallel, collimated beam); drawing uses a tiny minimum so the wedge maths stays finite */
 const beamDeg=p=>(p.beam===''||p.beam==null||!isFinite(+p.beam))?40:clamp(+p.beam,0,160);
 const beamHalf=p=>clamp(beamDeg(p)/2,.25,80)*D2R;
 function beamGeo(it){ const p=it.p||{}, hw=it.w/2, hh=it.h/2, half=beamHalf(p), L=+p.throw||2.5;
-  const b=(it.type==='softbox'||it.type==='octa'||it.type==='panel')?hh*.9:Math.min(hh*.6,.12), off=b/Math.tan(half), ax=hw-off, R=L+off;
+  const b=beamB(it), off=b/Math.tan(half), ax=hw-off, R=L+off;
   return {hw,b,half,ax,R,F:{x:hw,y:b},C:{x:ax+R*Math.cos(half),y:R*Math.sin(half)}}; }
 const sunSpan=it=>{ const v=+((it.p||{}).span); return v>0?v:it.h*1.1; };   // width of the sun's parallel rays
-const beamAdjustable=it=>!!(it&&TYPES[it.type]&&TYPES[it.type].light&&!TYPES[it.type].omni&&!TYPES[it.type].sun&&it.on!==false);
+const beamAdjustable=it=>!!(it&&TYPES[it.type]&&TYPES[it.type].light&&!isOmniL(it)&&!TYPES[it.type].sun&&it.on!==false);
 var beamHover=null;
 function beamHoverId(){ if(drag&&drag.mode==='beamw') return drag.it.id; return beamHover; }
 function beamFrom(it,lx,ly,snap15){ const G=beamGeo(it); let a=Math.atan2(Math.abs(ly)-G.b, lx-G.hw)/D2R*2; a=snap15?Math.round(a/15)*15:Math.round(a); return clamp(a,0,160); }
@@ -1213,26 +1312,35 @@ function beam(it,Q,k,defs,pre){
     const x0=hw, x1=x0+L*Math.cos(a), y1=L*Math.sin(a);
     return `<path d="M${f(x0)} 0L${f(x1)} ${f(-y1)}A${f(L)} ${f(L)} 0 0 1 ${f(x1)} ${f(y1)}Z" fill="${Q.accent}" fill-opacity=".06" stroke="${Q.accent}" stroke-opacity=".7" stroke-width="${f(1.1*k)}" stroke-dasharray="${f(5*k)} ${f(4*k)}"/>`;
   }
-  const c=tintOf(it), L=+p.throw||2.5, op=.18+.32*clamp((+p.power||0)/100,0,1);
+  const c=tintOf(it), L=+p.throw||2.5, op=Math.min(.75,(.18+.32*clamp((+p.power||0)/100,0,1))*(1+.45*softOf(it)));   // the blur spreads soft light thin, so it starts a little brighter
+  const soft=softOf(it), blurId=gid+'sf', blurF=sd=>sd>.004?(defs.push(`<filter id="${blurId}" filterUnits="userSpaceOnUse" x="${f(-L-3)}" y="${f(-L-3)}" width="${f(2*L+6+it.w)}" height="${f(2*L+6)}" color-interpolation-filters="sRGB"><feGaussianBlur stdDeviation="${f(sd)}"/></filter>`),` filter="url(#${blurId})"`):'';
   if(t.sun){
     defs.push(`<linearGradient id="${gid}" gradientUnits="userSpaceOnUse" x1="${f(hw)}" y1="0" x2="${f(hw+L)}" y2="0"><stop offset="0" stop-color="${c}" stop-opacity="${f(op)}"/><stop offset="1" stop-color="${c}" stop-opacity="0"/></linearGradient>`);
     const sp=sunSpan(it), nr=clamp(Math.round(sp/.7),1,4); let ar=''; for(let i=-nr;i<=nr;i++){ const y=i*(sp/2*.82)/nr; ar+=`<path d="M${f(hw+.1)} ${f(y)}L${f(hw+L*.8)} ${f(y)}" stroke="${c}" stroke-opacity=".28" stroke-width="${f(1.1*k)}" stroke-dasharray="${f(6*k)} ${f(5*k)}"/>`; }
-    return `<rect x="${f(hw)}" y="${f(-sp/2)}" width="${f(L)}" height="${f(sp)}" fill="url(#${gid})"/>`;
+    return `<rect x="${f(hw)}" y="${f(-sp/2)}" width="${f(L)}" height="${f(sp)}" fill="url(#${gid})"${blurF(soft*.35)}/>`;
   }
-  if(t.omni){
+  if(isOmniL(it)){
     defs.push(`<radialGradient id="${gid}" gradientUnits="userSpaceOnUse" cx="0" cy="0" r="${f(L)}"><stop offset="0" stop-color="${c}" stop-opacity="${f(op)}"/><stop offset="1" stop-color="${c}" stop-opacity="0"/></radialGradient>`);
     if(it.type==='tube') return `<rect x="${f(-L)}" y="${f(-hh-L*.6)}" width="${f(2*L)}" height="${f(it.h+L*1.2)}" rx="${f(L)}" fill="url(#${gid})"/>`;
     return `<circle r="${f(L)}" fill="url(#${gid})"/>`;
   }
   const half = beamHalf(p);
-  const b = (it.type==='softbox'||it.type==='octa'||it.type==='panel') ? hh*.9 : Math.min(hh*.6,.12);
+  const b = beamB(it);
   const off = b/Math.tan(half);                  // apex behind the front edge so the wedge meets the source width
   const ax = hw - off, R = L + off;
   const x1 = ax+R*Math.cos(half), y1=R*Math.sin(half);
   if(beamDeg(p)<5) defs.push(`<linearGradient id="${gid}" gradientUnits="userSpaceOnUse" x1="${f(hw)}" y1="0" x2="${f(hw+L)}" y2="0"><stop offset="0" stop-color="${c}" stop-opacity="${f(op)}"/><stop offset="1" stop-color="${c}" stop-opacity="0"/></linearGradient>`);   // very narrow beams keep the brightness and fall-off of a 5° beam
   else defs.push(`<radialGradient id="${gid}" gradientUnits="userSpaceOnUse" cx="${f(ax)}" cy="0" r="${f(R)}"><stop offset="0" stop-color="${c}" stop-opacity="${f(op)}"/><stop offset="${f(clamp(off/R,0,.9))}" stop-color="${c}" stop-opacity="${f(op)}"/><stop offset="1" stop-color="${c}" stop-opacity="0"/></radialGradient>`);
-  return `<path d="M${f(hw)} ${f(-b)}L${f(x1)} ${f(-y1)}A${f(R)} ${f(R)} 0 0 1 ${f(x1)} ${f(y1)}L${f(hw)} ${f(b)}Z" fill="url(#${gid})"/>`;
-}
+  // soft light: the edges melt (a blur that grows with softness and throw); hard light: a crisp rim marks the cut-off
+  const sd=soft*(.05+.11*Math.min(L,6)), rim=soft<.3?(1-soft/.3):0, D=`M${f(hw)} ${f(-b)}L${f(x1)} ${f(-y1)}A${f(R)} ${f(R)} 0 0 1 ${f(x1)} ${f(y1)}L${f(hw)} ${f(b)}Z`;
+  if(soft>=.3){   // a soft source: fairly crisp right at the face, the edges melt more and more as the beam travels (a near copy and a far copy, cross-faded along the throw)
+    const n0=clamp(off/R,0,.9), n1=n0+(1-n0)*.75, sdN=soft*.025, sdF=soft*(.09+.16*Math.min(L,6)), bx=`x="${f(-R-3)}" y="${f(-R-3)}" width="${f(2*R+6+it.w)}" height="${f(2*R+6)}"`;
+    const blurDef=(id,v)=>defs.push(`<filter id="${id}" filterUnits="userSpaceOnUse" ${bx} color-interpolation-filters="sRGB"><feGaussianBlur stdDeviation="${f(v)}"/></filter>`);
+    blurDef(gid+'fN',sdN); blurDef(gid+'fF',sdF);
+    [['N',1,0],['F',0,1]].forEach(([n,a0,a1])=>defs.push(`<radialGradient id="${gid}x${n}" gradientUnits="userSpaceOnUse" cx="${f(ax)}" cy="0" r="${f(R)}"><stop offset="${f(n0)}" stop-color="#fff" stop-opacity="${a0}"/><stop offset="${f(n1)}" stop-color="#fff" stop-opacity="${a1}"/></radialGradient><mask id="${gid}m${n}" maskUnits="userSpaceOnUse" maskContentUnits="userSpaceOnUse" ${bx}><rect ${bx} fill="url(#${gid}x${n})"/></mask>`));
+    return `<g mask="url(#${gid}mN)"><path d="${D}" fill="url(#${gid})" filter="url(#${gid}fN)"/></g><g mask="url(#${gid}mF)"><path d="${D}" fill="url(#${gid})" filter="url(#${gid}fF)"/></g>`; }
+  return `<path d="${D}" fill="url(#${gid})"${blurF(sd)}/>`
+    +(rim>.05?`<path d="M${f(hw)} ${f(-b)}L${f(x1)} ${f(-y1)}M${f(hw)} ${f(b)}L${f(x1)} ${f(y1)}" fill="none" stroke="${c}" stroke-opacity="${f(op*1.3*rim)}" stroke-width="${f(1.1*k)}"/>`:''); }
 /* ================= angle (three-point) ================= */
 // p.ax/ay and p.bx/by are the two arm ends, relative to the centre (the item's x/y), in the item's own frame
 function angleInfo(p){
@@ -1275,8 +1383,8 @@ function bounceGlow(items,Q,k,defs,pre){
   lights.forEach(L=>{ const t=TYPES[L.type], p=L.p||{}, pw=clamp((+p.power||0)/100,0,1); if(pw<=0) return;
     const c=tintOf(L), thr=+p.throw||2.5; let org, half=Math.PI, reach;
     if(t.sun){ org=null; reach=thr*1.6; }
-    else if(t.omni){ org={x:0,y:0}; reach=thr*1.2; }
-    else { const hw=L.w/2, hh=L.h/2; half=beamHalf(p); const b=(L.type==='softbox'||L.type==='octa'||L.type==='panel')?hh*.9:Math.min(hh*.6,.12), off=b/Math.tan(half); org={x:hw-off,y:0}; reach=thr*1.15+off; }
+    else if(isOmniL(L)){ org={x:0,y:0}; reach=thr*1.2; }
+    else { const hw=L.w/2, hh=L.h/2; half=beamHalf(p); const b=beamB(L), off=b/Math.tan(half); org={x:hw-off,y:0}; reach=thr*1.15+off; }
     const S=org?fromLocal(L,org.x,org.y):{x:L.x,y:L.y}, dir=unit(L.rot);
     panels.forEach(P=>{
       const tx=P.b.x-P.a.x, ty=P.b.y-P.a.y, tl=Math.hypot(tx,ty)||1, ux=tx/tl, uy=ty/tl, nx=-uy, ny=ux;
@@ -1419,7 +1527,7 @@ function plotMarkup(items,Q,o){
             g += [-1,1].map(sg=>`<g data-h="${sg<0?'add1':'add2'}" transform="translate(${f(sg*off)} 0)"><title>Add a wall, window or door from this end</title><line x1="${f(-sg*(off-ex-r))}" y1="0" x2="${f(-sg*R)}" y2="0" stroke="${Q.accent}" stroke-width="${f(1.2*k)}" stroke-dasharray="${f(2*k)} ${f(2*k)}" pointer-events="none"/><circle r="${f(R)}" fill="${Q.accent}"/><path d="M${f(-R*.45)} 0H${f(R*.45)}M0 ${f(-R*.45)}V${f(R*.45)}" stroke="#ffffff" stroke-width="${f(1.8*k)}" stroke-linecap="round"/></g>`).join(''); } }
         else if(t.resize){ const hx = t.resize==='h'?0:t.resize==='s'?hw*Math.SQRT1_2:hw, hy = t.resize==='w'?0:t.resize==='s'?hh*Math.SQRT1_2:hh;
           g += `<rect data-h="size" x="${f(hx-r)}" y="${f(hy-r)}" width="${f(2*r)}" height="${f(2*r)}" rx="${f(2.5*k)}" fill="#ffffff" stroke="${Q.accent}" stroke-width="${f(1.8*k)}"/>`; }
-        if((t.light||t.cam) && it.type!=='sun'){ const L=+it.p.throw||2.5, tx = t.omni? L : it.w/2+L;
+        if((t.light||t.cam) && it.type!=='sun'){ const L=+it.p.throw||2.5, tx = (t.light&&isOmniL(it))? L : it.w/2+L;
           g += `<path data-h="throw" d="M${f(tx)} ${f(-r*1.2)}L${f(tx+r*1.2)} 0L${f(tx)} ${f(r*1.2)}L${f(tx-r*1.2)} 0Z" fill="${Q.paper}" stroke="${Q.accent}" stroke-width="${f(1.6*k)}"/>`; }
         if(o.beamH===it.id && o.beams && beamAdjustable(it)){ const G=beamGeo(it), ah=G.half, front=G.hw+Math.min((+it.p.throw||2.5)*.55,Math.max(.5,66*k)), ar=front-G.ax;   // the arc always crosses the beam's centre line at the same spot
           g += [1,-1].map(sg=>`<line data-h="beamw" x1="${f(G.F.x)}" y1="${f(sg*G.F.y)}" x2="${f(G.C.x)}" y2="${f(sg*G.C.y)}" stroke="transparent" stroke-width="${f(14*k)}"/>`).join('')
@@ -1432,6 +1540,7 @@ function plotMarkup(items,Q,o){
           g += [1,-1].map(sg=>`<g data-h="sunw"><title>Drag to widen or narrow the sun's rays</title><rect x="${f(sx-bw)}" y="${f(sg*sy-9*k)}" width="${f(bw*2)}" height="${f(18*k)}" fill="transparent"/><rect x="${f(sx-bw/2)}" y="${f(sg*sy-bh/2)}" width="${f(bw)}" height="${f(bh)}" rx="${f(bh/2)}" fill="#ffffff" stroke="${Q.accent}" stroke-width="${f(1.6*k)}"/></g>`).join(''); }
       }
       over += `<g transform="${tr}">${g}</g>`+beamLbl; beamLbl='';
+      if(o.sel.size===1 && o.handles && t.light && FIX_MODS[it.type] && !LF.lock(it)) over+=modChipSVG(it,Q,k,o);
     });
   }
   { const byId=new Map(items.map(i=>[i.id,i])), hot=new Set(o.cable||[]); let cab='';
@@ -1625,7 +1734,7 @@ function northSync(){ if(!cur) return; if(northDoc!==cur.id){ northSeen.clear();
   let mod=false; N.forEach(i=>{ if(Math.abs(i.rot-to)>1e-6){ i.rot=to; mod=true; } });
   northSeen.clear(); N.forEach(i=>northSeen.set(i.id,i.rot));
   if(mod&&!drag) setTimeout(touch,0); }
-function renderPlot(){ foldUpdate(); northSync();
+function renderPlot(){ migrateLights(); foldUpdate(); northSync();
   W=Math.max(1,innerWidth); H=Math.max(1,innerHeight);
   const vw=W/view.s, vh=H/view.s, x0=view.x-vw/2, y0=view.y-vh/2;
   svg.setAttribute('viewBox',`${f(x0)} ${f(y0)} ${f(vw)} ${f(vh)}`);
@@ -2334,6 +2443,7 @@ svg.addEventListener('pointerdown',e=>{
   if(ptrs.size===2){ const [a,b]=[...ptrs.values()]; pinch={d:Math.hypot(a.x-b.x,a.y-b.y), s:view.s, mid:{x:(a.x+b.x)/2,y:(a.y+b.y)/2}, vx:view.x, vy:view.y}; drag=null; return; }
   const pt=toWorld(e.clientX,e.clientY);
   const hEl=e.target.closest('[data-h]'); let iEl=pickItemEl(e);
+  if(hEl && hEl.dataset.h==='modpick' && !readOnly && e.button===0){ const it=itemById([...sel][0]); if(it){ const mm=$('#modMenu'); if(mm&&!mm.hidden&&modMenuFor===it.id) closeModMenu(); else openModMenu(it,e.clientX,e.clientY); } return; }
   if(hEl && hEl.dataset.h==='sunT' && !readOnly && e.button===0){ const g=hEl.closest('[data-id]'), it=g&&itemById(g.dataset.id);
     if(it && it.type==='sunpath' && !LFc().lock(it)){ if(sunPlay){ cancelAnimationFrame(sunPlay.raf); sunPlay=null; } checkpoint(); sel=new Set([it.id]); drag={mode:'sunT',it}; svg.classList.add('grabbing'); renderInspector(); draw(); return; } }
   if(cableSel && !e.target.closest('[data-cable],[data-h="cmid"]')){ cableSel=null; draw(); }
@@ -2451,8 +2561,8 @@ svg.addEventListener('pointermove',e=>{
   else if(drag.mode==='throw'){
     // free lights and cameras turn to follow the handle as well; aimed ones (and all-round sources) only change throw
     let dist=lx;
-    if(!it.focus && !t.omni){ let a=Math.atan2(dy,dx)/D2R; a = e.shiftKey ? Math.round(a/15)*15 : Math.round(a*10)/10; it.rot=((a%360)+540)%360-180; dist=Math.hypot(dx,dy); }
-    let L=t.omni?dist:dist-it.w/2; if(snapOn) L=Math.round(L*10)/10; it.p.throw=clamp(L,.3,15); }
+    if(!it.focus && !isOmniL(it)){ let a=Math.atan2(dy,dx)/D2R; a = e.shiftKey ? Math.round(a/15)*15 : Math.round(a*10)/10; it.rot=((a%360)+540)%360-180; dist=Math.hypot(dx,dy); }
+    let L=isOmniL(it)?dist:dist-it.w/2; if(snapOn) L=Math.round(L*10)/10; it.p.throw=clamp(L,.3,15); }
   draw(); syncInspector();
 });
 function endPtr(e){
@@ -3447,7 +3557,7 @@ function renderRail(){
   railBadges();
 }
 var tileOrder={}; try{ tileOrder=JSON.parse(localStorage.getItem('setplot-tileorder')||'{}')||{}; }catch(e){}
-function tilesOf(cat){ const def=Object.keys(TYPES).filter(k=>TYPES[k].cat===cat), saved=(tileOrder[cat]||[]).filter(k=>def.includes(k));
+function tilesOf(cat,withPresets){ const def=Object.keys(TYPES).filter(k=>TYPES[k].cat===cat&&(withPresets||!TYPES[k].preset)), saved=(tileOrder[cat]||[]).filter(k=>def.includes(k));
   return saved.concat(def.filter(k=>!saved.includes(k))); }
 const canReorder = cat=>tilesOf(cat).length>=10;
 function moveTile(cat,type,target,after){ const L=tilesOf(cat).filter(k=>k!==type); let i=L.indexOf(target); if(i<0) return; if(after) i++; L.splice(i,0,type);
@@ -3527,7 +3637,7 @@ var addAt=null, addSel=0, addHits=[], addRecent=[]; try{ addRecent=JSON.parse(lo
 const ADD_CAT={Lights:'Lights',Grip:'Grip',Camera:'Camera',Talent:'Subjects',Set:'Set',Notes:'Notes',Board:'Cards'};
 function addCatalog(){ const out=[], seen=new Set(), push=(k,cat,icon)=>{ if(seen.has(k)||!TYPES[k]) return; seen.add(k); const t=TYPES[k], p=t.p||{};
     out.push({k, name:t.name, cat, icon, kw:[t.name,cat,k,p.fixture,p.modifier,t.label].filter(Boolean).join(' ').toLowerCase()}); };
-  CATS.concat(['Notes']).forEach(c=>tilesOf(c).forEach(k=>push(k,ADD_CAT[c]||c,null)));
+  CATS.concat(['Notes']).forEach(c=>tilesOf(c,true).forEach(k=>push(k,ADD_CAT[c]||c,null)));
   CARD_TOOLS.forEach(([k,n,i])=>push(k,'Cards',i)); push('board','Cards','nest');
   return out; }
 function addScore(e,q){ if(!q) return 1; const n=e.name.toLowerCase(); if(n===q) return 100; if(n.startsWith(q)) return 80; if(n.split(/[\s/·-]+/).some(w=>w.startsWith(q))) return 60;
@@ -3806,7 +3916,12 @@ function renderInspector(){ renderLayersSoon(); if(flyCat==='Align' && !$('#fly'
     let h=`<div class="insp-head"><span class="thumb">${it.type==='product'?`<svg viewBox="-1 -1 2 2" style="width:24px;height:24px;overflow:visible">${productSVG(p.shape||'box',.78,.66,p.color||P.talent,'stroke="'+P.ink+'" stroke-width=".09"',lumHex(cssHex(p.color||P.talent))<.3?'#ffffff':'#1c1f23',0,true)}</svg>`:it.type==='mark'?`<svg viewBox="-1 -1 2 2" style="width:22px;height:22px;overflow:visible">${markSVG(p.shape||'x',.7,.7,markColor(it,P),.22,'')}</svg>`:it.type==='camera'?iconSVG('camera').replace('>A</text>','>'+esc(p.letter||'A')+'</text>'):iconSVG(it.type)}</span><div style="min-width:0"><h2>${esc(it.label||t.name)}</h2><small>${esc(t.name)}${t.light?` · <span style="color:${tintOf(it)}">●</span> ${esc(p.cct)}K`:''}</small></div>${pinBtn()}<button class="ib" data-act="close" aria-label="Close">${ic('close')}</button></div><div class="insp-body">`;
     let a='';
     if(it.type!=='text'&&it.type!=='sketch') a+=row('Label',txt('label',it.label,`list="${t.light?'dlRole':''}" placeholder="${esc(t.name)}" ${dis}`));
-    if(t.light && it.type!=='sun'){ a+=row('Fixture',txt('p.fixture',p.fixture,`list="dlFix" ${dis}`)); a+=row('Modifier',txt('p.modifier',p.modifier,`list="dlMod" ${dis}`)); }
+    if(t.light && it.type!=='sun') a+=row('Fixture',txt('p.fixture',p.fixture,`list="dlFix" ${dis}`));
+    if(t.light && FIX_MODS[it.type]){ const cm=modOf(it), M=MODS[cm];
+      a+=row('Modifier',`<select data-modsel ${dis}>${FIX_MODS[it.type].map(m=>`<option value="${m}" ${m===cm?'selected':''}>${esc(MODS[m].n)}</option>`).join('')}</select>`);
+      if(M.grid) a+=`<div class="toggle"><span>Grid</span><label class="sw"><input type="checkbox" data-modgridi ${p.grid?'checked':''} ${dis} aria-label="Grid"><span></span></label></div>`;
+      if(it.type!=='sun') a+=row('Model',txt('p.modifier',p.modifier,`list="dlMod" placeholder="e.g. Light Dome II" ${dis}`));
+      a+=row('Softness',`<div class="rng"><input type="range" data-k="p.soft" min="0" max="100" step="5" value="${Math.round(softOf(it)*100)}" aria-label="Softness"><span class="unit" style="min-width:5.5em">${p.soft!=null&&p.soft!==''?`<button class="btn sm ghost" data-act="softauto" ${dis}>Auto</button>`:'auto'}</span></div>`); }
     if(it.type==='sun') a+=row('Time of day',`<input class="fi" type="time" data-k="p.time" value="${esc(p.time||'')}" ${dis} aria-label="Time of day">`);
     if(t.light) a+=`<div class="toggle"><span>Light is on</span><label class="sw"><input type="checkbox" data-k="on" ${it.on===false?'':'checked'} ${dis} aria-label="Light is on"><span></span></label></div>`;
     if(it.type==='camera'){ const others=new Map(cur.items.filter(o=>o!==it&&o.type==='camera'&&o.p&&o.p.letter).map(o=>[o.p.letter,o]));
@@ -3851,7 +3966,7 @@ function renderInspector(){ renderLayersSoon(); if(flyCat==='Align' && !$('#fly'
       b+=row('Plot colour',`<div class="swatch"><input type="color" data-k="p.tint" value="${esc(p.tint||rgbHex(tintOf(it)))}" ${dis} aria-label="Plot colour"><button class="btn sm ghost" data-act="autotint" ${dis}>${p.tint?'Reset to colour temp':'Custom colour'}</button></div>`);
       h+=sec('Light',b);
       let c='';
-      if(!t.omni&&!t.sun) c+=row('Beam',rng('p.beam',p.beam,0,160,1,'°'));
+      if(!isOmniL(it)&&!t.sun) c+=row('Beam',rng('p.beam',p.beam,0,160,1,'°'));
       c+=row(t.sun?'Rays':'Throw',rng('p.throw',p.throw,.3,12,.1,'m'));
       if(t.sun) c+=row('Width',rng('p.span',Math.round(sunSpan(it)*100)/100,.2,20,.05,'m'));
       if(!t.sun) c+=row('Stand',`<div class="rng">${numf('p.height',p.height,`min="0" max="12" step="0.1" ${dis}`)}<span class="unit">m high</span></div>`);
@@ -3940,7 +4055,9 @@ function applyField(el){
   touch(); draw();
 }
 insp.addEventListener('input',e=>{ if(e.target.id==='bevelSize'){ const v=parseFloat(e.target.value); if(isFinite(v)&&v>0) bevelSize=v; return; } if(e.target.dataset.k) applyField(e.target); });
-insp.addEventListener('change',e=>{ if(e.target.hasAttribute('data-sunplace')&&!readOnly){ const it=itemById([...sel][0]), c=SUN_PLACES.find(x=>x[0]===e.target.value); if(it&&c){ checkpoint(); Object.assign(it.p,{place:c[0],lat:c[1],lon:c[2],tz:c[3]}); touch(); renderInspector(); draw(); } return; } if(e.target.hasAttribute('data-lsel') && e.target.value){ moveItemsToLayer([...sel].filter(id=>itemById(id)),e.target.value); } });
+insp.addEventListener('change',e=>{ if(e.target.hasAttribute('data-modsel')&&!readOnly){ const it=itemById([...sel][0]); if(it) setMod(it,e.target.value); return; }
+  if(e.target.hasAttribute('data-modgridi')&&!readOnly){ const it=itemById([...sel][0]); if(it){ checkpoint(); it.p.grid=e.target.checked; setMod(it,modOf(it),true); } return; }
+  if(e.target.hasAttribute('data-sunplace')&&!readOnly){ const it=itemById([...sel][0]), c=SUN_PLACES.find(x=>x[0]===e.target.value); if(it&&c){ checkpoint(); Object.assign(it.p,{place:c[0],lat:c[1],lon:c[2],tz:c[3]}); touch(); renderInspector(); draw(); } return; } if(e.target.hasAttribute('data-lsel') && e.target.value){ moveItemsToLayer([...sel].filter(id=>itemById(id)),e.target.value); } });
 insp.addEventListener('change',e=>{ if(e.target.dataset.k==='rot'||e.target.dataset.k==='rx'||e.target.dataset.k==='rf') renderInspector(); });
 insp.addEventListener('change',e=>{ const k=e.target.dataset.k; if(!k) return; if(e.target.tagName==='SELECT'||e.target.type==='checkbox'){ applyField(e.target); if(k==='h'||k==='on'||k==='p.circuit') renderInspector(); } });
 insp.addEventListener('input',e=>{ const k=e.target.dataset&&e.target.dataset.k; if(!k||!/^p\.(watts|power|fixture|batt)$/.test(k)) return; const it=itemById([...sel][0]); if(!isPowered(it)) return; const pr=insp.querySelector('#pwRead'); if(pr) pr.innerHTML=powerLine(it); const w=insp.querySelector('[data-k="p.watts"]'); if(w) w.placeholder=estWatts(it); });
@@ -3972,6 +4089,7 @@ insp.addEventListener('click',e=>{
   else if(act==='unaim'){ checkpoint(); aimables().forEach(i=>delete i.focus); exitFocus(); touch(); renderInspector(); draw(); }
   else if(act==='join-square'||act==='join-bevel'){ joinWalls(act==='join-square'?'square':'bevel'); }
   else if(act==='unlock'){ if(!LFc().lock(itemById([...sel][0])||{})) return; const it=itemById([...sel][0]); if(it.locked){ checkpoint(); delete it.locked; if(!LFc().lock(it)) flashLock([it.id],false); touch(); renderLayers(); renderInspector(); draw(); } if(LFc().lock(it)) toggleLockSel(); }
+  else if(act==='softauto'){ const it=itemById([...sel][0]); if(it){ checkpoint(); delete it.p.soft; touch(); renderInspector(); draw(); } }
   else if(act==='mapfind'){ const it=itemById([...sel][0]); if(it&&it.type==='map') mapFind(it); }
   else if(act==='mapoffline'){ const it=itemById([...sel][0]); if(it&&it.type==='map') mapSaveOffline(it); }
   else if(act==='mapcentre'){ const it=itemById([...sel][0]); if(it){ checkpoint(); it.p.ox=0; it.p.oy=0; touch(); draw(); } }
@@ -4125,7 +4243,7 @@ function pasteClip(){
 var KEY_ACTIONS=[
   ['Edit','undo','Undo','mod+z'], ['Edit','redo','Redo','mod+shift+z'], ['Edit','copy','Copy','mod+c'], ['Edit','cut','Cut','mod+x'],
   ['Edit','paste','Paste','mod+v'], ['Edit','dup','Duplicate','mod+d'], ['Edit','group','Group','mod+g'], ['Edit','ungroup','Ungroup','mod+shift+g'], ['Edit','lock','Lock / unlock layer','mod+l'], ['Edit','del','Delete selected','x'], ['Edit','rename','Rename selected object','enter'],
-  ['Objects','aim','Aim · rotate a group (several selected)','r'], ['Objects','walk','Walk mode (talent): WASD, Shift to run','mod+enter'], ['Objects','rotl','Turn −15°','['], ['Objects','rotr','Turn +15°',']'],
+  ['Objects','aim','Aim · rotate a group (several selected)','r'], ['Objects','modifier','Light modifier (selected light)','m'], ['Objects','walk','Walk mode (talent): WASD, Shift to run','mod+enter'], ['Objects','rotl','Turn −15°','['], ['Objects','rotr','Turn +15°',']'],
   ['Tools','addmenu','Search & add at the cursor','shift+a'], ['Tools','pen','Pen','p'], ['Tools','layers','Layers panel','l'],
   ['Left toolbar','c_board','Nested setup','0'], ['Left toolbar','g_shoots','Shoots',''], ['Left toolbar','g_lights','Lights','1'], ['Left toolbar','g_grip','Grip','2'], ['Left toolbar','g_camera','Camera','3'],
   ['Left toolbar','g_subjects','Subjects','4'], ['Left toolbar','g_set','Set','5'], ['Left toolbar','g_layers','Layers','6'],
@@ -4248,6 +4366,7 @@ document.addEventListener('keydown',e=>{
   if(act==='addmenu' && !typing && !readOnly){ e.preventDefault(); openAddSearch(); return; }
   if(typing||readOnly||!cur) return;
   if(act==='fold'){ const n0=sel.size===1?itemById([...sel][0]):null; if(n0&&isCard(n0)&&foldSides(n0).length){ e.preventDefault(); mmFold(n0); } return; }
+  if(act==='modifier'){ const n0=sel.size===1?itemById([...sel][0]):null; if(n0&&FIX_MODS[n0.type]){ e.preventDefault(); const r=svg.getBoundingClientRect(), P={x:(n0.x-view.x)*view.s+W/2, y:(n0.y-view.y)*view.s+H/2+extentY(n0)*view.s+40}; openModMenu(n0,P.x,P.y); } return; }
   if(act==='tidy'){ e.preventDefault(); const n0=sel.size===1?itemById([...sel][0]):null; mmTidy(n0&&isCard(n0)&&mmComp(n0).length>1?n0:null); return; }
   if(act && act.startsWith('c_')){ e.preventDefault(); const t=act.slice(2); if(hoverWorld) addCard(t,hoverWorld.x-.4,hoverWorld.y-.2); else addCard(t); return; }
   if(cableSel && (act==='del'||e.key==='Delete'||e.key==='Backspace')){ e.preventDefault(); unplugCable(cableSel); return; }
@@ -4299,7 +4418,7 @@ function guideNow(){
     if(m==='angA'||m==='angB') return {t:'Angle', s:'Hold Shift for 15° steps · hold Alt to move freely', lag};
     if(m==='sunw') return {t:'Sun width', s:opts.snap?'Drag to widen or narrow the parallel rays · snaps to 5 cm · hold Alt for free':'Drag to widen or narrow the parallel rays', lag};
     if(m==='beamw') return {t:'Beam width', s:'Drag the edge to widen or narrow the beam · hold Shift for 15° steps', lag};
-    if(m==='throw'){ const om=it&&TYPES[it.type].omni; return {t:'Throw', s:om?'Drag to set how far the light reaches':'Drag to set the throw and direction · hold Shift for 15° steps', lag}; }
+    if(m==='throw'){ const om=it&&isOmniL(it); return {t:'Throw', s:om?'Drag to set how far the light reaches':'Drag to set the throw and direction · hold Shift for 15° steps', lag}; }
   }
   if(cdrag && cdrag.moved && cdrag.mode!=='pan'){ const lag=250;
     if(cdrag.mode==='resize') return {t:'Resize card', s:'Drag to change the size · let go to finish', lag};
@@ -4418,6 +4537,7 @@ $('#focusExit').onclick=()=>stopPresent();
 $('#presentBtn').onclick=()=>startPresent();
 addEventListener('keydown',e=>{
   if(!pres) return; const t=(e.target.tagName||'').toLowerCase(); if(t==='input'||t==='textarea'||e.target.isContentEditable) return;
+  if(e.key==='Escape' && $('#modMenu') && !$('#modMenu').hidden){ e.preventDefault(); closeModMenu(); return; }
   if(e.key==='Escape'){ if(placing||walkMode||flyCat||drawMode||sel.size||!$('#addSrch').hidden||!$('#modal').hidden||!$('#extMenu').hidden||!$('#timePop').hidden||!$('#lenPop').hidden||extMode||rotMode||angMode) return;   // Esc cancels whatever is open first, as usual
     e.preventDefault(); e.stopImmediatePropagation(); stopPresent(); return; }   // then it leaves focus mode
   if(comboOf(e)===keyOf('present')){ e.preventDefault(); e.stopImmediatePropagation(); stopPresent(); return; }
