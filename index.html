@@ -758,8 +758,10 @@ body.ptr-down .gd-frame{pointer-events:none}
 .bc.mm-br:not(.sel){box-shadow:inset 0 0 0 calc(1.5px*var(--inv,1)) color-mix(in srgb,var(--br) 55%,transparent),0 1px 2px rgba(20,24,30,.08),0 6px 18px -6px rgba(20,24,30,.2)}
 .c-fold{--z:calc(18px*var(--inv,1));position:absolute;z-index:4;min-width:var(--z);height:var(--z);padding:0 calc(5px*var(--inv,1));box-sizing:border-box;border-radius:calc(10px*var(--inv,1));border:calc(1.5px*var(--inv,1)) solid var(--br,var(--muted));background:var(--card);color:var(--muted);font:600 calc(10.5px*var(--inv,1))/1 var(--sans);display:grid;place-items:center;cursor:pointer;opacity:0;transition:opacity .15s,background .15s,color .15s}
 .c-fold svg{width:calc(10px*var(--inv,1));height:calc(10px*var(--inv,1));stroke-width:2.6}
-.c-fold.right{right:0;top:50%;transform:translate(50%,-50%)} .c-fold.left{left:0;top:50%;transform:translate(-50%,-50%)}
-.c-fold.top{top:0;left:50%;transform:translate(-50%,-50%)} .c-fold.bottom{bottom:0;left:50%;transform:translate(-50%,50%)}
+.c-fold[data-side=right]{right:0;top:50%;transform:translate(50%,-50%)} .c-fold[data-side=left]{left:0;top:50%;transform:translate(-50%,-50%)}
+.c-fold[data-side=top]{top:0;left:50%;transform:translate(-50%,-50%)} .c-fold[data-side=bottom]{bottom:0;left:50%;transform:translate(-50%,50%)}
+.bc.bc-pop{animation:bcPop .26s cubic-bezier(.2,.9,.3,1.25)} @keyframes bcPop{from{scale:.86;translate:var(--pdx,0) var(--pdy,0)}}
+@media (prefers-reduced-motion: reduce){.bc.bc-pop{animation:none}}
 .bc:hover>.c-fold,.bc.sel>.c-fold{opacity:1} .c-fold:hover{color:var(--ink);border-color:var(--ink)}
 .c-fold.on{opacity:1;background:var(--br,var(--muted));border-color:var(--br,var(--muted));color:#fff}
 .c-fold.on:hover{filter:brightness(1.12);color:#fff}
@@ -4827,12 +4829,13 @@ function renderCards(){
   const keep=new Set();
   items.forEach((it,i)=>{
     let el=cardsEl.querySelector(`[data-cid="${it.id}"]`);
-    if(!el){ el=buildCard(it); cardsEl.appendChild(el); }
+    if(!el){ el=buildCard(it); cardsEl.appendChild(el);
+      if(popSide.has(it.id)){ const sd=popSide.get(it.id), d=14; popSide.delete(it.id); el.style.setProperty('--pdx',(sd==='right'?-d:sd==='left'?d:0)+'px'); el.style.setProperty('--pdy',(sd==='bottom'?-d:sd==='top'?d:0)+'px'); el.classList.add('bc-pop'); el.addEventListener('animationend',()=>el.classList.remove('bc-pop'),{once:true}); } }
     else if(el.dataset.sig!==cardSig(it) && !el.contains(document.activeElement)) fillCard(el,it);
     el.style.left=(it.x*PXM0)+'px'; el.style.top=(it.y*PXM0)+'px'; el.style.width=it.w+'px'; el.style.zIndex=i+1; el.style.minHeight=it.nh?it.nh+'px':''; if(it.type==='trello') el.style.height=(it.nh||460)+'px';
     if(it.type==='gdoc'){ el.style.height=it.p.collapsed?'':(it.nh||420)+'px'; el.classList.toggle('gd-col',!!it.p.collapsed); }
     { const bc=BRC.get(it.id)||(it.conns&&it.conns.some(c=>BRC.has(c.to))?'':null); el.classList.toggle('mm-br',!!bc); if(bc) el.style.setProperty('--br',bc); else el.style.removeProperty('--br'); } syncFold(el,it);
-    el.classList.toggle('sel', sel.has(it.id)); el.classList.toggle('solo', sel.has(it.id) && sel.size===1); el.classList.toggle('key', sel.size>1 && [...sel][0]===it.id); el.classList.toggle('locked', LFk.lock(it)); { const o2=LFk.op(it)*isoOp(it); el.style.opacity=o2<.999?o2:''; }
+    el.classList.toggle('sel', sel.has(it.id)); el.classList.toggle('solo', sel.has(it.id) && sel.size===1); el.classList.toggle('key', sel.size>1 && [...sel][0]===it.id); el.classList.toggle('locked', LFk.lock(it)); { const o2=LFk.op(it)*isoOp(it)*fxOf(it.id); el.style.opacity=o2<.999?o2:''; }
     keep.add(it.id);
   });
   [...cardsEl.children].forEach(el=>{ if(!keep.has(el.dataset.cid)){ cardRO.unobserve(el); el.remove(); } });
@@ -5440,6 +5443,7 @@ function addLinkedNote(par,side,beforeId){
   const it=addCard('note',x,y); if(!it) return;
   par.conns=par.conns||[]; par.conns.push({id:uid(),to:it.id,side}); if(par.fold&&par.fold[side]){ delete par.fold[side]; if(!Object.keys(par.fold).length) delete par.fold; foldUpdate(); } it.w=par.w; if(par.nh) it.nh=par.nh;
   layoutTree(par,side,it.id,beforeId?{before:beforeId}:null);
+  if(!RM()) popIn(it,side);
   touch(); draw(); return it;
 }
 /* tidy mind-map layout: the whole tree on that side is re-stacked so no branch collides with another,
@@ -5502,13 +5506,17 @@ function pushAside(tgt,top,gap,hOf,wOf){ const LF=LFc(), par=new Map();
     let best=null; dirs.forEach(d=>{ const t=shiftFor(unit,d,!side); if(!best||t<best.t) best={d,t}; });
     unit.forEach(k=>{ soft.delete(k.id); const p=pos(k), t=best.t, d=best.d; tgt.set(k.id,{x:Math.round((p.x+(d==='right'?t:d==='left'?-t:0))*1000)/1000, y:Math.round((p.y+(d==='bottom'?t:d==='top'?-t:0))*1000)/1000}); (side?fixed:soft).add(k.id); });
   } }
+var popSide=new Map();
+function popIn(it,side){ popSide.set(it.id,side); const t0=performance.now(), D=240; fxOp.set(it.id,0);
+  const step=now=>{ const t=Math.min(1,(now-t0)/D); if(!itemById(it.id)){ fxOp.delete(it.id); return; } fxOp.set(it.id,1-Math.pow(1-t,2)); draw(); if(t<1) requestAnimationFrame(step); else { fxOp.delete(it.id); draw(); } };
+  requestAnimationFrame(step); }
 function branchOf(k){ const out=[], seen=new Set(), walk=n=>{ if(!n||seen.has(n.id)) return; seen.add(n.id); out.push(n); (n.conns||[]).forEach(c=>{ const t=itemById(c.to); if(t&&isCard(t)) walk(t); }); }; walk(k); return out; }
 let tweenCur=null;
-function finishTween(){ const T=tweenCur; if(!T) return; tweenCur=null; T.forEach(m=>{ m.it.x=Math.round(m.x1*1000)/1000; m.it.y=Math.round(m.y1*1000)/1000; }); }
+function finishTween(){ const T=tweenCur; if(!T) return; tweenCur=null; T.forEach(m=>{ if(m.fade) fxOp.delete(m.it.id); m.it.x=Math.round(m.x1*1000)/1000; m.it.y=Math.round(m.y1*1000)/1000; }); }
 var tweenOff=false;
 function tweenItems(moves){ if(tweenOff){ moves.forEach(m=>{ m.it.x=Math.round(m.x1*1000)/1000; m.it.y=Math.round(m.y1*1000)/1000; }); return; } const D=matchMedia('(prefers-reduced-motion: reduce)').matches?1:280, t0=performance.now(); tweenCur=moves;
-  const step=now=>{ if(tweenCur!==moves) return; const t=Math.min(1,(now-t0)/D), e=1-Math.pow(1-t,3); moves.forEach(m=>{ m.it.x=m.x0+(m.x1-m.x0)*e; m.it.y=m.y0+(m.y1-m.y0)*e; }); draw();
-    if(t<1) requestAnimationFrame(step); else { tweenCur=null; moves.forEach(m=>{ m.it.x=Math.round(m.x1*1000)/1000; m.it.y=Math.round(m.y1*1000)/1000; }); touch(); draw(); } };
+  const step=now=>{ if(tweenCur!==moves) return; const t=Math.min(1,(now-t0)/D), e=1-Math.pow(1-t,3); moves.forEach(m=>{ m.it.x=m.x0+(m.x1-m.x0)*e; m.it.y=m.y0+(m.y1-m.y0)*e; if(m.fade) fxOp.set(m.it.id,e); }); draw();
+    if(t<1) requestAnimationFrame(step); else { tweenCur=null; moves.forEach(m=>{ if(m.fade) fxOp.delete(m.it.id); m.it.x=Math.round(m.x1*1000)/1000; m.it.y=Math.round(m.y1*1000)/1000; }); touch(); draw(); } };
   requestAnimationFrame(step); }
 /* mind-map keys: in a note, Tab adds a connected idea, Shift+Tab adds an idea on the left (or above / below) */
 function mmParent(it){ if(!cur||!it) return null; for(const o of cur.items){ const c=o.conns&&o.conns.find(c=>c.to===it.id); if(c&&isCard(o)) return {par:o,side:c.side||'right'}; } return null; }
@@ -5542,6 +5550,8 @@ function mmTidy(it){ if(!cur||readOnly) return; finishTween();
   const moves=[]; cur.items.forEach(k=>{ const o=orig.get(k.id); if(o&&(Math.abs(o.x-k.x)>1e-4||Math.abs(o.y-k.y)>1e-4)){ moves.push({it:k,x0:o.x,y0:o.y,x1:k.x,y1:k.y}); k.x=o.x; k.y=o.y; } });
   if(moves.length) tweenItems(moves); else { dropNoopCheckpoint(); toast('Already tidy'); } }
 /* fold a branch: a note's ideas on one side hide behind a small count badge; the map closes up around it */
+var fxOp=new Map(); const fxOf=id=>fxOp.size&&fxOp.has(id)?fxOp.get(id):1;   // short-lived fades for ideas being added, folded or unfolded
+const RM=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
 var foldHid;   // filled by foldUpdate() (it runs before this line is reached at start-up)
 function foldUpdate(){ const H=new Set(); if(cur) cur.items.forEach(o=>{ if(!o.fold||!isCard(o)) return;
     (o.conns||[]).forEach(c=>{ if(!o.fold[c.side||'right']) return; const t=itemById(c.to); if(t&&isCard(t)) branchOf(t).forEach(k=>{ if(k!==o) H.add(k.id); }); }); });
@@ -5553,12 +5563,30 @@ function mmRelayout(fn){ finishTween(); const orig=new Map(cur.items.filter(isCa
   if(moves.length) tweenItems(moves); }
 function mmFold(it,side){ if(readOnly||!it) return; const sides=foldSides(it); if(!sides.length) return;
   const isF=sd=>!!(it.fold&&it.fold[sd]), list=side?[side]:sides, to=side?!isF(side):sides.some(sd=>!isF(sd));
-  checkpoint(); const f=Object.assign({},it.fold||{}); list.forEach(sd=>{ if(to) f[sd]=true; else delete f[sd]; }); if(Object.keys(f).length) it.fold=f; else delete it.fold;
-  foldUpdate(); [...sel].forEach(id=>{ if(foldHid.has(id)) sel.delete(id); });
-  mmRelayout(()=>{ const up=mmParent(it); if(up&&!foldHid.has(it.id)) layoutTree(up.par,up.side,null); if(!to) list.forEach(sd=>layoutTree(it,sd,null)); });
-  touch(); renderInspector(); draw(); }
+  if(foldFx) return;
+  const parts=foldParts(it,list);   // each idea that hides or shows, with the point on the parent's edge it folds into
+  const apply=()=>{ checkpoint(); const f=Object.assign({},it.fold||{}); list.forEach(sd=>{ if(to) f[sd]=true; else delete f[sd]; }); if(Object.keys(f).length) it.fold=f; else delete it.fold;
+    foldUpdate(); [...sel].forEach(id=>{ if(foldHid.has(id)) sel.delete(id); });
+    mmRelayout(()=>{ const up=mmParent(it); if(up&&!foldHid.has(it.id)) layoutTree(up.par,up.side,null); if(!to) list.forEach(sd=>layoutTree(it,sd,null)); });
+    touch(); renderInspector(); draw(); };
+  if(RM()||!parts.length){ apply(); return; }
+  if(to){   // fold: the branch slides into the parent's edge and fades, then the map closes up
+    const t0=performance.now(), D=210; foldFx=true;
+    const step=now=>{ const t=Math.min(1,(now-t0)/D), e=t*t; parts.forEach(q=>{ q.k.x=q.x0+(q.ax-q.x0)*e; q.k.y=q.y0+(q.ay-q.y0)*e; fxOp.set(q.k.id,1-e); }); draw();
+      if(t<1) requestAnimationFrame(step); else { parts.forEach(q=>{ q.k.x=q.x0; q.k.y=q.y0; fxOp.delete(q.k.id); }); foldFx=false; apply(); } };
+    requestAnimationFrame(step); return; }
+  apply();   // unfold: lay the map out, then let the branch grow out of the parent's edge into its place
+  const T=tweenCur||[], byIt=new Map(T.map(m=>[m.it,m]));
+  parts.forEach(q=>{ let m=byIt.get(q.k); if(!m){ m={it:q.k,x0:q.k.x,y0:q.k.y,x1:q.k.x,y1:q.k.y}; T.push(m); } m.x0=q.ax; m.y0=q.ay; m.fade=true; q.k.x=q.ax; q.k.y=q.ay; fxOp.set(q.k.id,0); });
+  if(!tweenCur) tweenItems(T); draw(); }
+var foldFx=false;
+function foldParts(it,list){ const out=[], seen=new Set(), R=cardRect(it);
+  list.forEach(sd=>{ const A=sd==='right'?{x:R.x+R.w,y:R.y+R.h/2}:sd==='left'?{x:R.x,y:R.y+R.h/2}:sd==='top'?{x:R.x+R.w/2,y:R.y}:{x:R.x+R.w/2,y:R.y+R.h};
+    (it.conns||[]).forEach(c=>{ if((c.side||'right')!==sd) return; const t=itemById(c.to); if(!t||!isCard(t)||colOf(t.id)) return;
+      branchOf(t).forEach(k=>{ if(k===it||seen.has(k.id)) return; seen.add(k.id); const r=cardRect(k); out.push({k,x0:k.x,y0:k.y,ax:A.x-r.w/2,ay:A.y-r.h/2}); }); }); });
+  return out; }
 function syncFold(el,it){ const sides=LFc().lock(it)?[]:foldSides(it), have=new Map([...el.querySelectorAll(':scope>.c-fold')].map(b=>[b.dataset.side,b]));
-  sides.forEach(sd=>{ let b=have.get(sd); have.delete(sd); if(!b){ b=document.createElement('button'); b.className='c-fold '+sd; b.dataset.side=sd; b.type='button'; el.appendChild(b); }
+  sides.forEach(sd=>{ let b=have.get(sd); have.delete(sd); if(!b){ b=document.createElement('button'); b.className='c-fold'; b.dataset.side=sd; b.type='button'; el.appendChild(b); }
     const on=!!(it.fold&&it.fold[sd]), n=on?foldCount(it,sd):0, html=on?String(n):'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M6 12h12"/></svg>';
     b.classList.toggle('on',on); if(b.dataset.h!==html){ b.innerHTML=html; b.dataset.h=html; } b.title=on?`Show ${n} hidden idea${n===1?'':'s'}`:'Fold this branch'; });
   have.forEach(b=>b.remove()); }
@@ -5596,8 +5624,8 @@ function linksSVG(items,Q,k,layers,interactive){
     a.conns.forEach(c=>{ const b=by.get(c.to); if(!b||!LF.vis(b)) return;
       const E=connEnds(a,b,c.side), d=connPath(E,c.style||'curve'), on=connSel===c.id;
       if(interactive) out+=`<path d="${d}" fill="none" stroke="transparent" stroke-width="${f(14*k)}" data-conn="${a.id}|${c.id}" style="pointer-events:stroke;cursor:context-menu"/>`;
-      const lc=on?Q.accent:(BRC.get(b.id)||Q.muted);
-      out+=`<path d="${d}" fill="none" stroke="${lc}" stroke-width="${f((on?2.4:1.8)*k)}" stroke-linecap="round" pointer-events="none"/><circle cx="${f(E.P.x)}" cy="${f(E.P.y)}" r="${f(3.2*k)}" fill="${lc}" pointer-events="none"/><circle cx="${f(E.C.x)}" cy="${f(E.C.y)}" r="${f(3.2*k)}" fill="${lc}" pointer-events="none"/>`; }); });
+      const lc=on?Q.accent:(BRC.get(b.id)||Q.muted), fo=fxOf(b.id); if(fo<.999) out+=`<g opacity="${f(fo)}">`;
+      out+=`<path d="${d}" fill="none" stroke="${lc}" stroke-width="${f((on?2.4:1.8)*k)}" stroke-linecap="round" pointer-events="none"/><circle cx="${f(E.P.x)}" cy="${f(E.P.y)}" r="${f(3.2*k)}" fill="${lc}" pointer-events="none"/><circle cx="${f(E.C.x)}" cy="${f(E.C.y)}" r="${f(3.2*k)}" fill="${lc}" pointer-events="none"/>`; if(fo<.999) out+='</g>'; }); });
   return out?`<g>${out}</g>`:'';
 }
 var connSel=null;
