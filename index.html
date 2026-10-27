@@ -92,6 +92,12 @@ body.connecting,body.connecting *{cursor:crosshair!important}
 .extopts button{border:0;background:var(--field);border-radius:10px;width:74px;padding:8px 4px 6px;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12px;font-weight:600;color:var(--ink);cursor:pointer}
 .extopts button:hover{background:var(--hover);box-shadow:inset 0 0 0 1.5px var(--accent)}
 .extopts svg{width:46px;height:30px;display:block}
+.acct-btn{padding:0;overflow:hidden}.acct-btn img{width:24px;height:24px;border-radius:50%;display:block}.acct-i{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:#fff;font-weight:700;font-size:12px}
+.acct{display:flex;flex-direction:column;gap:12px;width:min(380px,calc(100vw - 48px))}.acct-h{display:flex;align-items:center;justify-content:space-between}.acct-h h3{margin:0;font-size:17px}.acct p{margin:0}
+.acct-prov{display:flex;flex-direction:column;gap:8px}.acct-p{justify-content:center;gap:10px;height:40px}.acct-p svg{width:18px;height:18px}
+.acct-or{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12px}.acct-or::before,.acct-or::after{content:'';flex:1;height:1px;background:var(--line)}
+.acct-row{display:flex;gap:8px;flex-wrap:wrap}.acct-f{display:flex;flex-direction:column;gap:4px;font-size:12.5px;font-weight:600}.acct-msg:empty{display:none}.acct-msg.bad{color:#e5484d}
+.acct-me{display:flex;align-items:center;gap:10px}.acct-me img,.acct-me .acct-i{width:36px;height:36px;font-size:15px}.acct-me small{display:block}
 .modmenu{width:min(420px,calc(100vw - 16px));gap:10px}.modmenu .extopts{flex-wrap:wrap}.modmenu .extopts button{width:76px;position:relative;padding-bottom:9px}
 .modmenu .extopts button.on{background:color-mix(in srgb,var(--accent) 14%,var(--field));box-shadow:inset 0 0 0 1.5px var(--accent)}
 .modmenu .extopts button span{font-size:11px;line-height:1.15;text-align:center}
@@ -762,6 +768,9 @@ body.ptr-down .gd-frame{pointer-events:none}
 .bc-note .c-text{flex:1 1 auto}
 .c-plus,.col-plus{--s:calc(24px*var(--inv,1));--g:calc(10px*var(--inv,1));position:absolute;width:var(--s);height:var(--s);border-radius:50%;border:0;padding:0;display:grid;place-items:center;background:var(--accent);color:#fff;box-shadow:0 calc(2px*var(--inv,1)) calc(8px*var(--inv,1)) calc(-2px*var(--inv,1)) rgba(30,60,140,.45);cursor:pointer;opacity:0;visibility:hidden;transform:scale(.7);transition:opacity .15s .3s,transform .15s .3s,visibility 0s .45s;z-index:2}
 .c-plus svg,.col-plus svg{width:calc(14px*var(--inv,1));height:calc(14px*var(--inv,1));stroke-width:2.4}
+.bc.mm-root textarea{font-weight:700;font-size:17px;letter-spacing:-.01em}.bc.mm-root:not(.sel){box-shadow:0 0 0 calc(4px*var(--inv,1)) color-mix(in srgb,var(--ink) 12%,transparent),0 2px 4px rgba(20,24,30,.12),0 14px 30px -10px rgba(20,24,30,.4)!important}.bc.mm-root{border-radius:calc(12px*var(--inv,1))}.bc-note.mm-root{background:var(--ink)}.bc-note.mm-root .c-text{color:var(--card)!important;caret-color:var(--card)}.bc-note.mm-root .c-text::placeholder{color:color-mix(in srgb,var(--card) 55%,transparent)}.bc-note.mm-root .c-text::selection{background:color-mix(in srgb,var(--accent) 60%,transparent)}
+.bc.mm-d1 textarea{font-weight:600}.bc.mm-d1.mm-br:not(.sel){box-shadow:inset 0 0 0 calc(2px*var(--inv,1)) color-mix(in srgb,var(--br) 85%,transparent),0 1px 2px rgba(20,24,30,.08),0 6px 18px -6px rgba(20,24,30,.2)!important}
+.bc{transition:filter .28s ease,box-shadow .28s ease,translate .28s ease}.bc.mm-parent:not(.sel),.bc.mm-child:not(.sel){box-shadow:inset 0 0 0 calc(1.5px*var(--inv,1)) color-mix(in srgb,var(--ink) 55%,transparent),0 2px 4px rgba(20,24,30,.12),0 10px 24px -8px rgba(20,24,30,.35)!important;translate:0 calc(-1px*var(--inv,1))}.bc.mm-root.mm-parent:not(.sel){box-shadow:0 0 0 calc(4px*var(--inv,1)) color-mix(in srgb,var(--ink) 22%,transparent),0 2px 4px rgba(20,24,30,.12),0 14px 30px -10px rgba(20,24,30,.4)!important}body.presenting .bc.mm-parent,body.presenting .bc.mm-child{translate:none}.bc.nav-bump[data-bump=left]{animation:navBumpX .22s ease;--b:-6px}.bc.nav-bump[data-bump=right]{animation:navBumpX .22s ease;--b:6px}.bc.nav-bump[data-bump=up]{animation:navBumpY .22s ease;--b:-6px}.bc.nav-bump[data-bump=down]{animation:navBumpY .22s ease;--b:6px}@keyframes navBumpX{50%{translate:var(--b) 0}}@keyframes navBumpY{50%{translate:0 var(--b)}}.bc.mm-dim{filter:opacity(.72) saturate(.85)}@keyframes mmLnO{from{opacity:var(--o0)}}@keyframes mmLnW{from{stroke-width:var(--w0)}}body.presenting .bc.mm-dim{filter:none}
 .bc.mm-br:not(.sel){box-shadow:inset 0 0 0 calc(1.5px*var(--inv,1)) color-mix(in srgb,var(--br) 55%,transparent),0 1px 2px rgba(20,24,30,.08),0 6px 18px -6px rgba(20,24,30,.2)}
 .c-fold{--z:calc(18px*var(--inv,1));position:absolute;z-index:4;min-width:var(--z);height:var(--z);padding:0 calc(5px*var(--inv,1));box-sizing:border-box;border-radius:calc(10px*var(--inv,1));border:calc(1.5px*var(--inv,1)) solid var(--br,var(--muted));background:var(--card);color:var(--muted);font:600 calc(10.5px*var(--inv,1))/1 var(--sans);display:grid;place-items:center;cursor:pointer;opacity:0;transition:opacity .15s,background .15s,color .15s}
 .c-fold svg{width:calc(10px*var(--inv,1));height:calc(10px*var(--inv,1));stroke-width:2.6}
@@ -776,6 +785,7 @@ body.ptr-down .gd-frame{pointer-events:none}
 .sunll{display:flex;gap:6px;align-items:center;min-width:0}.sunll .fi{min-width:0;flex:1}
 .suntime{display:flex;gap:8px;align-items:center;min-width:0}.suntime input[type=range]{flex:1;min-width:0}.suntime b{font-variant-numeric:tabular-nums;min-width:3.2em;text-align:right}
 .sunread{font-size:12.5px;line-height:1.55;margin:6px 0 8px;padding:8px 10px;border-radius:8px;background:color-mix(in srgb,#f2b33d 10%,transparent);border:1px solid color-mix(in srgb,#f2b33d 30%,transparent)}
+.bc[data-in~=top]>.c-plus.top,.bc[data-in~=bottom]>.c-plus.bottom,.bc[data-in~=left]>.c-plus.left,.bc[data-in~=right]>.c-plus.right{display:none!important}
 .c-plus.top{left:50%;top:calc(-1*(var(--s) + var(--g)));margin-left:calc(-.5*var(--s))}
 .c-plus.bottom{left:50%;bottom:calc(-1*(var(--s) + var(--g)));margin-left:calc(-.5*var(--s))}
 .c-plus.left{top:50%;left:calc(-1*(var(--s) + var(--g)));margin-top:calc(-.5*var(--s))}
@@ -904,6 +914,7 @@ body.insp-open .rail-r{right:calc(max(16px,env(safe-area-inset-right,0px)) + 332
       <button class="ib" id="redoBtn" aria-label="Redo" title="Redo  Ctrl+Shift+Z" disabled></button>
       <span class="vsep hide-s"></span>
       <button class="ib hide-s" id="detailsBtn" aria-pressed="false" aria-label="Setup details and gear list" title="Setup details &amp; gear"></button>
+      <button class="ib acct-btn" id="acctBtn" aria-label="Account"></button>
       <button class="ib" id="presentBtn" aria-label="Focus mode" title="Focus mode: hide the toolbars  Shift+F"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 9V4.5H9M15 4.5h4.5V9M19.5 15v4.5H15M9 19.5H4.5V15"/></svg></button>
       <div class="rel">
         <button class="btn primary" id="exportBtn" aria-haspopup="menu" aria-expanded="false"></button>
@@ -1004,7 +1015,7 @@ const SIZES = [['2×2',0.6],['4×4',1.2],['6×6',1.8],['8×8',2.4],['12×12',3.6
 const FLAGS = [['18×24',0.6],['24×36',0.9],['4×4',1.2]];
 const TYPES = {
   fresnel: LIGHT({name:'Fresnel',w:.38,h:.32,p:{fixture:'650W Fresnel',cct:3200,power:100,beam:30,throw:3,modifier:'Barn doors',gel:'',height:2.2,tint:'',notes:''}}),
-  cob:     LIGHT({name:'LED COB',w:.32,h:.32,p:{mod:'reflector',fixture:'Aputure 600d',cct:5600,power:70,beam:55,throw:3,modifier:'Reflector',gel:'',height:2.2,tint:'',notes:''}}),
+  cob:     LIGHT({name:'LED',w:.32,h:.32,p:{mod:'reflector',fixture:'Aputure 600d',cct:5600,power:70,beam:55,throw:3,modifier:'Reflector',gel:'',height:2.2,tint:'',notes:''}}),
   hmi:     LIGHT({name:'HMI',w:.5,h:.44,p:{fixture:'1.8K HMI',cct:5600,power:100,beam:35,throw:4,modifier:'',gel:'',height:2.5,tint:'',notes:''}}),
   softbox: LIGHT({preset:true,name:'Softbox',w:.5,h:1.2,p:{fixture:'Aputure 300d',cct:5600,power:60,beam:100,throw:2.5,modifier:'Softbox 120',gel:'',height:2,tint:'',notes:''}}),
   octa:    LIGHT({preset:true,name:'Octabox',w:.55,h:1.5,p:{fixture:'Aputure 600d',cct:5600,power:60,beam:110,throw:2.5,modifier:'Octa 150',gel:'',height:2.1,tint:'',notes:''}}),
@@ -1231,15 +1242,18 @@ function beamB(it){ const m=modOf(it), M=MODS[m], hh=it.h/2;   // half the width
   if(m==='snoot') return Math.min(hh*.6,.05); if(M.md&&M.face&&M.g==='Soft') return hh*.9;
   return (it.type==='softbox'||it.type==='octa'||it.type==='panel')?hh*.9:Math.min(hh*.6,.12); }
 function setMod(it,m,keepUndo){ const L=FIX_MODS[it.type]; if(!L||!L.includes(m)) return; if(!keepUndo) checkpoint();
+  const anchor0=fromLocal(it,bodyCx(it),0);   // the lamp itself stays put; the modifier grows out of its front
   const p=it.p, M=MODS[m], T=TYPES[it.type], prevName=MODS[modOf(it)].n; p.mod=m; if(!M.grid) delete p.grid; delete p.soft;
   if(M.beam) p.beam=Math.round(M.beam*(p.grid?.45:1)); else if(m==='none') p.beam=T.p.beam;
   const B=FIX_BODY[it.type];
   if(B){ if(m==='lantern'){ it.w=it.h=M.size; if(!(+p.throw>0)) p.throw=2; }
     else if(M.md){ it.w=Math.round((B.bl+M.md)*100)/100; it.h=Math.round(Math.max(B.bh,M.face||B.bh+.12)*100)/100; }
-    else { it.w=T.w; it.h=T.h; } }
+    else { it.w=T.w; it.h=T.h; }
+    const a1=fromLocal(it,bodyCx(it),0); it.x=Math.round((it.x+anchor0.x-a1.x)*1000)/1000; it.y=Math.round((it.y+anchor0.y-a1.y)*1000)/1000; }
   if(!p.modifier||p.modifier===prevName||Object.values(MODS).some(x=>x.n===p.modifier)||/^(open face|hyper reflector|softbox 90|softbox|octa.*|strip.*|light dome.*|lantern.*)$/i.test(p.modifier)) p.modifier=m==='none'?'':M.n+(p.grid?' + grid':'');
   touch(); renderInspector(); draw(); }
-/* older plots: softbox / octa / lantern were their own lights; they become an LED COB with that modifier */
+function bodyCx(it){ const B=FIX_BODY[it.type], m=modOf(it), M=MODS[m]; if(!B||m==='lantern') return 0; const bl=Math.min(B.bl,it.w*(M.md?.62:.85)); return -it.w/2+bl/2; }   // the lamp body's centre, in the light's own frame
+/* older plots: softbox / octa / lantern were their own lights; they become an LED with that modifier */
 function migrateLights(){ if(!cur) return; cur.items.forEach(it=>{ const p=it.p||(it.p={});
     if(it.type==='softbox'||it.type==='octa'||it.type==='lantern'){ const m=it.type==='octa'?'octa':it.type==='lantern'?'lantern':(/strip/i.test(p.modifier||'')?'strip':'softbox'); it.type='cob'; p.mod=m; return; }
     if(FIX_MODS[it.type]&&p.mod==null){ const s=p.modifier||'';
@@ -1321,6 +1335,19 @@ function beam(it,Q,k,defs,pre){
   }
   if(isOmniL(it)){
     defs.push(`<radialGradient id="${gid}" gradientUnits="userSpaceOnUse" cx="0" cy="0" r="${f(L)}"><stop offset="0" stop-color="${c}" stop-opacity="${f(op)}"/><stop offset="1" stop-color="${c}" stop-opacity="0"/></radialGradient>`);
+    if(it.type==='tube' && p.roll!=null && p.roll!==''){   // a rolled (half-wrapped) tube: the light goes out of the side it faces; straight up or down it spills to both sides
+      const r=(+p.roll||0)*D2R, wp=.5+.5*Math.cos(r), wn=.5-.5*Math.cos(r), y0=-hh-L*.25, ht=it.h+L*.5;
+      const side=(sg,w)=>{ if(w<.03) return ''; const id=gid+(sg>0?'rp':'rn'), len=L*(.25+.75*w);
+        defs.push(`<linearGradient id="${id}" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="${f(sg*len)}" y2="0"><stop offset="0" stop-color="${c}" stop-opacity="${f(op*w)}"/><stop offset="1" stop-color="${c}" stop-opacity="0"/></linearGradient>`);
+        return `<rect x="${f(sg>0?0:-len)}" y="${f(y0)}" width="${f(len)}" height="${f(ht)}" rx="${f(Math.min(len,ht)*.45)}" fill="url(#${id})"/>`; };
+      // crisp close to the tube, melting towards the far end: a near copy and a far copy cross-faded across the throw
+      const body=side(1,wp)+side(-1,wn), Ln=L*.8, big=L+3, bx=`x="${f(-big)}" y="${f(-big-hh)}" width="${f(2*big)}" height="${f(2*big+it.h)}"`;
+      const blurDef=(id,v)=>defs.push(`<filter id="${id}" filterUnits="userSpaceOnUse" ${bx} color-interpolation-filters="sRGB"><feGaussianBlur stdDeviation="${f(v)}"/></filter>`);
+      blurDef(gid+'tN',.03); blurDef(gid+'tF',.14+.12*Math.min(L,4));
+      [['N',1,0],['F',0,1]].forEach(([n,a0,a1])=>{ const g2=gid+'tg'+n;
+        defs.push(`<linearGradient id="${g2}r" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="${f(Ln)}" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="${a0}"/><stop offset="1" stop-color="#fff" stop-opacity="${a1}"/></linearGradient><linearGradient id="${g2}l" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="${f(-Ln)}" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="${a0}"/><stop offset="1" stop-color="#fff" stop-opacity="${a1}"/></linearGradient>`
+          +`<mask id="${gid}tm${n}" maskUnits="userSpaceOnUse" maskContentUnits="userSpaceOnUse" ${bx}><rect x="0" y="${f(-big-hh)}" width="${f(big)}" height="${f(2*big+it.h)}" fill="url(#${g2}r)"/><rect x="${f(-big)}" y="${f(-big-hh)}" width="${f(big)}" height="${f(2*big+it.h)}" fill="url(#${g2}l)"/></mask>`); });
+      return `<g mask="url(#${gid}tmN)"><g filter="url(#${gid}tN)">${body}</g></g><g mask="url(#${gid}tmF)"><g filter="url(#${gid}tF)">${body}</g></g>`; }
     if(it.type==='tube') return `<rect x="${f(-L)}" y="${f(-hh-L*.6)}" width="${f(2*L)}" height="${f(it.h+L*1.2)}" rx="${f(L)}" fill="url(#${gid})"/>`;
     return `<circle r="${f(L)}" fill="url(#${gid})"/>`;
   }
@@ -1520,6 +1547,9 @@ function plotMarkup(items,Q,o){
       if(o.sel.size===1 && o.handles){
         const r=6*k;
         g += `<line x1="0" y1="${f(-hh)}" x2="0" y2="${f(-hh-20*k)}" stroke="${Q.accent}" stroke-width="${f(1.3*k)}" pointer-events="none"/><circle data-h="rot" cy="${f(-hh-20*k)}" r="${f(r)}" fill="#ffffff" stroke="${Q.accent}" stroke-width="${f(1.8*k)}"/>`;
+        if(it.type==='tube'){ const cy=-hh-56*k, R=11*k, has=it.p.roll!=null&&it.p.roll!=='', a=(+it.p.roll||0)*D2R;
+          g+=`<g data-h="roll" style="cursor:grab"><title>Roll the tube: drag round to choose which side it lights · Shift for 15° steps</title><line x1="0" y1="${f(-hh-26*k)}" x2="0" y2="${f(cy+R)}" stroke="${Q.accent}" stroke-width="${f(1.2*k)}" stroke-dasharray="${f(2*k)} ${f(2*k)}"/><circle cx="0" cy="${f(cy)}" r="${f(R)}" fill="#ffffff" stroke="${Q.accent}" stroke-width="${f(1.8*k)}"/>`
+            +(has?`<line x1="0" y1="${f(cy)}" x2="${f(Math.cos(a)*R*.8)}" y2="${f(cy-Math.sin(a)*R*.8)}" stroke="${Q.accent}" stroke-width="${f(2.2*k)}" stroke-linecap="round"/><circle cx="${f(Math.cos(a)*R*.8)}" cy="${f(cy-Math.sin(a)*R*.8)}" r="${f(2.4*k)}" fill="${Q.accent}"/>`:`<circle cx="0" cy="${f(cy)}" r="${f(R*.45)}" fill="none" stroke="${Q.accent}" stroke-width="${f(1.2*k)}" stroke-dasharray="${f(2*k)} ${f(2*k)}"/>`)+`</g>`; }
         if(it.type==='map') g+=mapHandles(it,Q,k);
         else if(t.resize==='w'){ const ex=it.w/2;
           g += [-1,1].map(sg=>`<rect data-h="${sg<0?'end1':'end2'}" x="${f(sg*ex-r)}" y="${f(-r)}" width="${f(2*r)}" height="${f(2*r)}" rx="${f(2.5*k)}" fill="#ffffff" stroke="${Q.accent}" stroke-width="${f(1.8*k)}"/>`).join('');
@@ -1734,7 +1764,7 @@ function northSync(){ if(!cur) return; if(northDoc!==cur.id){ northSeen.clear();
   let mod=false; N.forEach(i=>{ if(Math.abs(i.rot-to)>1e-6){ i.rot=to; mod=true; } });
   northSeen.clear(); N.forEach(i=>northSeen.set(i.id,i.rot));
   if(mod&&!drag) setTimeout(touch,0); }
-function renderPlot(){ migrateLights(); foldUpdate(); northSync();
+function renderPlot(){ migrateLights(); foldUpdate(); northSync(); if(!drag&&!tweenCur) mmFixInward();
   W=Math.max(1,innerWidth); H=Math.max(1,innerHeight);
   const vw=W/view.s, vh=H/view.s, x0=view.x-vw/2, y0=view.y-vh/2;
   svg.setAttribute('viewBox',`${f(x0)} ${f(y0)} ${f(vw)} ${f(vh)}`);
@@ -1743,7 +1773,7 @@ function renderPlot(){ migrateLights(); foldUpdate(); northSync();
   cardBadges=[];
   const m = plotMarkup(cur?cur.items:[],P,{pxm:view.s,beams:opts.beams,specs:opts.specs&&view.s>=50,sel,handles:!readOnly && ![...sel].some(id=>{ const it=itemById(id); return it && LFc().lock(it); }),layers:cur&&cur.layers,iso:!!isoSet,plug:plugIds(),cable:cableIds(),cableSel,beamH:beamHoverId()});
   const g = patternMarkup(P,x0,y0,vw,vh,k,view.s,'pv');
-  svg.innerHTML = `<defs>${g.defs}${m.defs}</defs>${g.body}${walkLineMarkup(k)}<g>${m.beams}</g><g>${m.body}</g><g>${m.labels}</g>${linksSVG(cur?cur.items:[],P,k,cur&&cur.layers,true)}${conDragMarkup(k)}${plugDragMarkup(k)}${plugSnapMarkup(k)}<g>${m.over}</g>${lockSelMarkup(k)}${hoverMarkup(k)}${lockFlashMarkup(k)}${isoPulseMarkup(k)}${walkMarkup(k)}<g>${cur&&sel.size&&!extMode?originMarkup(k):''}</g>${extMarkup(k)}${camDropMarkup(k)}${angModeMarkup(k)}${rotModeMarkup(k)}${wallLine&&drag?(w=>w?`<g pointer-events="none" transform="translate(${f(w.x)} ${f(w.y)}) rotate(${f(w.rot)})"><rect x="${f(-w.w/2)}" y="${f(-w.h/2-4*k)}" width="${f(w.w)}" height="${f(w.h+8*k)}" rx="${f(3*k)}" fill="${P.accent}" fill-opacity=".12" stroke="${P.accent}" stroke-opacity=".6" stroke-width="${f(1.2*k)}" stroke-dasharray="${f(4*k)} ${f(3*k)}"/></g>`:'')(itemById(wallLine)):''}${snapMark&&drag?`<g pointer-events="none"><circle cx="${f(snapMark.x)}" cy="${f(snapMark.y)}" r="${f(9*k)}" fill="${P.accent}" fill-opacity=".15" stroke="${P.accent}" stroke-width="${f(1.6*k)}"/><circle cx="${f(snapMark.x)}" cy="${f(snapMark.y)}" r="${f(2.5*k)}" fill="${P.accent}"/></g>`:''}${drag&&drag.mode==='draw'?`<path d="${drag.pts.length>1?smoothPath(drag.pts):`M${f(drag.pts[0][0])} ${f(drag.pts[0][1])}l0 0`}" fill="none" stroke="${penColor(penOpts.color,P)}" stroke-width="${f(Math.max(penOpts.width,1.2*k))}" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>`:''}<g>${cur&&!readOnly?focusMarkup(k):''}</g>${drag&&drag.mode==='box'&&drag.cur?`<rect x="${f(Math.min(drag.start.x,drag.cur.x))}" y="${f(Math.min(drag.start.y,drag.cur.y))}" width="${f(Math.abs(drag.cur.x-drag.start.x))}" height="${f(Math.abs(drag.cur.y-drag.start.y))}" rx="${f(3*k)}" fill="${P.accent}" fill-opacity=".08" stroke="${P.accent}" stroke-width="${f(1.2*k)}" pointer-events="none"/>`:''}`;
+  svg.innerHTML = `<defs>${g.defs}${m.defs}</defs>${g.body}${walkLineMarkup(k)}<g>${m.beams}</g><g>${m.body}</g><g>${m.labels}</g>${linksSVG(cur?cur.items:[],P,k,cur&&cur.layers,true)}${reDragMarkup(k)}${conDragMarkup(k)}${plugDragMarkup(k)}${plugSnapMarkup(k)}<g>${m.over}</g>${lockSelMarkup(k)}${hoverMarkup(k)}${lockFlashMarkup(k)}${isoPulseMarkup(k)}${walkMarkup(k)}<g>${cur&&sel.size&&!extMode?originMarkup(k):''}</g>${extMarkup(k)}${camDropMarkup(k)}${angModeMarkup(k)}${rotModeMarkup(k)}${wallLine&&drag?(w=>w?`<g pointer-events="none" transform="translate(${f(w.x)} ${f(w.y)}) rotate(${f(w.rot)})"><rect x="${f(-w.w/2)}" y="${f(-w.h/2-4*k)}" width="${f(w.w)}" height="${f(w.h+8*k)}" rx="${f(3*k)}" fill="${P.accent}" fill-opacity=".12" stroke="${P.accent}" stroke-opacity=".6" stroke-width="${f(1.2*k)}" stroke-dasharray="${f(4*k)} ${f(3*k)}"/></g>`:'')(itemById(wallLine)):''}${snapMark&&drag?`<g pointer-events="none"><circle cx="${f(snapMark.x)}" cy="${f(snapMark.y)}" r="${f(9*k)}" fill="${P.accent}" fill-opacity=".15" stroke="${P.accent}" stroke-width="${f(1.6*k)}"/><circle cx="${f(snapMark.x)}" cy="${f(snapMark.y)}" r="${f(2.5*k)}" fill="${P.accent}"/></g>`:''}${drag&&drag.mode==='draw'?`<path d="${drag.pts.length>1?smoothPath(drag.pts):`M${f(drag.pts[0][0])} ${f(drag.pts[0][1])}l0 0`}" fill="none" stroke="${penColor(penOpts.color,P)}" stroke-width="${f(Math.max(penOpts.width,1.2*k))}" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>`:''}<g>${cur&&!readOnly?focusMarkup(k):''}</g>${drag&&drag.mode==='box'&&drag.cur?`<rect x="${f(Math.min(drag.start.x,drag.cur.x))}" y="${f(Math.min(drag.start.y,drag.cur.y))}" width="${f(Math.abs(drag.cur.x-drag.start.x))}" height="${f(Math.abs(drag.cur.y-drag.start.y))}" rx="${f(3*k)}" fill="${P.accent}" fill-opacity=".08" stroke="${P.accent}" stroke-width="${f(1.2*k)}" pointer-events="none"/>`:''}`;
   renderCards(); renderCardBadges();
   $('#zoomLbl').textContent = Math.round(view.s/70*100)+'%';
   const cands=[.25,.5,1,2,5,10]; let L=1; for(const c of cands){ if(c*view.s>=36){ L=c; break; } }
@@ -2524,6 +2554,7 @@ svg.addEventListener('pointermove',e=>{
   if(drag.mode==='plug'){ drag.cur=pt; drag.cx=e.clientX; drag.cy=e.clientY; drag.target=outletNear(e,pt); draw(); return; }
   const it=drag.it, t=TYPES[it.type];
   const r=-it.rot*D2R, dx=pt.x-it.x, dy=pt.y-it.y, lx=dx*Math.cos(r)-dy*Math.sin(r), ly=dx*Math.sin(r)+dy*Math.cos(r);
+  if(drag.mode==='roll' && it.type==='tube'){ const kk=1/view.s, cy=-it.h/2-56*kk; let a=Math.atan2(-(ly-cy),lx)/D2R; if(e.shiftKey) a=Math.round(a/15)*15; it.p.roll=Math.round(((a%360)+360)%360); draw(); syncInspector(); const rr=insp.querySelector('[data-k="p.roll"]'); if(rr) insp.querySelectorAll('[data-k="p.roll"]').forEach(o=>o.value=it.p.roll); return; }
   if(drag.mode==='sunT' && it.type==='sunpath'){ const D=sunDay(it), R=it.w/2; let best=null;
     D.S.forEach(s=>{ if(s.el<-.833) return; const P=sunXY(R,s.az,s.el), d=Math.hypot(P.x-lx,P.y-ly); if(!best||d<best.d) best={d,h:s.h}; });
     if(best&&best.h!==+it.p.time){ it.p.time=best.h; sunSync(it); } draw(); return; }
@@ -2576,7 +2607,7 @@ function endPtr(e){
 }
 svg.addEventListener('pointerup',endPtr); svg.addEventListener('pointercancel',endPtr);
 svg.addEventListener('lostpointercapture',e=>{ if(ptrs.has(e.pointerId)) endPtr(e); });
-function endDragState(){ if(drag && ['move','rot','size','throw','focus','end1','end2','angA','angB','grot','sunw','mapN','mapS','mapE','mapW','sunT'].includes(drag.mode) && (drag.mode!=='move'||drag.moved)) touch(); focusGuide=null; svg.classList.remove('grabbing'); }
+function endDragState(){ if(drag && ['move','rot','size','throw','focus','end1','end2','angA','angB','grot','sunw','mapN','mapS','mapE','mapW','sunT','roll'].includes(drag.mode) && (drag.mode!=='move'||drag.moved)) touch(); focusGuide=null; svg.classList.remove('grabbing'); }
 addEventListener('blur',()=>{ ptrs.clear(); pinch=null; if(drag){ endDragState(); drag=null; draw(); } });
 /* trackpad: two-finger drag pans, pinch zooms. mouse wheel zooms (Shift pans sideways). ⌘/Ctrl + scroll always zooms.
    The device is decided at the start of each gesture so momentum scrolling can't flip it halfway. */
@@ -3642,7 +3673,7 @@ function addCatalog(){ const out=[], seen=new Set(), push=(k,cat,icon)=>{ if(see
   return out; }
 function addScore(e,q){ if(!q) return 1; const n=e.name.toLowerCase(); if(n===q) return 100; if(n.startsWith(q)) return 80; if(n.split(/[\s/·-]+/).some(w=>w.startsWith(q))) return 60;
   if(n.includes(q)) return 40; const words=q.split(/\s+/).filter(Boolean); if(words.every(w=>e.kw.includes(w))) return 20;
-  let i=0; for(const ch of n) if(ch===q[i]) i++; return i===q.length?5:0; }   // letters in order as a last resort ("lcb" finds LED COB)
+  let i=0; for(const ch of n) if(ch===q[i]) i++; return i===q.length?5:0; }   // letters in order as a last resort ("ld" finds LED)
 function renderAddList(){ const q=$('#addQ').value.trim().toLowerCase(), all=addCatalog();
   let hits=all.map(e=>({e,s:addScore(e,q)})).filter(x=>x.s>0);
   if(q) hits.sort((a,b)=>b.s-a.s); else { const r=addRecent.filter(k=>all.some(e=>e.k===k)); hits=r.map(k=>({e:all.find(e=>e.k===k),s:1,recent:true})).concat(hits.filter(x=>!r.includes(x.e.k))); }
@@ -3876,7 +3907,10 @@ const insp=$('#insp');
 var inspPinned=false; try{ inspPinned=localStorage.getItem('setplot-insp-pin')==='1'; }catch(e){}
 const canHover=matchMedia('(hover: hover) and (pointer: fine)');
 let peekT=0;
-function inspAuto(){ return canHover.matches && ((typeof pres!=='undefined'&&pres) || (!inspPinned && !detailsOpen)); }   // focus mode always tucks settings away, even when pinned
+var inspForce=null;   // '.' holds the settings panel open (and remembers how things were, for the second press)
+function inspAuto(){ return canHover.matches && !inspForce && ((typeof pres!=='undefined'&&pres) || (!inspPinned && !detailsOpen)); }
+function toggleSettingsKey(){ if(inspForce){ const pv=inspForce; inspForce=null; detailsOpen=pv.details; renderInspector(); draw(); return; }
+  inspForce={details:detailsOpen}; insp.classList.remove('peek'); if(!sel.size) detailsOpen=true; renderInspector(); draw(); }   // focus mode always tucks settings away, even when pinned
 function syncInspMode(){
   const auto=!insp.hidden && inspAuto();
   insp.classList.toggle('auto',auto);
@@ -3907,6 +3941,7 @@ function renderInspector(){ renderLayersSoon(); if(flyCat==='Align' && !$('#fly'
   const dis=readOnly?'disabled':'';
   $('#detailsBtn').setAttribute('aria-pressed', detailsOpen && !sel.size);
   if(focusMode && !aimables().length){ focusMode=false; focusPt=null; updAimUI(); }
+  if(inspForce && !sel.size) detailsOpen=true;   // held open: with nothing selected it shows the setup details
   if(!cur || (!sel.size && !detailsOpen)){ insp.hidden=true; return; }
   if(sel.size===1 && isCard(itemById([...sel][0]))){ insp.hidden=true; return; }
   insp.hidden=false;
@@ -3923,6 +3958,9 @@ function renderInspector(){ renderLayersSoon(); if(flyCat==='Align' && !$('#fly'
       if(it.type!=='sun') a+=row('Model',txt('p.modifier',p.modifier,`list="dlMod" placeholder="e.g. Light Dome II" ${dis}`));
       a+=row('Softness',`<div class="rng"><input type="range" data-k="p.soft" min="0" max="100" step="5" value="${Math.round(softOf(it)*100)}" aria-label="Softness"><span class="unit" style="min-width:5.5em">${p.soft!=null&&p.soft!==''?`<button class="btn sm ghost" data-act="softauto" ${dis}>Auto</button>`:'auto'}</span></div>`); }
     if(it.type==='sun') a+=row('Time of day',`<input class="fi" type="time" data-k="p.time" value="${esc(p.time||'')}" ${dis} aria-label="Time of day">`);
+    if(it.type==='tube'){ const has=p.roll!=null&&p.roll!=='';
+      a+=`<div class="toggle"><span>Half-wrapped<small class="muted" style="display:block">Lights one side · roll it to aim</small></span><label class="sw"><input type="checkbox" data-tuberoll ${has?'checked':''} ${dis} aria-label="Half-wrapped"><span></span></label></div>`;
+      if(has) a+=row('Roll',rng('p.roll',p.roll,0,355,5,'°')); }
     if(t.light) a+=`<div class="toggle"><span>Light is on</span><label class="sw"><input type="checkbox" data-k="on" ${it.on===false?'':'checked'} ${dis} aria-label="Light is on"><span></span></label></div>`;
     if(it.type==='camera'){ const others=new Map(cur.items.filter(o=>o!==it&&o.type==='camera'&&o.p&&o.p.letter).map(o=>[o.p.letter,o]));
       a+=row('Letter',`<select data-k="p.letter" ${dis}>${[...LETTERS].map(l=>`<option value="${l}" ${p.letter===l?'selected':''}>${l}${others.has(l)?` · swap with ${esc(others.get(l).label||l+' cam')}`:''}</option>`).join('')}</select>`); }
@@ -4055,7 +4093,8 @@ function applyField(el){
   touch(); draw();
 }
 insp.addEventListener('input',e=>{ if(e.target.id==='bevelSize'){ const v=parseFloat(e.target.value); if(isFinite(v)&&v>0) bevelSize=v; return; } if(e.target.dataset.k) applyField(e.target); });
-insp.addEventListener('change',e=>{ if(e.target.hasAttribute('data-modsel')&&!readOnly){ const it=itemById([...sel][0]); if(it) setMod(it,e.target.value); return; }
+insp.addEventListener('change',e=>{ if(e.target.hasAttribute('data-tuberoll')&&!readOnly){ const it=itemById([...sel][0]); if(it){ checkpoint(); if(e.target.checked) it.p.roll=0; else delete it.p.roll; touch(); renderInspector(); draw(); } return; }
+  if(e.target.hasAttribute('data-modsel')&&!readOnly){ const it=itemById([...sel][0]); if(it) setMod(it,e.target.value); return; }
   if(e.target.hasAttribute('data-modgridi')&&!readOnly){ const it=itemById([...sel][0]); if(it){ checkpoint(); it.p.grid=e.target.checked; setMod(it,modOf(it),true); } return; }
   if(e.target.hasAttribute('data-sunplace')&&!readOnly){ const it=itemById([...sel][0]), c=SUN_PLACES.find(x=>x[0]===e.target.value); if(it&&c){ checkpoint(); Object.assign(it.p,{place:c[0],lat:c[1],lon:c[2],tz:c[3]}); touch(); renderInspector(); draw(); } return; } if(e.target.hasAttribute('data-lsel') && e.target.value){ moveItemsToLayer([...sel].filter(id=>itemById(id)),e.target.value); } });
 insp.addEventListener('change',e=>{ if(e.target.dataset.k==='rot'||e.target.dataset.k==='rx'||e.target.dataset.k==='rf') renderInspector(); });
@@ -4079,7 +4118,7 @@ insp.addEventListener('click',e=>{
   const pick=e.target.closest('[data-pick]'); if(pick){ sel=new Set([pick.dataset.pick]); renderInspector(); draw(); return; }
   const a=e.target.closest('[data-act]'); if(!a) return;
   const act=a.dataset.act;
-  if(act==='close'){ sel.clear(); detailsOpen=false; renderInspector(); draw(); }
+  if(act==='close'){ inspForce=null; sel.clear(); detailsOpen=false; renderInspector(); draw(); }   // the ✕ also lets go of a '.' hold, back to the usual behaviour
   else if(act==='del') deleteSel();
   else if(act==='dup') dupSel();
   else if(act==='front'){ checkpoint(); const it=itemById([...sel][0]); delete it.focus; it.rot=((it.rot+180+540)%360)-180; touch(); renderInspector(); draw(); }
@@ -4244,19 +4283,19 @@ var KEY_ACTIONS=[
   ['Edit','undo','Undo','mod+z'], ['Edit','redo','Redo','mod+shift+z'], ['Edit','copy','Copy','mod+c'], ['Edit','cut','Cut','mod+x'],
   ['Edit','paste','Paste','mod+v'], ['Edit','dup','Duplicate','mod+d'], ['Edit','group','Group','mod+g'], ['Edit','ungroup','Ungroup','mod+shift+g'], ['Edit','lock','Lock / unlock layer','mod+l'], ['Edit','del','Delete selected','x'], ['Edit','rename','Rename selected object','enter'],
   ['Objects','aim','Aim · rotate a group (several selected)','r'], ['Objects','modifier','Light modifier (selected light)','m'], ['Objects','walk','Walk mode (talent): WASD, Shift to run','mod+enter'], ['Objects','rotl','Turn −15°','['], ['Objects','rotr','Turn +15°',']'],
-  ['Tools','addmenu','Search & add at the cursor','shift+a'], ['Tools','pen','Pen','p'], ['Tools','layers','Layers panel','l'],
+  ['Tools','addmenu','Search & add at the cursor','shift+a'], ['Tools','pen','Pen','p'], ['Tools','layers','Layers panel',','], ['Tools','settings','Settings panel (stays open · again to go back)','.'],
   ['Left toolbar','c_board','Nested setup','0'], ['Left toolbar','g_shoots','Shoots',''], ['Left toolbar','g_lights','Lights','1'], ['Left toolbar','g_grip','Grip','2'], ['Left toolbar','g_camera','Camera','3'],
   ['Left toolbar','g_subjects','Subjects','4'], ['Left toolbar','g_set','Set','5'], ['Left toolbar','g_layers','Layers','6'],
   ['Right toolbar','c_note','Note','shift+1'], ['Right toolbar','c_todo','To-do','shift+2'], ['Right toolbar','c_comment','Comment','shift+3'],
   ['Right toolbar','c_grid','Table','shift+4'], ['Right toolbar','c_color','Colour','shift+5'], ['Right toolbar','c_column','Column','shift+8'], ['Right toolbar','g_notes','Notes (text, arrow, distance, angle, pen)','shift+6'], ['Right toolbar','g_align','Align & distribute','shift+7'],
   ['View','present','Focus mode (hide the toolbars)','shift+f'], ['View','isolate','Highlight selection (dim the rest)','shift+h'], ['View','fit','Fit plot to screen','z'], ['View','zoomin','Zoom in','+'], ['View','zoomout','Zoom out','-'], ['View','zoom100','Zoom to 100%','shift+0'],
   ['View','snap','Snap on / off','s'], ['View','beams','Beams on / off','b'], ['View','specs','Fixture specs on / off','i'],
-  ['Mind map','tidy','Tidy the mind map (all maps if nothing is selected)','shift+t'], ['Mind map','fold','Fold / unfold the selected idea\'s branches','f'],
+  ['Mind map','tidy','Tidy the mind map (all maps if nothing is selected)','mod+alt+t'], ['Mind map','fold','Fold / unfold the selected idea\'s branches','f'],
   ['Help','keys','Show shortcuts','?'], ['Help','guide','Helper bar on / off','h']
 ];
 var KEY_FIXED=[ // shown for reference, not rebindable
-  ['Space + drag','Pan the board'], ['Middle mouse drag','Pan the board'], ['Two-finger drag','Pan the board'], ['Pinch · ⌘/Ctrl + scroll · mouse wheel','Zoom'], ['Arrow keys','Nudge 10 cm (⇧ for 50 cm)'],
-  ['Esc','Cancel · deselect'], ['⇧ + click','Add to selection'], ['⌥/Alt + drag','Drag a copy'], ['⇧ while aiming / rotating','15° steps'], ['Delete','Delete selected'], ['Tab (in or on a note)','Mind map: add an idea, continuing the branch'], ['⇧ Tab','Mind map: idea on the left · above / below when taken'], ['Double-click or ↵ Enter','Rename object']
+  ['Space + drag','Pan the board'], ['Middle mouse drag','Pan the board'], ['Two-finger drag','Pan the board'], ['Pinch · ⌘/Ctrl + scroll · mouse wheel','Zoom'], ['Arrow keys','Nudge 10 cm (⇧ for 50 cm)'], ['⇧ + arrow keys on a note','Jump to the next note in that direction'],
+  ['Esc','Cancel · deselect'], ['⇧ + click','Add to selection'], ['⌥/Alt + drag','Drag a copy'], ['⇧ while aiming / rotating','15° steps'], ['Delete','Delete selected'], ['Tab (in or on a note)','Mind map: add an idea, continuing the branch'], ['⇧ Tab','Mind map: move the idea round its parent · above, below, opposite, back'], ['Double-click or ↵ Enter','Rename object']
 ];
 var keyCustom={}; try{ keyCustom=JSON.parse(localStorage.getItem('setplot-keys')||'{}')||{}; }catch(e){}
 const IS_MAC_K=/Mac|iPhone|iPad/.test(navigator.platform||navigator.userAgent);
@@ -4264,7 +4303,8 @@ function keyOf(id){ return id in keyCustom ? keyCustom[id] : (KEY_ACTIONS.find(a
 function comboOf(e){
   let k=(e.key||'').toLowerCase(); if(k===' ') k='space'; if(k==='esc') k='escape'; if(k==='del') k='delete';
   if(['meta','control','shift','alt'].includes(k)) return '';
-  if(/^(Digit|Numpad)\d$/.test(e.code||'')) k=e.code.slice(-1);   // number keys by position, so ⇧1 works on every layout
+  if(/^(Digit|Numpad)\d$/.test(e.code||'')) k=e.code.slice(-1);
+  if(e.altKey && /^Key[A-Z]$/.test(e.code||'')) k=e.code.slice(3).toLowerCase();   // ⌥ turns letters into symbols on a Mac (⌥T → †); go by the key itself   // number keys by position, so ⇧1 works on every layout
   const sym = k.length===1 && !/[a-z0-9]/.test(k);   // '?', '[', '+' … already include Shift in the character
   return [(e.metaKey||e.ctrlKey)?'mod':'', e.altKey?'alt':'', (e.shiftKey&&!sym)?'shift':'', k].filter(Boolean).join('+');
 }
@@ -4345,6 +4385,9 @@ document.addEventListener('keydown',e=>{
   if(focusMode && (e.key==='Escape'||e.key==='Enter') && !typing){ e.preventDefault(); exitFocus(); return; }
   if(cableSel && !typing && e.key==='Escape' && $('#modal').hidden){ cableSel=null; draw(); return; }
   if(e.key==='Escape'){ if(!$('#modal').hidden){ $('#modal').hidden=true; return; } if(!$('#drawer').hidden){ closeDrawer(); return; } if(flyCat){ closeFloating(); return; } if(!typing){ sel.clear(); activeLayer=null; renderLayersSoon(); detailsOpen=false; setCardSel(null); renderInspector(); draw(); } return; }
+  if(!typing && !readOnly && sel.size===1 && e.key.length===1 && e.key!==' ' && !e.metaKey && !e.ctrlKey && !e.altKey && !e.isComposing){   // a selected note: just start typing
+    const n0=itemById([...sel][0]), ta=n0&&(n0.type==='note'||n0.type==='comment')&&cardsEl.querySelector(`[data-cid="${n0.id}"] textarea[data-f="text"]`);
+    if(ta){ e.preventDefault(); ta.focus({preventScroll:true}); const L=ta.value.length; ta.setRangeText(e.key,L,L,'end'); ta.dispatchEvent(new Event('input',{bubbles:true})); return; } }
   if(flyCat==='Align' && !typing && !readOnly && !e.metaKey && !e.ctrlKey && !e.altKey && !e.shiftKey && /^(Digit|Numpad)[1-9]$/.test(e.code||'')){
     e.preventDefault(); const g=ALIGN_GRID[+e.code.slice(-1)-1], n=alignItems().length;
     if(n<g[3]) toast(g[3]===3?'Distribute needs three or more selected':'Select two or more objects to align'); else runAlign(g[0]); return; }
@@ -4362,7 +4405,7 @@ document.addEventListener('keydown',e=>{
     else openGroupAtCursor({lights:'Lights',grip:'Grip',camera:'Camera',subjects:'Talent',set:'Set',notes:'Notes',align:'Align'}[g]); return; }
   if(act==='isolate' && !typing){ e.preventDefault(); toggleIso(); return; }
   if(act==='present' && !typing){ e.preventDefault(); startPresent(); return; }
-  if(e.key==='Tab' && !typing && !readOnly && !e.metaKey && !e.ctrlKey && !e.altKey && sel.size===1){ const n0=itemById([...sel][0]); if(n0&&n0.type==='note'){ e.preventDefault(); if(e.shiftKey) mmLeft(n0); else mmChild(n0); return; } }
+  if(e.key==='Tab' && !typing && !readOnly && !e.metaKey && !e.ctrlKey && !e.altKey && sel.size===1){ const n0=itemById([...sel][0]); if(n0&&n0.type==='note'){ e.preventDefault(); if(e.shiftKey) mmSwapSide(n0); else mmChild(n0); return; } }
   if(act==='addmenu' && !typing && !readOnly){ e.preventDefault(); openAddSearch(); return; }
   if(typing||readOnly||!cur) return;
   if(act==='fold'){ const n0=sel.size===1?itemById([...sel][0]):null; if(n0&&isCard(n0)&&foldSides(n0).length){ e.preventDefault(); mmFold(n0); } return; }
@@ -4379,10 +4422,12 @@ document.addEventListener('keydown',e=>{
   else if(act==='cut' && sel.size){ e.preventDefault(); copySel(true); }
   else if(act==='paste'){ pasteWait=setTimeout(()=>{ pasteWait=0; pasteClip(); },120); }   // a paste event follows; if it carries a maps link it wins, otherwise the app clipboard pastes
   else if(act==='layers'){ toggleLayers(); }
+  else if(act==='settings'){ e.preventDefault(); toggleSettingsKey(); }
   else if(act==='rename' && sel.size===1){ const it=itemById([...sel][0]); if(canRename(it)){ e.preventDefault(); if(!(lastArea==='panel' && renameInPanel(it))) renameOnScene(it); } }
   else if(act==='pen'){ drawMode?exitDraw():enterDraw(); }
   else if(act==='aim'){ if(focusMode) exitFocus(); else if(rotItems().length>1) enterRot(); else if(sel.size){ enterFocus(); renderInspector(); } }
   else if((act==='rotl'||act==='rotr') && sel.size){ checkpoint(); sel.forEach(id=>{ const it=itemById(id); delete it.focus; it.rot=((it.rot+(act==='rotr'?15:-15)+540)%360)-180; }); touch(); renderInspector(); draw(); }
+  else if(e.key.startsWith('Arrow') && e.shiftKey && !e.altKey && sel.size===1 && isCard(itemById([...sel][0]))){ e.preventDefault(); cardNav(itemById([...sel][0]),e.key.slice(5).toLowerCase()); }
   else if(e.key.startsWith('Arrow') && sel.size){ e.preventDefault(); checkpoint(); const s=e.shiftKey?.5:.1, LKa=LFc(); sel.forEach(id=>{ const it=itemById(id); if(!it||LKa.lock(it)) return; if(e.key==='ArrowLeft') it.x-=s; if(e.key==='ArrowRight') it.x+=s; if(e.key==='ArrowUp') it.y-=s; if(e.key==='ArrowDown') it.y+=s; it.x=Math.round(it.x*100)/100; it.y=Math.round(it.y*100)/100; }); reaimAll(); touch(); syncInspector(); draw(); }
 });
 
@@ -4535,6 +4580,7 @@ function stopPresent(){ if(!pres) return; pres=null; if(isoSet) toggleIso();
   draw(); }
 $('#focusExit').onclick=()=>stopPresent();
 $('#presentBtn').onclick=()=>startPresent();
+$('#acctBtn').onclick=()=>openAccount();
 addEventListener('keydown',e=>{
   if(!pres) return; const t=(e.target.tagName||'').toLowerCase(); if(t==='input'||t==='textarea'||e.target.isContentEditable) return;
   if(e.key==='Escape' && $('#modMenu') && !$('#modMenu').hidden){ e.preventDefault(); closeModMenu(); return; }
@@ -4928,7 +4974,7 @@ function cardBody(it){
   }
   return '';
 }
-const cardRO = new ResizeObserver(es=>{ if(es.some(en=>en.target.classList.contains('in-col'))) layoutColumns(); let linked=false; es.forEach(en=>{ const it=itemById(en.target.dataset.cid); if(it){ if(it.h!==en.target.offsetHeight){ it.h=en.target.offsetHeight; if((it.conns&&it.conns.length)||(cur&&cur.items.some(o=>o.conns&&o.conns.some(c=>c.to===it.id)))) linked=true; } } }); if(linked) draw(); });
+const cardRO = new ResizeObserver(es=>{ if(es.some(en=>en.target.classList.contains('in-col'))) layoutColumns(); let linked=false; es.forEach(en=>{ const it=itemById(en.target.dataset.cid); if(it){ if(it.h!==en.target.offsetHeight){ const h0=it.h; it.h=en.target.offsetHeight; if(h0>0&&Math.abs(h0-it.h)>2&&it.type==='note') mmGrew(it.id); if((it.conns&&it.conns.length)||(cur&&cur.items.some(o=>o.conns&&o.conns.some(c=>c.to===it.id)))) linked=true; } } }); if(linked) draw(); });
 function buildCard(it){
   const el=document.createElement('div');
   el.className='bc bc-'+it.type; el.dataset.cid=it.id;
@@ -4945,7 +4991,7 @@ function fillCard(el,it){
 function autoGrow(t){ t.style.height='auto'; t.style.height=(t.scrollHeight+2)+'px'; }
 function renderCards(){
   cardsEl.style.transform=`translate(${W/2-view.x*view.s}px,${H/2-view.y*view.s}px) scale(${view.s/PXM0})`; cardsEl.style.setProperty('--inv',(PXM0/view.s).toFixed(4));
-  const LFk=LFc(), items=cur?cur.items.filter(isCard).filter(LFk.vis):[], BRC=cur?mmBranchColors(cur.items):new Map();
+  const LFk=LFc(), items=cur?cur.items.filter(isCard).filter(LFk.vis):[], BRC=cur?mmBranchColors(cur.items):new Map(), DEP=cur?mmDepths(cur.items):new Map(), FAM=mmFamily(), INC=mmIncoming();
   const keep=new Set();
   items.forEach((it,i)=>{
     let el=cardsEl.querySelector(`[data-cid="${it.id}"]`);
@@ -4954,7 +5000,10 @@ function renderCards(){
     else if(el.dataset.sig!==cardSig(it) && !el.contains(document.activeElement)) fillCard(el,it);
     el.style.left=(it.x*PXM0)+'px'; el.style.top=(it.y*PXM0)+'px'; el.style.width=it.w+'px'; el.style.zIndex=i+1; el.style.minHeight=it.nh?it.nh+'px':''; if(it.type==='trello') el.style.height=(it.nh||460)+'px';
     if(it.type==='gdoc'){ el.style.height=it.p.collapsed?'':(it.nh||420)+'px'; el.classList.toggle('gd-col',!!it.p.collapsed); }
-    { const bc=BRC.get(it.id)||(it.conns&&it.conns.some(c=>BRC.has(c.to))?'':null); el.classList.toggle('mm-br',!!bc); if(bc) el.style.setProperty('--br',bc); else el.style.removeProperty('--br'); } syncFold(el,it);
+    { const md=mmMainDir(it), inn=[INC.get(it.id),md&&OPP[md]].filter(Boolean).join(' '); if(el.dataset.in!==inn) el.dataset.in=inn; }
+    { const dp=DEP.get(it.id); el.classList.toggle('mm-root',dp===0); el.classList.toggle('mm-d1',dp===1); el.classList.toggle('mm-parent',!!(FAM&&FAM.parent===it.id)); el.classList.toggle('mm-child',!!(FAM&&FAM.kids.has(it.id))); el.classList.toggle('mm-dim',!!(FAM&&FAM.id!==it.id&&FAM.parent!==it.id&&!FAM.kids.has(it.id))); }
+    { const bc=null;   // branch colours off: keep the map neutral
+      el.classList.toggle('mm-br',!!bc); if(bc) el.style.setProperty('--br',bc); else el.style.removeProperty('--br'); } syncFold(el,it);
     el.classList.toggle('sel', sel.has(it.id)); el.classList.toggle('solo', sel.has(it.id) && sel.size===1); el.classList.toggle('key', sel.size>1 && [...sel][0]===it.id); el.classList.toggle('locked', LFk.lock(it)); { const o2=LFk.op(it)*isoOp(it)*fxOf(it.id); el.style.opacity=o2<.999?o2:''; }
     keep.add(it.id);
   });
@@ -5301,7 +5350,7 @@ function mdToHtml(md){ if(!md) return ''; const L=String(md).replace(/\r/g,'').r
   flushP(); flushL(); return o; }
 /* nested setups (like Milanote boards): a card on the board opens another setup; that setup knows its parent */
 var bdDepth=0, saveDocT={};
-function saveDoc(id){ const d=all[id]; if(!d) return; clearTimeout(saveDocT[id]);
+function saveDoc(id){ const d=all[id]; if(!d) return; clearTimeout(saveDocT[id]); if(!dbApi) cloudPush(id);
   saveDocT[id]=setTimeout(async()=>{ const data=JSON.parse(JSON.stringify(d)); try{ if(dbApi) await dbApi.collection('diagrams').doc(id).set(data); else localWrite(); }catch(e){ setStatus('Retrying save','warn'); setTimeout(()=>saveDoc(id),2000); } },400); }
 function createChildSetup(){ const now=Date.now(), id=uid(), n=Object.values(all).filter(d=>d.parent===cur.id).length;
   all[id]={title:'Setup '+String.fromCharCode(65+Math.min(25,n)),shoot:cur.shoot||'',client:cur.client||'',date:cur.date||'',location:cur.location||'',crew:cur.crew||'',notes:'',parent:cur.id,items:[],createdAt:now,updatedAt:now};
@@ -5315,7 +5364,7 @@ function syncBoardParents(){ if(!cur) return; cur.items.forEach(b=>{ if(b.type==
 /* a nested setup lives as long as a card on some board opens it. When its card is deleted the setup (and what's nested in it)
    goes too; it's kept in a session trash so undo can bring it back. */
 var setupTrash={};
-function deleteDoc(id){ clearTimeout(saveDocT[id]); try{ if(dbApi) dbApi.collection('diagrams').doc(id).delete().catch(()=>{}); else localWrite(); }catch(e){} }
+function deleteDoc(id){ clearTimeout(saveDocT[id]); if(!dbApi) cloudDelete(id); try{ if(dbApi) dbApi.collection('diagrams').doc(id).delete().catch(()=>{}); else localWrite(); }catch(e){} }
 function boardItems(k){ return cur&&k===cur.id ? cur.items : (all[k]&&all[k].items)||[]; }
 function pruneOrphanSetups(){
   if(readOnly) return 0; let n=0;
@@ -5554,7 +5603,7 @@ function addCard(type,x,y){
 /* brainstorm: + on a note's side adds a connected note there */
 function cardRect(it){ const h=(it.h||Math.max(it.nh||0,60)); return {x:it.x, y:it.y, w:it.w/PXM0, h:h/PXM0}; }
 function addLinkedNote(par,side,beforeId){
-  if(readOnly||!par) return;
+  if(readOnly||!par) return; if(mmBlocked(par).has(side)) return;   // never back towards the note it hangs from, or towards the root
   const gap=56/PXM0, R=cardRect(par), nw=R.w, nh=Math.max(R.h, (par.nh||0)/PXM0, 60/PXM0);
   let x=R.x, y=R.y;
   if(side==='right') x=R.x+R.w+gap; else if(side==='left') x=R.x-nw-gap; else if(side==='bottom') y=R.y+R.h+gap; else y=R.y-nh-gap;
@@ -5562,7 +5611,7 @@ function addLinkedNote(par,side,beforeId){
   for(let i=0;i<14 && hits(x,y);i++){ if(side==='left'||side==='right') y+=nh+gap*.6; else x+=nw+gap*.6; }   // fan out instead of stacking on top
   const it=addCard('note',x,y); if(!it) return;
   par.conns=par.conns||[]; par.conns.push({id:uid(),to:it.id,side}); if(par.fold&&par.fold[side]){ delete par.fold[side]; if(!Object.keys(par.fold).length) delete par.fold; foldUpdate(); } it.w=par.w; if(par.nh) it.nh=par.nh;
-  layoutTree(par,side,it.id,beforeId?{before:beforeId}:null);
+  { const r=mmRoot(par); mmRelayout(()=>{ layoutTree(par,side,it.id,beforeId?{before:beforeId}:null); mmSettle(r); }); }   // the new idea takes its slot, then the whole map settles so nothing overlaps
   if(!RM()) popIn(it,side);
   touch(); draw(); return it;
 }
@@ -5584,13 +5633,23 @@ function layoutTree(par,side,newId,ord){ if(!cur||!par) return; finishTween();
       if(i){ off=-Infinity; for(let d=0;d<Math.min(merged.length,sb.cont.length);d++) off=Math.max(off,merged[d][1]-sb.cont[d][0]+gap); }   // closest it can sit without touching any level
       offs.push(off); sb.cont.forEach((c,d)=>{ const lo=c[0]+off, hi=c[1]+off; merged[d]=merged[d]?[Math.min(merged[d][0],lo),Math.max(merged[d][1],hi)]:[lo,hi]; }); });
     const sh=subs.length?-(offs[0]+offs[offs.length-1])/2:0, s=sz(n);
-    return {n, subs, offs:offs.map(o=>o+sh), cont:[[-s/2,s/2]].concat(merged.map(m=>[m[0]+sh,m[1]+sh]))}; };
+    // ideas hanging off this one's other sides (above/below it in a sideways tree) take room too, so the tree leaves space for them
+    let lo=-s/2, hi=s/2; const nc=horiz?n.y+hOf(n)/2:n.x+wOf(n)/2, perp=horiz?['top','bottom']:['left','right'];
+    if(!(n.fold&&perp.every(p=>n.fold[p]))) (n.conns||[]).forEach(c=>{ const sd=c.side||'right'; if(!perp.includes(sd)||(n.fold&&n.fold[sd])) return; const t=itemById(c.to); if(!t||!isCard(t)||colOf(t.id)) return;
+      branchOf(t).forEach(k=>{ if(k===n||foldHid&&foldHid.has(k.id)) return; const a=horiz?k.y:k.x, b=a+(horiz?hOf(k):wOf(k)); lo=Math.min(lo,a-nc-gap/2); hi=Math.max(hi,b-nc+gap/2); }); });
+    return {n, subs, offs:offs.map(o=>o+sh), cont:[[lo,hi]].concat(merged.map(m=>[m[0]+sh,m[1]+sh]))}; };
   const T=build(top), tgt=new Map([[top.id,{x:top.x,y:top.y}]]);
   const place=b=>{ const p=tgt.get(b.n.id), pw=wOf(b.n), ph=hOf(b.n), pc=horiz?p.y+ph/2:p.x+pw/2;
     b.subs.forEach((sb,i)=>{ const k=sb.n, w=wOf(k), h=hOf(k), c=pc+b.offs[i]; let x, y;
       if(horiz){ x=side==='right'?p.x+pw+gapX:p.x-w-gapX; y=c-h/2; } else { y=side==='bottom'?p.y+ph+gapX:p.y-h-gapX; x=c-w/2; }
       tgt.set(k.id,{x:Math.round(x*1000)/1000,y:Math.round(y*1000)/1000}); place(sb); }); };
   place(T);
+  { // a fan hanging off an idea that itself hangs sideways from its parent grows outward only: it never reaches back over the parent
+    const upT=mmParent(top);
+    if(upT && upT.side!==side && tgt.size>1){ const inw={right:'left',left:'right',top:'bottom',bottom:'top'}[upT.side]; let lo=Infinity, hi=-Infinity;
+      tgt.forEach((p,id)=>{ if(id===top.id) return; const k=itemById(id); if(!k) return; const a=(inw==='left'||inw==='right')?p.x:p.y, b2=a+((inw==='left'||inw==='right')?wOf(k):hOf(k)); lo=Math.min(lo,a); hi=Math.max(hi,b2); });
+      let d=0; if(inw==='left') d=Math.max(0,top.x-lo); else if(inw==='right') d=Math.min(0,top.x+wOf(top)-hi); else if(inw==='top') d=Math.max(0,top.y-lo); else d=Math.min(0,top.y+hOf(top)-hi);
+      if(d) tgt.forEach((p,id)=>{ if(id===top.id) return; if(inw==='left'||inw==='right') p.x=Math.round((p.x+d)*1000)/1000; else p.y=Math.round((p.y+d)*1000)/1000; }); } }
   // ideas on a moved idea's other sides ride along with it
   [...tgt.keys()].forEach(id=>{ const k=itemById(id), p=tgt.get(id); if(!k||id===top.id) return; const dx=p.x-k.x, dy=p.y-k.y; if(Math.abs(dx)<1e-4&&Math.abs(dy)<1e-4) return;
     (k.conns||[]).forEach(c=>{ const t=itemById(c.to); if(!t||!isCard(t)||tgt.has(t.id)) return;
@@ -5609,7 +5668,7 @@ function pushAside(tgt,top,gap,hOf,wOf){ const LF=LFc(), par=new Map();
   const fixed=new Set(tgt.keys()); for(let a=par.get(top.id),n=0; a&&n<200; a=par.get(a.p.id),n++) fixed.add(a.p.id);   // the tree and the ideas it hangs from stay put
   const pos=k=>tgt.get(k.id)||{x:k.x,y:k.y}, box=k=>{ const p=pos(k); return {id:k.id,x:p.x,y:p.y,w:wOf(k),h:hOf(k)}; };
   const movable=k=>isCard(k)&&!colOf(k.id)&&!LF.lock(k)&&!fixed.has(k.id);   // folded-away cards still travel with their branch, they just never block or get bumped
-  const hit=(a,b)=>a.x<b.x+b.w+gap-1e-6&&b.x<a.x+a.w+gap-1e-6&&a.y<b.y+b.h+gap-1e-6&&b.y<a.y+a.h+gap-1e-6;
+  const tol=.02, hit=(a,b)=>a.x<b.x+b.w+gap-tol&&b.x<a.x+a.w+gap-tol&&a.y<b.y+b.h+gap-tol&&b.y<a.y+a.h+gap-tol;   // a small tolerance: neighbours laid out exactly a gap apart don't count as touching
   const need=(a,b,d)=>d==='right'?b.x+b.w+gap-a.x:d==='left'?a.x+a.w+gap-b.x:d==='bottom'?b.y+b.h+gap-a.y:a.y+a.h+gap-b.y;
   const soft=new Set();   // loose cards already nudged: they block other loose cards, but a branch may push them again
   const fixedBoxes=withSoft=>[...fixed,...(withSoft?soft:[])].map(itemById).filter(k=>k&&isCard(k)&&!foldHid.has(k.id)).map(box);
@@ -5641,6 +5700,19 @@ function tweenItems(moves){ if(tweenOff){ moves.forEach(m=>{ m.it.x=Math.round(m
 /* mind-map keys: in a note, Tab adds a connected idea, Shift+Tab adds an idea on the left (or above / below) */
 function mmParent(it){ if(!cur||!it) return null; for(const o of cur.items){ const c=o.conns&&o.conns.find(c=>c.to===it.id); if(c&&isCard(o)) return {par:o,side:c.side||'right'}; } return null; }
 function mmFocus(it){ renderCards(); const el=cardsEl.querySelector(`[data-cid="${it.id}"] textarea`); if(el){ el.focus({preventScroll:true}); const L=el.value.length; try{ el.setSelectionRange(L,L); }catch(e){} } setCardSel(it.id); dropNoopCheckpoint(); mmReveal(it); }
+/* ⇧ + arrow on a selected note: hop to the nearest note in that direction (connected notes win close calls) */
+function cardNav(it,dir){ if(!cur||!it) return; const LK=LFc(), A=cardRect(it), ax=A.x+A.w/2, ay=A.y+A.h/2, up=mmParent(it);
+  const fam=new Set([...(it.conns||[]).map(c=>c.to), up&&up.par.id].filter(Boolean));
+  const vx=dir==='left'?-1:dir==='right'?1:0, vy=dir==='up'?-1:dir==='down'?1:0; let best=null, bs=Infinity;
+  cur.items.forEach(o=>{ if(o===it||!isCard(o)||!LK.vis(o)||(foldHid&&foldHid.has(o.id))) return; const B=cardRect(o);
+    const gx=vx>0?B.x-(A.x+A.w):vx<0?A.x-(B.x+B.w):0, gy=vy>0?B.y-(A.y+A.h):vy<0?A.y-(B.y+B.h):0;   // gap along the direction (edge to edge)
+    const along=vx?gx:gy; if((B.x+B.w/2-ax)*vx+(B.y+B.h/2-ay)*vy<=.05) return;   // its centre must lie that way
+    const across=vx?Math.max(0,Math.max(A.y,B.y)-Math.min(A.y+A.h,B.y+B.h)):Math.max(0,Math.max(A.x,B.x)-Math.min(A.x+A.w,B.x+B.w));   // 0 when they line up
+    const cAcross=vx?Math.abs(B.y+B.h/2-ay):Math.abs(B.x+B.w/2-ax), sc=(Math.max(0,along)+across*3+cAcross*.3)*(fam.has(o.id)?.7:1);
+    if(sc<bs){ bs=sc; best=o; } });
+  if(!best){ const el=cardsEl.querySelector(`[data-cid="${it.id}"]`); if(el){ el.classList.remove('nav-bump'); void el.offsetWidth; el.classList.add('nav-bump'); el.dataset.bump=dir; } return; }
+  if(document.activeElement&&document.activeElement!==document.body) document.activeElement.blur();
+  setCardSel(best.id); mmReveal(best); }
 function mmReveal(it){ const R=cardRect(it), x0=(R.x-view.x)*view.s+W/2, y0=(R.y-view.y)*view.s+H/2, x1=x0+R.w*view.s, y1=y0+R.h*view.s, m=90;   // keep the new idea on screen
   let dx=0, dy=0; if(x1>W-m) dx=(x1-(W-m))/view.s; else if(x0<m) dx=(x0-m)/view.s; if(y1>H-m) dy=(y1-(H-m))/view.s; else if(y0<m) dy=(y0-m)/view.s;
   if(dx||dy) glideView({x:view.x+dx,y:view.y+dy,s:view.s},320); }
@@ -5650,6 +5722,18 @@ function mmSides(it){ const u={left:0,right:0,top:0,bottom:0}, opp={right:'left'
   (it.conns||[]).forEach(c=>{ u[c.side||'right']=1; });
   cur.items.forEach(o=>{ if(o!==it&&o.conns) o.conns.forEach(c=>{ if(c.to===it.id) u[opp[c.side||'right']]=2; }); });   // where it is connected in from
   return u; }
+/* Shift+Tab: move this idea round its parent: above, below, the opposite side, then back to the side it was made on */
+function mmSwapSide(it){ if(readOnly||!it) return; const up=mmParent(it); if(!up){ toast('Shift+Tab moves an idea round the note it hangs from'); return; }
+  const c=(up.par.conns||[]).find(x=>x.to===it.id); if(!c) return; const s0=c.side0||c.side||'right', now=c.side||'right';
+  const opp={right:'left',left:'right',top:'bottom',bottom:'top'}[s0], pu=mmSides(up.par), bl=mmBlocked(up.par), cyc=[...new Set([s0,'top','bottom',opp,'left','right'])].filter(sd=>sd===s0||!bl.has(sd))   /* never onto the side its parent hangs from: that's where the grandparent is */, next=cyc[(cyc.indexOf(now)+1)%cyc.length], h=hist.length, editing=document.activeElement&&it&&cardsEl.querySelector(`[data-cid="${it.id}"]`)?.contains(document.activeElement);
+  checkpoint(); if(next===s0) delete c.side0; else c.side0=s0; c.side=next;
+  if(up.par.fold&&up.par.fold[next]){ delete up.par.fold[next]; if(!Object.keys(up.par.fold).length) delete up.par.fold; foldUpdate(); }   // moving onto a folded side opens it, so the idea stays in view
+  const mvFold=(k,a,b)=>{ if(k.fold&&k.fold[a]!=null&&a!==b){ const v=k.fold[a]; delete k.fold[a]; if(v) k.fold[b]=true; } };   // a folded side keeps its fold when it turns
+  branchOf(it).forEach(k=>{ if(k===it) return; mvFold(k,now,next); }); if(it.fold) mvFold(it,now,next);
+  branchOf(it).forEach(k=>(k.conns||[]).forEach(cc=>{ if((cc.side||'right')===now) cc.side=next; }));   // its own branch keeps growing outward, the new way
+  fixInwardSides(); foldUpdate();   // nothing in it points back at its own parent, and what's hidden is worked out again before the layout
+  mmRelayout(()=>{ layoutTree(up.par,now,null); layoutTree(up.par,next,it.id); mmSettle(mmRoot(it)); });   // twice: the second pass sees where the side branches ended up   // then the whole map settles so nothing overlaps
+  touch(); draw(); if(editing){ const el=cardsEl.querySelector(`[data-cid="${it.id}"] textarea`); if(el&&document.activeElement!==el) el.focus({preventScroll:true}); } mmOneStep(h); }
 function mmLeft(it){ if(readOnly||!it) return; const u=mmSides(it), side=(u.left===2||(u.left&&u.right))?(u.top?'bottom':'top'):'left';
   if(document.activeElement) document.activeElement.blur(); const h=hist.length, n=addLinkedNote(it,side); if(n) mmFocus(n); mmOneStep(h); }
 function mmComp(it){ const adj=new Map(), add=(a,b)=>{ (adj.get(a)||adj.set(a,[]).get(a)).push(b); };
@@ -5657,15 +5741,17 @@ function mmComp(it){ const adj=new Map(), add=(a,b)=>{ (adj.get(a)||adj.set(a,[]
   const out=[], seen=new Set([it.id]), q=[it.id]; while(q.length){ const id=q.shift(), k=itemById(id); if(k) out.push(k); (adj.get(id)||[]).forEach(n=>{ if(!seen.has(n)){ seen.add(n); q.push(n); } }); } return out; }
 function mmRoot(it){ let r=it; const seen=new Set([it.id]); for(let up=mmParent(r); up&&!seen.has(up.par.id); up=mmParent(r)){ r=up.par; seen.add(r.id); } return r; }
 /* Shift+T: tidy a whole map — every side of every idea is re-stacked without collisions; with nothing selected, every map on the board */
+function mmSettle(r){ tidyMapNow([r]); tidyMapNow([r]); }   // twice: the second pass sees where the side branches ended up
+function tidyMapNow(roots){ const done=new Set(), q=[...roots];   // lay out every side of every idea, outward from the roots (no animation of its own)
+  while(q.length){ const n=q.shift(); if(!n||done.has(n.id)) continue; done.add(n.id); const up=mmParent(n);
+    [...new Set((n.conns||[]).map(c=>c.side||'right'))].forEach(sd=>{ if(up&&up.side===sd&&done.has(up.par.id)) return;
+      if((n.conns||[]).some(c=>(c.side||'right')===sd&&isCard(itemById(c.to))&&!colOf(c.to))) layoutTree(n,sd,null); });
+    (n.conns||[]).forEach(c=>{ const t=itemById(c.to); if(t&&isCard(t)&&!(n.fold&&n.fold[c.side||'right'])) q.push(t); }); } }
 function mmTidy(it){ if(!cur||readOnly) return; finishTween();
   let roots; if(it) roots=[mmRoot(it)]; else { const kids=new Set(); cur.items.forEach(o=>{ if(isCard(o)&&o.conns) o.conns.forEach(c=>kids.add(c.to)); }); roots=cur.items.filter(o=>isCard(o)&&o.conns&&o.conns.some(c=>isCard(itemById(c.to)))&&!kids.has(o.id)); }
   if(!roots.length){ toast('No mind map to tidy'); return; }
   const orig=new Map(cur.items.filter(isCard).map(k=>[k.id,{x:k.x,y:k.y}])); checkpoint(); tweenOff=true;
-  try{ const done=new Set(), q=[...roots];
-    while(q.length){ const n=q.shift(); if(!n||done.has(n.id)) continue; done.add(n.id); const up=mmParent(n);
-      [...new Set((n.conns||[]).map(c=>c.side||'right'))].forEach(sd=>{ if(up&&up.side===sd&&done.has(up.par.id)) return;
-        if((n.conns||[]).some(c=>(c.side||'right')===sd&&isCard(itemById(c.to))&&!colOf(c.to))) layoutTree(n,sd,null); });
-      (n.conns||[]).forEach(c=>{ const t=itemById(c.to); if(t&&isCard(t)&&!(n.fold&&n.fold[c.side||'right'])) q.push(t); }); } }
+  try{ roots.forEach(mmSettle); }
   finally{ tweenOff=false; }
   const moves=[]; cur.items.forEach(k=>{ const o=orig.get(k.id); if(o&&(Math.abs(o.x-k.x)>1e-4||Math.abs(o.y-k.y)>1e-4)){ moves.push({it:k,x0:o.x,y0:o.y,x1:k.x,y1:k.y}); k.x=o.x; k.y=o.y; } });
   if(moves.length) tweenItems(moves); else { dropNoopCheckpoint(); toast('Already tidy'); } }
@@ -5687,7 +5773,7 @@ function mmFold(it,side){ if(readOnly||!it) return; const sides=foldSides(it); i
   const parts=foldParts(it,list);   // each idea that hides or shows, with the point on the parent's edge it folds into
   const apply=()=>{ checkpoint(); const f=Object.assign({},it.fold||{}); list.forEach(sd=>{ if(to) f[sd]=true; else delete f[sd]; }); if(Object.keys(f).length) it.fold=f; else delete it.fold;
     foldUpdate(); [...sel].forEach(id=>{ if(foldHid.has(id)) sel.delete(id); });
-    mmRelayout(()=>{ const up=mmParent(it); if(up&&!foldHid.has(it.id)) layoutTree(up.par,up.side,null); if(!to) list.forEach(sd=>layoutTree(it,sd,null)); });
+    mmRelayout(()=>{ const up=mmParent(it); if(up&&!foldHid.has(it.id)) layoutTree(up.par,up.side,null); if(!to) list.forEach(sd=>layoutTree(it,sd,null)); mmSettle(mmRoot(it)); });
     touch(); renderInspector(); draw(); };
   if(RM()||!parts.length){ apply(); return; }
   if(to){   // fold: the branch slides into the parent's edge and fades, then the map closes up
@@ -5710,6 +5796,37 @@ function syncFold(el,it){ const sides=LFc().lock(it)?[]:foldSides(it), have=new 
     const on=!!(it.fold&&it.fold[sd]), n=on?foldCount(it,sd):0, html=on?String(n):'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M6 12h12"/></svg>';
     b.classList.toggle('on',on); if(b.dataset.h!==html){ b.innerHTML=html; b.dataset.h=html; } b.title=on?`Show ${n} hidden idea${n===1?'':'s'}`:'Fold this branch'; });
   have.forEach(b=>b.remove()); }
+/* how deep each idea sits in its map (root 0), and the selected idea's parent and children, so the family reads at a glance */
+function mmDepths(items){ const D=new Map(), inc=new Set(), by=new Map(items.map(i=>[i.id,i]));
+  items.forEach(o=>{ if(isCard(o)&&o.conns) o.conns.forEach(c=>{ if(isCard(by.get(c.to))) inc.add(c.to); }); });
+  const q=[]; items.forEach(r=>{ if(isCard(r)&&!inc.has(r.id)&&r.conns&&r.conns.some(c=>isCard(by.get(c.to)))){ D.set(r.id,0); q.push(r); } });
+  while(q.length){ const n=q.shift(), d=D.get(n.id); (n.conns||[]).forEach(c=>{ const t=by.get(c.to); if(t&&isCard(t)&&!D.has(t.id)){ D.set(t.id,d+1); q.push(t); } }); }
+  return D; }
+/* the direction a branch leaves its root in (right, left, up or down); nothing in that branch may grow back the other way */
+function mmMainDir(n){ let k=n, d=null; const seen=new Set(); for(let up=mmParent(k); up&&!seen.has(up.par.id); up=mmParent(k)){ seen.add(k.id); d=up.side; k=up.par; } return d; }
+const OPP={right:'left',left:'right',top:'bottom',bottom:'top'};
+function mmBlocked(n){ const b=new Set(), inn=mmIncoming().get(n.id), md=mmMainDir(n); if(inn) b.add(inn); if(md) b.add(OPP[md]); return b; }   // sides a new or moved idea may not take
+function mmIncoming(){ const M=new Map(), opp={right:'left',left:'right',top:'bottom',bottom:'top'}; if(!cur) return M;   // id → the side its parent's line comes in on
+  cur.items.forEach(o=>{ if(isCard(o)&&o.conns) o.conns.forEach(c=>{ const t=itemById(c.to); if(t&&isCard(t)&&!M.has(t.id)) M.set(t.id,opp[c.side||'right']); }); }); return M; }
+/* a child on the side its parent hangs from lands back on the line to the grandparent; such children are turned to grow outward */
+/* a note that grows or shrinks (more lines typed) re-spaces the ideas around it, so a taller note never runs into its neighbours */
+var mmGrowIds=new Set(), mmGrowT=0;
+function mmGrew(id){ mmGrowIds.add(id); clearTimeout(mmGrowT); mmGrowT=setTimeout(()=>{ if(drag||tweenCur||readOnly||!cur){ mmGrowT=0; if(mmGrowIds.size) mmGrew([...mmGrowIds][0]); return; }
+    const ids=[...mmGrowIds].filter(i=>{ const n=itemById(i); return n&&(mmParent(n)||foldSides(n).length); }); mmGrowIds.clear(); if(!ids.length) return;
+    mmRelayout(()=>{ const rs=new Set(); ids.forEach(i=>{ const n=itemById(i); if(n) rs.add(mmRoot(n)); }); rs.forEach(r=>mmSettle(r)); }); },220); }
+function fixInwardSides(){ const roots=new Set(); if(!cur) return roots; const opp={right:'left',left:'right',top:'bottom',bottom:'top'};
+  for(let pass=0;pass<6;pass++){ const INC=mmIncoming(); let n=0;   // repeat: turning one idea can change which side its own children hang from
+    cur.items.forEach(o=>{ const inn=INC.get(o.id); if(!inn||!isCard(o)||!o.conns) return; const md=mmMainDir(o), back=md&&opp[md];
+      o.conns.forEach(c=>{ const sd=c.side||'right'; if(!isCard(itemById(c.to))) return; let to=null;
+        if(sd===inn) to=opp[inn]; else if(back&&sd===back) to=md;   // never back at the parent, never back towards the root
+        if(to&&to!==sd){ c.side=to; delete c.side0; roots.add(mmRoot(o)); n++; if(o.fold&&o.fold[sd]){ delete o.fold[sd]; o.fold[to]=true; } } }); });
+    if(!n) break; }
+  return roots; }
+function mmFixInward(){ if(!cur||readOnly) return; const roots=fixInwardSides();
+  if(roots.size){ foldUpdate(); mmRelayout(()=>{ tidyMapNow([...roots]); tidyMapNow([...roots]); }); setTimeout(touch,0); } }
+function mmFamily(){ if(!cur||sel.size!==1) return null; const it=itemById([...sel][0]); if(!it||!isCard(it)) return null;
+  const up=mmParent(it), kids=(it.conns||[]).map(c=>c.to).filter(id=>isCard(itemById(id)));
+  if(!up&&!kids.length) return null; return {id:it.id, parent:up&&up.par.id, kids:new Set(kids)}; }
 /* colours from the root: each main branch gets its own colour on its lines and card edges */
 const BR_COLS=['#e8875b','#3fb3a0','#9686f0','#dcae3f','#5a9ef0','#e46f9f','#78bf63'];
 function mmBranchColors(items){ const map=new Map(), inc=new Set(), by=new Map(items.map(i=>[i.id,i]));
@@ -5738,14 +5855,24 @@ function connPath(E,style){
   const d=Math.max(.15,(horiz?Math.abs(C.x-P.x):Math.abs(C.y-P.y))*.5), c1=horiz?{x:P.x+s*d,y:P.y}:{x:P.x,y:P.y+s*d}, c2=E.toObj?{x:C.x,y:C.y}:horiz?{x:C.x-s*d,y:C.y}:{x:C.x,y:C.y-s*d};
   return `M${f(P.x)} ${f(P.y)}C${f(c1.x)} ${f(c1.y)} ${f(c2.x)} ${f(c2.y)} ${f(C.x)} ${f(C.y)}`;
 }
+/* focus on a note's family: other links fade and thin out, animated across re-renders */
+var lnPrev=new Map(), lnAnim=null, lnFamKey=null; const LN_MS=260;
 function linksSVG(items,Q,k,layers,interactive){
-  const LF=layerFns(layers), by=new Map(items.map(i=>[i.id,i])), BRC=mmBranchColors(items); let out='';
+  const LF=layerFns(layers), by=new Map(items.map(i=>[i.id,i])), BRC=mmBranchColors(items), DEP=mmDepths(items), FAM=interactive?mmFamily():null; let out='';
+  const now=performance.now(), fk=FAM?FAM.id:'', lnNow=interactive?new Map():null;
+  if(interactive){ if(lnFamKey!==null && fk!==lnFamKey) lnAnim={t0:now, from:lnPrev}; lnFamKey=fk; if(lnAnim&&now-lnAnim.t0>LN_MS) lnAnim=null; }
   items.forEach(a=>{ if(!a.conns||!isCard(a)||!LF.vis(a)) return;
-    a.conns.forEach(c=>{ const b=by.get(c.to); if(!b||!LF.vis(b)) return;
+    a.conns.forEach(c=>{ const b=by.get(c.to); if(!b||!LF.vis(b)) return; if(interactive&&reDrag&&reDrag.moved&&reDrag.cn===c) return;   // the one being dragged is drawn by the drag
       const E=connEnds(a,b,c.side), d=connPath(E,c.style||'curve'), on=connSel===c.id;
-      if(interactive) out+=`<path d="${d}" fill="none" stroke="transparent" stroke-width="${f(14*k)}" data-conn="${a.id}|${c.id}" style="pointer-events:stroke;cursor:context-menu"/>`;
-      const lc=on?Q.accent:(BRC.get(b.id)||Q.muted), fo=fxOf(b.id); if(fo<.999) out+=`<g opacity="${f(fo)}">`;
-      out+=`<path d="${d}" fill="none" stroke="${lc}" stroke-width="${f((on?2.4:1.8)*k)}" stroke-linecap="round" pointer-events="none"/><circle cx="${f(E.P.x)}" cy="${f(E.P.y)}" r="${f(3.2*k)}" fill="${lc}" pointer-events="none"/><circle cx="${f(E.C.x)}" cy="${f(E.C.y)}" r="${f(3.2*k)}" fill="${lc}" pointer-events="none"/>`; if(fo<.999) out+='</g>'; }); });
+      if(interactive) out+=`<path d="${d}" fill="none" stroke="transparent" stroke-width="${f(14*k)}" data-conn="${a.id}|${c.id}" style="pointer-events:stroke;cursor:grab"><title>Drag an end onto another note to move it · let go elsewhere to remove · right-click for options</title></path><path d="M0 0" fill="none" style="display:none"/>`;
+      const rel=FAM&&(FAM.id===a.id||FAM.id===b.id), dp=DEP.get(b.id), dim=FAM&&!rel, lw=((dp===1?3:dp===2?2.3:1.8)+(rel?.8:0)+(on?.6:0))*(dim?.5:1), lo=dim?.45:1, key=a.id+'|'+c.id;
+      let anO='', anW='';
+      if(lnNow){ lnNow.set(key,{o:lo,w:lw}); const fr=lnAnim&&lnAnim.from.get(key); if(fr&&(Math.abs(fr.o-lo)>.01||Math.abs(fr.w-lw)>.01)){ const dl=-(now-lnAnim.t0)|0; anO=`;--o0:${f(fr.o*fxOf(b.id))};animation:mmLnO ${LN_MS}ms ease ${dl}ms both`; anW=` style="--w0:${f(fr.w*k)}px;animation:mmLnW ${LN_MS}ms ease ${dl}ms both"`; } }
+      const lc=on?Q.accent:rel?Q.ink:Q.muted, fo=fxOf(b.id)*lo, grp=fo<.999||anO; if(grp) out+=`<g style="opacity:${f(fo)}${anO}">`;
+      const ah=Math.max(5,lw*2.2)*k, aw=ah*.7, C=E.C, ux=E.horiz?E.s:0, uy=E.horiz?0:E.s;   // a small arrowhead pointing into the child
+      const arrow=E.toObj?'':`<path d="M${f(C.x)} ${f(C.y)}L${f(C.x-ux*ah-uy*aw)} ${f(C.y-uy*ah+ux*aw)}L${f(C.x-ux*ah+uy*aw)} ${f(C.y-uy*ah-ux*aw)}Z" fill="${lc}" pointer-events="none"/>`;
+      out+=`<path d="${d}" fill="none" stroke="${lc}" stroke-width="${f(lw*k)}"${anW} stroke-linecap="round" pointer-events="none"/><circle cx="${f(E.P.x)}" cy="${f(E.P.y)}" r="${f((lw+1.8)*k)}" fill="${lc}" pointer-events="none"/>${arrow||`<circle cx="${f(E.C.x)}" cy="${f(E.C.y)}" r="${f(3.2*k)}" fill="${lc}" pointer-events="none"/>`}`; if(grp) out+='</g>'; }); });
+  if(lnNow){ lnPrev=lnNow; if(lnAnim) setTimeout(()=>{ if(lnAnim&&performance.now()-lnAnim.t0>LN_MS){ lnAnim=null; } },LN_MS+20); }
   return out?`<g>${out}</g>`:'';
 }
 var connSel=null;
@@ -5767,6 +5894,41 @@ function conDragMarkup(k){
   return `<g pointer-events="none">${ring}<path d="${d}" fill="none" stroke="${Acc}" stroke-width="${f(2*k)}" stroke-dasharray="${f(5*k)} ${f(4*k)}" stroke-linecap="round"/><circle cx="${f((E?E.C:conDrag.cur).x)}" cy="${f((E?E.C:conDrag.cur).y)}" r="${f(4*k)}" fill="${Acc}"/></g>`;
 }
 var P_=null;
+/* drag a connection by either end onto another note to move it there; let go anywhere else and the connection is removed */
+var reDrag=null;
+function sideFor(p,c){ const A=isCard(p)?cardRect(p):{x:p.x-(p.w||.3)/2,y:p.y-(p.h||.3)/2,w:p.w||.3,h:p.h||.3}, B=isCard(c)?cardRect(c):{x:c.x-(c.w||.3)/2,y:c.y-(c.h||.3)/2,w:c.w||.3,h:c.h||.3};
+  const dx=(B.x+B.w/2)-(A.x+A.w/2), dy=(B.y+B.h/2)-(A.y+A.h/2); return Math.abs(dx)/(A.w+B.w)>Math.abs(dy)/(A.h+B.h)?(dx>0?'right':'left'):(dy>0?'bottom':'top'); }
+function reDragOk(t){ if(!reDrag||!t) return false; const {a,b,end}=reDrag;
+  if(end==='child'){ if(t===a||t===b) return t===b; return !(isCard(t)&&branchOf(t).includes(a)); }   // no loops: a note can't hang from its own branch
+  return isCard(t)&&t!==b&&(t===a||!branchOf(b).includes(t)); }
+svg.addEventListener('pointerdown',e=>{ const el=e.target.closest&&e.target.closest('[data-conn]'); if(!el||readOnly||e.button!==0) return;
+  const [aid,cid]=el.dataset.conn.split('|'), a=itemById(aid), cn=a&&(a.conns||[]).find(x=>x.id===cid), b=cn&&itemById(cn.to); if(!b) return;
+  const E=connEnds(a,b,cn.side), pt=toWorld(e.clientX,e.clientY), end=Math.hypot(pt.x-E.C.x,pt.y-E.C.y)<=Math.hypot(pt.x-E.P.x,pt.y-E.P.y)?'child':'parent';
+  e.preventDefault(); e.stopPropagation(); reDrag={a,b,cn,end,sx:e.clientX,sy:e.clientY,moved:false,cur:pt,target:null}; },true);
+addEventListener('pointermove',e=>{ if(!reDrag) return;
+  if(!reDrag.moved){ if(Math.hypot(e.clientX-reDrag.sx,e.clientY-reDrag.sy)<5) return; reDrag.moved=true; document.body.classList.add('connecting'); }
+  reDrag.cur=toWorld(e.clientX,e.clientY); const t=conTargetAt(e.clientX,e.clientY,reDrag.end==='child'?reDrag.a:reDrag.b); reDrag.target=reDragOk(t)?t:null; reDrag.bad=!!t&&!reDrag.target; draw(); });
+addEventListener('pointerup',e=>{ if(!reDrag) return; const R=reDrag; reDrag=null; document.body.classList.remove('connecting'); if(!R.moved){ draw(); return; }
+  const {a,b,cn,end}=R, t=R.target, roots=new Set([mmRoot(a),mmRoot(b)]);
+  if(!t&&R.bad){ toast('A note can\'t connect to itself or its own branch'); draw(); return; }   // let go over a note it can't join: nothing changes
+  checkpoint();
+  if(!t){ a.conns=a.conns.filter(x=>x!==cn); if(!a.conns.length) delete a.conns; toast('Connection removed'); }
+  else if(end==='child'){ if(t!==b){ cur.items.forEach(o=>{ if(o!==a&&isCard(o)&&o.conns){ const had=o.conns.length; o.conns=o.conns.filter(x=>x.to!==t.id); if(o.conns.length!==had) roots.add(mmRoot(o)); } });   // the note leaves its old parent
+      cn.to=t.id; cn.side=sideFor(a,t); delete cn.side0; roots.add(mmRoot(t)); toast('Connection moved'); } }
+  else { if(t!==a){ a.conns=a.conns.filter(x=>x!==cn); if(!a.conns.length) delete a.conns; t.conns=t.conns||[]; t.conns.push({id:cn.id,to:b.id,side:sideFor(t,b),...(cn.style?{style:cn.style}:{})}); roots.add(mmRoot(t)); toast('Connection moved'); } }
+  foldUpdate(); fixInwardSides(); foldUpdate();
+  mmRelayout(()=>roots.forEach(r=>{ if(r&&isCard(r)&&itemById(r.id)&&(r.conns||[]).some(c=>isCard(itemById(c.to)))) mmSettle(r); }));
+  touch(); draw(); });
+addEventListener('keydown',e=>{ if(reDrag&&e.key==='Escape'){ e.preventDefault(); e.stopPropagation(); reDrag=null; document.body.classList.remove('connecting'); draw(); } },true);
+function reDragMarkup(k){ if(!reDrag||!reDrag.moved) return ''; const {a,b,end}=reDrag, t=reDrag.target, Acc=P.accent, red='#e5484d';
+  let d, tip;
+  if(t){ const E=end==='child'?connEnds(a,t,sideFor(a,t)):connEnds(t,b,sideFor(t,b)); d=connPath(E,reDrag.cn.style||'curve'); tip=end==='child'?E.C:E.P; }
+  else { const E0=connEnds(a,b,reDrag.cn.side), F=end==='child'?E0.P:E0.C; d=`M${f(F.x)} ${f(F.y)}L${f(reDrag.cur.x)} ${f(reDrag.cur.y)}`; tip=reDrag.cur; }
+  const col=t?Acc:red; let ring='';
+  if(t&&isCard(t)){ const B=cardRect(t); ring=`<rect x="${f(B.x-.04)}" y="${f(B.y-.04)}" width="${f(B.w+.08)}" height="${f(B.h+.08)}" rx="${f(.1)}" fill="none" stroke="${Acc}" stroke-width="${f(1.8*k)}"/>`; }
+  else if(t) ring=`<circle cx="${f(t.x)}" cy="${f(t.y)}" r="${f(Math.max(t.w||.3,t.h||.3)/2+.08)}" fill="none" stroke="${Acc}" stroke-width="${f(1.6*k)}" stroke-dasharray="${f(4*k)} ${f(3*k)}"/>`;
+  const lbl=t?'':`<text x="${f(tip.x+9*k)}" y="${f(tip.y-9*k)}" font-size="${f(11*k)}" font-family="${FONT}" font-weight="700" fill="${red}" stroke="${P.paper}" stroke-width="${f(3.5*k)}" stroke-linejoin="round" paint-order="stroke">${reDrag.bad?'Can\'t connect here':'Let go to remove'}</text>`;
+  return `<g pointer-events="none">${ring}<path d="${d}" fill="none" stroke="${col}" stroke-width="${f(2*k)}" stroke-dasharray="${f(5*k)} ${f(4*k)}" stroke-linecap="round"/><circle cx="${f(tip.x)}" cy="${f(tip.y)}" r="${f(4.5*k)}" fill="${col}"/>${lbl}</g>`; }
 addEventListener('pointermove',e=>{
   if(!conDrag) return;
   if(!conDrag.moved){ if(Math.hypot(e.clientX-conDrag.sx,e.clientY-conDrag.sy)<6) return; conDrag.moved=true; document.body.classList.add('connecting'); }
@@ -5911,7 +6073,7 @@ cardsEl.addEventListener('keydown',e=>{
   if(t.dataset.f==='hex' && e.key==='Enter'){ e.preventDefault(); t.blur(); return; }
   if(e.key==='Escape'){ e.preventDefault(); e.stopPropagation(); t.blur(); setCardSel(it.id); return; }
   if(it.type==='note' && t.dataset.f==='text' && !e.metaKey && !e.ctrlKey && !e.altKey){
-    if(e.key==='Tab'){ e.preventDefault(); e.stopPropagation(); if(e.shiftKey) mmLeft(it); else mmChild(it); return; }
+    if(e.key==='Tab'){ e.preventDefault(); e.stopPropagation(); if(e.shiftKey) mmSwapSide(it); else mmChild(it); return; }
   }
   if((t.dataset.f==='trnew'||t.dataset.f==='trname') && (e.key==='Enter'||e.key==='Escape')){ e.preventDefault(); e.stopPropagation(); if(e.key==='Enter') (t.dataset.f==='trnew'?trCreate:trRename)(it,t); else { delete t.closest('.bc').dataset.trEdit; fillCard(t.closest('.bc'),it); } return; }
   if(t.dataset.f==='trkey' && e.key==='Enter'){ e.preventDefault(); trSaveKey(t.closest('.bc')); return; }
@@ -5968,7 +6130,7 @@ function deleteCard(id){ checkpoint(); cur.items=cur.items.filter(i=>i.id!==id);
 function dupCard(id){ const it=itemById(id); if(!it) return; if(it.type==='board'&&it.p.target&&all[it.p.target]){ duplicateSetupById(it.p.target); return; } if(it.type==='column'){ checkpoint(); const out=cloneInto([it],(it.w+24)/PXM0,0); enterPlace(out.map(o=>o.id),{dx:(it.w+24)/PXM0,dy:0}); return; } checkpoint(); const c=JSON.parse(JSON.stringify(it)); c.id=uid(); c.x+=.3; c.y+=.3; if(c.type==='comment') c.p.at=Date.now(); delete c.conns; cur.items.push(c); renderCards(); enterPlace([c.id],{dx:.3,dy:.3}); }
 
 /* right toolbar: click to drop in the middle, or drag onto the board */
-const CARD_TOOLS=[['note','Note','note'],['todo','To-do','todo'],['comment','Comment','comment'],['grid','Table','table'],['color','Colour','swatch'],['column','Column','column'],['image','Image','image'],['gdoc','Doc','gdoc'],['trello','Trello','trello']];
+const CARD_TOOLS=[['note','Note','note'],['todo','To-do','todo'],['comment','Comment','comment'],['grid','Table','table'],['color','Colour','swatch'],['column','Column','column'],['image','Image','image'],['gdoc','Doc','gdoc']];   // Trello card hidden for now: add ['trello','Trello','trello'] back to bring it back
 const ITEM_TOOLS=[['text','Text','notes'],['arrow','Arrow','arrow'],['measure','Distance','measure'],['sketch','Pen','pen']];
 $('#railR').innerHTML=CARD_TOOLS.map(([t,n,i])=>`<button class="tool" data-card="${t}" aria-label="Add ${n}">${ic(i)}${n}</button>`).join('')+
   `<hr><button class="tool" data-cat="Notes" aria-expanded="false" aria-label="Text, arrows, distances, angles and pen">${ic('notes')}Notes</button>`+
@@ -6084,13 +6246,91 @@ document.addEventListener('pointerout',e=>{ if(e.pointerType!=='mouse') return; 
 document.addEventListener('click',e=>{ const el=e.target.closest&&e.target.closest('[data-tip]'); if(el && TIPS[el.dataset.tip][1]==='toggle'){ requestAnimationFrame(()=>showTip(el)); } else hideTip(); },true);
 addEventListener('scroll',hideTip,true); addEventListener('blur',hideTip);
 
+/* ================= account: sign in (Supabase) and keep plots in the cloud ================= */
+// Fill these two in once, or paste them in Account → Set up. The anon key is public by design; the database rules protect the data.
+const SB_URL_DEFAULT='', SB_KEY_DEFAULT='';
+const SB_LIB='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js';
+var sb=null, sbUser=null, sbBusy=false, sbPushT={}, sbLastSync=0;
+function sbConf(){ let c=null; try{ c=JSON.parse(localStorage.getItem('setplot-sb')||'null'); }catch(e){} const url=(c&&c.url)||SB_URL_DEFAULT, key=(c&&c.key)||SB_KEY_DEFAULT; return url&&key?{url,key}:null; }
+function sbLoad(){ return new Promise((res,rej)=>{ if(window.supabase&&window.supabase.createClient) return res(); const s=document.createElement('script'); s.src=SB_LIB; s.onload=()=>res(); s.onerror=()=>rej(new Error('lib')); document.head.appendChild(s); }); }
+async function sbInit(){ const c=sbConf(); renderAccount(); if(!c||mode!=='local') return;
+  try{ await sbLoad(); sb=window.supabase.createClient(c.url,c.key,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,flowType:'pkce'}}); }
+  catch(e){ sb=null; renderAccount(); return; }
+  sb.auth.onAuthStateChange((ev,session)=>{ const was=sbUser&&sbUser.id; sbUser=session&&session.user||null; renderAccount();
+    if(sbUser&&sbUser.id!==was) cloudSync(true); if(!sbUser&&was) setStatus('Saved in this browser'); });
+  const {data}=await sb.auth.getSession(); sbUser=data&&data.session&&data.session.user||null; renderAccount(); if(sbUser) cloudSync(true);
+  addEventListener('focus',()=>{ if(sbUser&&Date.now()-sbLastSync>15000) cloudSync(false); }); }
+const sbName=u=>u&&((u.user_metadata&&(u.user_metadata.full_name||u.user_metadata.name))||u.email||'Account');
+function renderAccount(){ const b=$('#acctBtn'); if(!b) return; const u=sbUser;
+  b.innerHTML=u?(u.user_metadata&&u.user_metadata.avatar_url?`<img src="${esc(u.user_metadata.avatar_url)}" alt="" referrerpolicy="no-referrer">`:`<span class="acct-i">${esc((sbName(u)||'?').trim()[0].toUpperCase())}</span>`)
+    :`<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.5" r="3.6"/><path d="M5 19.5c1.2-3.4 4-5 7-5s5.8 1.6 7 5"/></svg>`;
+  b.title=u?`Signed in as ${sbName(u)}`:'Sign in to keep your plots in the cloud'; b.classList.toggle('on',!!u); }
+/* sync: newest wins per setup; everything in this browser goes up the first time you sign in */
+async function cloudSync(first){ if(!sb||!sbUser||sbBusy) return; sbBusy=true; setStatus('Syncing','busy');
+  try{ const {data,error}=await sb.from('plots').select('id,doc,updated_at'); if(error) throw error;
+    const remote=new Map((data||[]).map(r=>[r.id,r])); let pulled=0, curChanged=false; const push=[];
+    remote.forEach((r,id)=>{ const l=all[id], ru=(r.doc&&r.doc.updatedAt)||Date.parse(r.updated_at)||0;
+      if(!l||((l.updatedAt||0)<ru)){ if(cur&&id===cur.id){ if(dirty) return; curChanged=true; } all[id]=r.doc; pulled++; } });
+    Object.keys(all).forEach(id=>{ const r=remote.get(id), lu=all[id].updatedAt||0, ru=r?((r.doc&&r.doc.updatedAt)||Date.parse(r.updated_at)||0):-1; if(lu>ru) push.push(id); });
+    if(push.length){ const rows=push.map(id=>({owner:sbUser.id,id,doc:all[id],updated_at:new Date(all[id].updatedAt||Date.now()).toISOString()}));
+      for(let i=0;i<rows.length;i+=50){ const {error:e2}=await sb.from('plots').upsert(rows.slice(i,i+50),{onConflict:'owner,id'}); if(e2) throw e2; } }
+    localWrite(); sbLastSync=Date.now();
+    if(curChanged&&cur) openDiagram(cur.id); else if(!cur){ const id=(sorted()[0]||[])[0]; if(id) openDiagram(id); }
+    if(!$('#drawer').hidden) renderDrawer();
+    setStatus('Synced to your account'); if(first&&(pulled||push.length)) toast(`Synced · ${pulled?pulled+' from the cloud':''}${pulled&&push.length?', ':''}${push.length?push.length+' uploaded':''}`); }
+  catch(e){ setStatus(/relation|does not exist|schema/i.test(String(e&&e.message))?'Cloud table missing — see Account → Set up':'Sync failed · saved in this browser','warn'); }
+  sbBusy=false; }
+function cloudPush(id){ if(!sb||!sbUser) return; clearTimeout(sbPushT[id]); sbPushT[id]=setTimeout(async()=>{ const d=all[id]; if(!d) return;
+  try{ const {error}=await sb.from('plots').upsert({owner:sbUser.id,id,doc:JSON.parse(JSON.stringify(d)),updated_at:new Date(d.updatedAt||Date.now()).toISOString()},{onConflict:'owner,id'}); if(error) throw error; setStatus('Synced to your account'); }
+  catch(e){ setStatus('Offline · will sync later','warn'); } },900); }
+function cloudDelete(id){ if(!sb||!sbUser) return; clearTimeout(sbPushT[id]); sb.from('plots').delete().eq('owner',sbUser.id).eq('id',id).then(()=>{},()=>{}); }
+/* the sign-in dialog */
+const PROV=[['google','Google','<path d="M21.6 12.2c0-.7-.1-1.4-.2-2H12v3.8h5.4a4.6 4.6 0 0 1-2 3v2.5h3.2c1.9-1.7 3-4.3 3-7.3z" fill="#4285F4"/><path d="M12 22c2.7 0 5-.9 6.6-2.4l-3.2-2.5c-.9.6-2 1-3.4 1-2.6 0-4.8-1.8-5.6-4.1H3.1v2.6A10 10 0 0 0 12 22z" fill="#34A853"/><path d="M6.4 14c-.2-.6-.3-1.3-.3-2s.1-1.4.3-2V7.4H3.1a10 10 0 0 0 0 9.2z" fill="#FBBC05"/><path d="M12 5.9c1.5 0 2.8.5 3.8 1.5l2.9-2.9A10 10 0 0 0 3.1 7.4L6.4 10c.8-2.3 3-4.1 5.6-4.1z" fill="#EA4335"/>'],
+  ['azure','Microsoft','<path d="M3 3h8.5v8.5H3z" fill="#F25022"/><path d="M12.5 3H21v8.5h-8.5z" fill="#7FBA00"/><path d="M3 12.5h8.5V21H3z" fill="#00A4EF"/><path d="M12.5 12.5H21V21h-8.5z" fill="#FFB900"/>'],
+  ['apple','Apple','<path d="M16.4 12.6c0-2.4 2-3.5 2-3.6-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.9-3.5.9s-1.8-.8-3-.8c-1.6 0-3 .9-3.8 2.3-1.6 2.8-.4 7 1.2 9.2.8 1.1 1.7 2.3 2.8 2.3s1.6-.7 3-.7 1.8.7 3 .7 2-1.1 2.7-2.2c.9-1.3 1.2-2.5 1.2-2.6 0 0-2.3-.9-2.3-3.7zM14.2 5.6c.6-.8 1.1-1.8 1-2.9-.9 0-2.1.6-2.7 1.4-.6.7-1.1 1.8-1 2.8 1 .1 2.1-.5 2.7-1.3z" fill="currentColor"/>']];
+function accountHTML(){ const c=sbConf(), close=`<button class="ib" data-close aria-label="Close">${ic('close')}</button>`;
+  if(mode!=='local') return `<div class="acct"><div class="acct-h"><h3>Account</h3>${close}</div><p class="muted">Here on claude.ai your plots are already saved with your Claude account. Sign-in is for the version on your own website.</p></div>`;
+  if(!c||!sb) return `<div class="acct"><div class="acct-h"><h3>Set up sign-in</h3>${close}</div>
+    <p class="muted">${c&&!sb?'The sign-in library could not load. Check the connection and reload.':'Connect a free Supabase project to let people sign in and keep their plots in the cloud.'}</p>
+    <label class="acct-f">Project URL<input class="fi" data-sb="url" placeholder="https://xxxx.supabase.co" value="${esc((c&&c.url)||'')}"></label>
+    <label class="acct-f">Anon public key<input class="fi" data-sb="key" placeholder="eyJhbGciOi…" value="${esc((c&&c.key)||'')}"></label>
+    <div class="acct-row"><button class="btn primary" data-acc="savecfg">Connect</button>${c?'<button class="btn ghost" data-acc="clearcfg">Disconnect</button>':''}</div></div>`;
+  if(sbUser) return `<div class="acct"><div class="acct-h"><h3>Account</h3>${close}</div>
+    <div class="acct-me">${$('#acctBtn').innerHTML}<div><b>${esc(sbName(sbUser))}</b><small class="muted">${esc(sbUser.email||'')}</small></div></div>
+    <p class="muted">Your plots sync to your account and follow you to any device you sign in on.</p>
+    <div class="acct-row"><button class="btn" data-acc="sync">Sync now</button><button class="btn ghost" data-acc="signout">Sign out</button></div></div>`;
+  return `<div class="acct"><div class="acct-h"><h3>Sign in</h3>${close}</div><p class="muted">Keep your plots in the cloud and open them on any device.</p>
+    <div class="acct-prov">${PROV.map(([id,n,svgp])=>`<button class="btn acct-p" data-acc="oauth" data-prov="${id}"><svg viewBox="0 0 24 24" aria-hidden="true">${svgp}</svg>Continue with ${n}</button>`).join('')}</div>
+    <div class="acct-or"><span>or with email</span></div>
+    <input class="fi" type="email" data-acc-email placeholder="you@example.com" autocomplete="email">
+    <input class="fi" type="password" data-acc-pass placeholder="Password (leave empty for a sign-in link)" autocomplete="current-password">
+    <div class="acct-row"><button class="btn primary" data-acc="email">Continue</button><button class="btn ghost" data-acc="signup">Create account</button></div>
+    <p class="muted acct-msg" id="acctMsg"></p></div>`; }
+function openAccount(){ showModal(accountHTML()); }
+const acctMsg=(t,bad)=>{ const m=$('#acctMsg'); if(m){ m.textContent=t; m.classList.toggle('bad',!!bad); } };
+const sbRedirect=()=>location.origin+location.pathname;
+$('#modal').addEventListener('click',async e=>{ const b=e.target.closest('[data-acc]'); if(!b) return; const a=b.dataset.acc;
+  if(a==='savecfg'){ const url=$('#modal [data-sb=url]').value.trim().replace(/\/+$/,''), key=$('#modal [data-sb=key]').value.trim(); if(!/^https:\/\/.+/.test(url)||key.length<20){ toast('Paste the project URL and the anon key'); return; }
+    try{ localStorage.setItem('setplot-sb',JSON.stringify({url,key})); }catch(err){} b.disabled=true; await sbInit(); openAccount(); return; }
+  if(a==='clearcfg'){ try{ localStorage.removeItem('setplot-sb'); }catch(err){} if(sb) await sb.auth.signOut().catch(()=>{}); sb=null; sbUser=null; renderAccount(); openAccount(); return; }
+  if(!sb) return;
+  if(a==='oauth'){ const {error}=await sb.auth.signInWithOAuth({provider:b.dataset.prov,options:{redirectTo:sbRedirect(),scopes:b.dataset.prov==='azure'?'email':undefined}}); if(error) acctMsg(error.message,true); return; }
+  const email=($('#modal [data-acc-email]')||{}).value||'', pass=($('#modal [data-acc-pass]')||{}).value||'';
+  if(a==='email'||a==='signup'){ if(!/.+@.+\..+/.test(email)){ acctMsg('Type your email address',true); return; } b.disabled=true;
+    let r; if(a==='signup'){ if(pass.length<8){ acctMsg('Pick a password of at least 8 characters',true); b.disabled=false; return; } r=await sb.auth.signUp({email,password:pass,options:{emailRedirectTo:sbRedirect()}}); if(!r.error) acctMsg(r.data&&r.data.session?'Account created':'Check your inbox to confirm your email'); }
+    else if(pass){ r=await sb.auth.signInWithPassword({email,password:pass}); if(!r.error){ $('#modal').hidden=true; toast('Signed in'); } }
+    else { r=await sb.auth.signInWithOtp({email,options:{emailRedirectTo:sbRedirect()}}); if(!r.error) acctMsg('Check your inbox for a sign-in link'); }
+    if(r&&r.error) acctMsg(r.error.message,true); b.disabled=false; return; }
+  if(a==='sync'){ await cloudSync(true); return; }
+  if(a==='signout'){ await sb.auth.signOut(); $('#modal').hidden=true; toast('Signed out · your plots stay in this browser'); return; } });
+$('#modal').addEventListener('keydown',e=>{ if(e.key==='Enter'&&e.target.matches&&e.target.matches('[data-acc-email],[data-acc-pass]')){ e.preventDefault(); const b=$('#modal [data-acc=email]'); if(b) b.click(); } });
 /* ================= boot ================= */
 onTheme(); renderRail(); renderHeader(); renderInspector(); draw();
 function ready(){ if(layersOpen){ $('#layersPanel').hidden=false; document.body.classList.add('layers-on'); }
   if(!cur){ let last=null; try{ last=localStorage.getItem('setplot-last'); }catch(e){} const id=(last&&all[last])?last:(sorted()[0]||[])[0]; if(id) openDiagram(id); }
   renderHeader(); renderInspector(); draw();
 }
-function startLocal(){ mode='local'; all=localRead(); setStatus('Saved in this browser'); ready(); }
+function startLocal(){ mode='local'; all=localRead(); setStatus('Saved in this browser'); ready(); sbInit(); }
 (async()=>{
   if(!window.claude || typeof window.claude.use!=='function'){ startLocal(); return; }
   const [db,dl,usr]=await Promise.all([claude.use('db').catch(()=>null),claude.use('downloads').catch(()=>null),claude.use('user').catch(()=>null)]);
