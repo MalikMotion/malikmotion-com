@@ -423,6 +423,10 @@ input.kelvin::-moz-range-track{background:linear-gradient(90deg,#e8752c,#f2b25c 
 @media (prefers-reduced-motion:reduce){ .insp-tab .t-ring{animation:none;stroke-dasharray:100 0;stroke-opacity:.5} }
 .insp-tab.gone{opacity:0;pointer-events:none}
 .insp-tab.nudge svg{animation:tabNudge 1.1s cubic-bezier(.3,.7,.3,1) 2}
+.insp-tab.nudge .t-fill{animation:tabGreen 2.6s ease-in both}
+.insp-tab.nudge .t-ring{animation:tabTrim 2.6s linear infinite,tabGreenRing 2.6s ease-in both}
+@keyframes tabGreen{0%,35%{fill:#34c77b}100%{fill:var(--tab-fill)}}
+@keyframes tabGreenRing{0%,35%{stroke:#1fa463}100%{stroke:var(--tab-ring)}}
 @keyframes tabNudge{0%,100%{transform:none}30%{transform:translateX(-5px) scaleY(1.3)}60%{transform:translateX(0) scaleY(1.1)}}
 #inspHint{position:fixed;right:26px;top:50%;transform:translate(10px,-50%);z-index:19;display:grid;grid-template-columns:auto auto;grid-template-rows:auto auto;column-gap:10px;row-gap:3px;align-items:center;padding:10px 12px 10px 14px;border-radius:12px;max-width:320px;background:var(--card);color:var(--ink);border:1px solid var(--line);box-shadow:var(--shadow-lg,0 8px 24px -8px rgba(0,0,0,.35));font:600 12.5px var(--sans);opacity:0;pointer-events:none;transition:opacity .25s ease,transform .3s cubic-bezier(.2,.8,.2,1)}
 #inspHint.on{opacity:1;transform:translate(0,-50%)}
@@ -4070,7 +4074,7 @@ function inspNudge(){ const tab=$('#inspTab'); if(!tab) return; const key=[...se
   if(key===inspNudgeKey) return; inspNudgeKey=key;
   if(!sel.size||tab.hidden||insp.classList.contains('peek')||!insp.classList.contains('auto')||(typeof tourOn!=='undefined'&&tourOn)) return;
   tab.classList.remove('nudge'); void tab.offsetWidth; tab.classList.add('nudge');
-  let n=0; try{ n=+localStorage.getItem('setplot-insp-nudge')||0; }catch(e){} if(n>=8) return;
+  let n=0; try{ n=+localStorage.getItem('setplot-insp-nudge')||0; }catch(e){} if(n>=5) return;
   let h=$('#inspHint'); if(!h){ h=document.createElement('div'); h.id='inspHint'; h.setAttribute('aria-hidden','true'); document.body.appendChild(h); }
   const nm=sel.size===1&&itemById([...sel][0])?itemName(itemById([...sel][0])):'';
   h.innerHTML=`<b>${nm?esc(nm)+' settings':'Settings'}</b><span>Move your mouse to the edge, or press <span class="kbd">${esc(keyLabel(keyOf('settings'))||'.')}</span></span><svg viewBox="0 0 16 16"><path d="M6 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
