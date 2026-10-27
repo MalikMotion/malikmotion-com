@@ -422,6 +422,18 @@ input.kelvin::-moz-range-track{background:linear-gradient(90deg,#e8752c,#f2b25c 
 @keyframes tabTrim{from{stroke-dashoffset:0}to{stroke-dashoffset:-100}}
 @media (prefers-reduced-motion:reduce){ .insp-tab .t-ring{animation:none;stroke-dasharray:100 0;stroke-opacity:.5} }
 .insp-tab.gone{opacity:0;pointer-events:none}
+.insp-tab.nudge svg{animation:tabNudge 1.1s cubic-bezier(.3,.7,.3,1) 2}
+@keyframes tabNudge{0%,100%{transform:none}30%{transform:translateX(-5px) scaleY(1.3)}60%{transform:translateX(0) scaleY(1.1)}}
+#inspHint{position:fixed;right:26px;top:50%;transform:translate(10px,-50%);z-index:19;display:grid;grid-template-columns:auto auto;grid-template-rows:auto auto;column-gap:10px;row-gap:3px;align-items:center;padding:10px 12px 10px 14px;border-radius:12px;max-width:320px;background:var(--card);color:var(--ink);border:1px solid var(--line);box-shadow:var(--shadow-lg,0 8px 24px -8px rgba(0,0,0,.35));font:600 12.5px var(--sans);opacity:0;pointer-events:none;transition:opacity .25s ease,transform .3s cubic-bezier(.2,.8,.2,1)}
+#inspHint.on{opacity:1;transform:translate(0,-50%)}
+#inspHint::after{content:'';position:absolute;right:-6px;top:50%;width:10px;height:10px;background:var(--card);border-right:1px solid var(--line);border-top:1px solid var(--line);transform:translateY(-50%) rotate(45deg);border-radius:0 2px 0 0}
+#inspHint b{font-size:13px;grid-column:1}#inspHint>span{grid-column:1;font-weight:500;color:var(--muted);font-size:12px;line-height:1.5}
+#inspHint svg{grid-column:2;grid-row:1/3}
+#inspHint .kbd{font-size:11.5px;padding:1px 7px;background:var(--field);color:var(--ink)}
+#inspHint svg{width:14px;height:14px;color:var(--accent);animation:hintArrow 1s ease-in-out infinite}
+@keyframes hintArrow{50%{transform:translateX(3px)}}
+body.presenting #inspHint{display:none}
+@media (prefers-reduced-motion:reduce){ .insp-tab.nudge svg,#inspHint svg{animation:none} }
 .insp-head .ib.pin{color:var(--faint)}
 .insp-head .ib.pin.on{color:var(--accent)}
 .insp-head .ib.pin svg{width:17px;height:17px}
@@ -4051,7 +4063,20 @@ function renderInspector(){ renderLayersSoon(); if(flyCat==='Align' && !$('#fly'
   h+=`<div class="foot"><button class="btn sm" data-act="copygear">${ic('copy','style="width:16px;height:16px"')}Copy gear list</button>${readOnly?'':`<button class="btn sm" data-act="dupsetup">Duplicate setup</button><button class="btn sm danger" data-act="delsetup">${ic('trash','style="width:16px;height:16px"')}Delete setup</button>`}</div></div>`;
   insp.innerHTML=h;
 }
-{ const _ri=renderInspector; renderInspector=function(){ _ri(); syncInspMode(); }; }
+{ const _ri=renderInspector; renderInspector=function(){ _ri(); syncInspMode(); inspNudge(); }; }
+/* picking something with settings while the panel is tucked away: the edge tab lights up, and the first few times a label points at it */
+var inspNudgeKey='', inspNudgeT=0;
+function inspNudge(){ const tab=$('#inspTab'); if(!tab) return; const key=[...sel].join(',');
+  if(key===inspNudgeKey) return; inspNudgeKey=key;
+  if(!sel.size||tab.hidden||insp.classList.contains('peek')||!insp.classList.contains('auto')||(typeof tourOn!=='undefined'&&tourOn)) return;
+  tab.classList.remove('nudge'); void tab.offsetWidth; tab.classList.add('nudge');
+  let n=0; try{ n=+localStorage.getItem('setplot-insp-nudge')||0; }catch(e){} if(n>=8) return;
+  let h=$('#inspHint'); if(!h){ h=document.createElement('div'); h.id='inspHint'; h.setAttribute('aria-hidden','true'); document.body.appendChild(h); }
+  const nm=sel.size===1&&itemById([...sel][0])?itemName(itemById([...sel][0])):'';
+  h.innerHTML=`<b>${nm?esc(nm)+' settings':'Settings'}</b><span>Move your mouse to the edge, or press <span class="kbd">${esc(keyLabel(keyOf('settings'))||'.')}</span></span><svg viewBox="0 0 16 16"><path d="M6 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  { const rr=$('#railR'), rb=rr&&rr.offsetWidth?rr.getBoundingClientRect():null, tb=tab.getBoundingClientRect(); h.style.right=(rb&&rb.bottom>tb.top&&rb.top<tb.bottom?Math.round(innerWidth-rb.left+10):26)+'px'; }
+  h.classList.add('on'); clearTimeout(inspNudgeT); inspNudgeT=setTimeout(()=>{ h.classList.remove('on'); try{ localStorage.setItem('setplot-insp-nudge',String(n+1)); }catch(e){} },4200); }
+document.addEventListener('pointermove',e=>{ const h=$('#inspHint'); if(h&&h.classList.contains('on')&&e.clientX>=innerWidth-180){ h.classList.remove('on'); clearTimeout(inspNudgeT); try{ localStorage.setItem('setplot-insp-nudge','99'); }catch(err){} } },{passive:true});
 function rgbHex(c){ const m=String(c).match(/\d+/g); if(!m) return '#6ea8f5'; return '#'+m.slice(0,3).map(v=>(+v).toString(16).padStart(2,'0')).join(''); }
 function syncInspector(){
   if(sel.size!==1) return; const it=itemById([...sel][0]); if(!it) return;
@@ -4286,9 +4311,9 @@ var KEY_ACTIONS=[
   ['Tools','addmenu','Search & add at the cursor','shift+a'], ['Tools','pen','Pen','p'], ['Tools','layers','Layers panel',','], ['Tools','settings','Settings panel (stays open · again to go back)','.'],
   ['Left toolbar','c_board','Nested setup','0'], ['Left toolbar','g_shoots','Shoots',''], ['Left toolbar','g_lights','Lights','1'], ['Left toolbar','g_grip','Grip','2'], ['Left toolbar','g_camera','Camera','3'],
   ['Left toolbar','g_subjects','Subjects','4'], ['Left toolbar','g_set','Set','5'], ['Left toolbar','g_layers','Layers','6'],
-  ['Right toolbar','c_note','Note','shift+1'], ['Right toolbar','c_todo','To-do','shift+2'], ['Right toolbar','c_comment','Comment','shift+3'],
-  ['Right toolbar','c_grid','Table','shift+4'], ['Right toolbar','c_color','Colour','shift+5'], ['Right toolbar','c_column','Column','shift+8'], ['Right toolbar','g_notes','Notes (text, arrow, distance, angle, pen)','shift+6'], ['Right toolbar','g_align','Align & distribute','shift+7'],
-  ['View','present','Focus mode (hide the toolbars)','shift+f'], ['View','isolate','Highlight selection (dim the rest)','shift+h'], ['View','fit','Fit plot to screen','z'], ['View','zoomin','Zoom in','+'], ['View','zoomout','Zoom out','-'], ['View','zoom100','Zoom to 100%','shift+0'],
+  ['Right toolbar','g_align','Align & distribute','shift+0'], ['Right toolbar','c_note','Note','shift+1'], ['Right toolbar','c_todo','To-do','shift+2'], ['Right toolbar','c_comment','Comment','shift+3'],
+  ['Right toolbar','c_grid','Table','shift+4'], ['Right toolbar','c_color','Colour','shift+5'], ['Right toolbar','c_column','Column','shift+6'], ['Right toolbar','c_image','Image','shift+7'], ['Right toolbar','c_gdoc','Doc','shift+8'], ['Right toolbar','g_notes','Notes (text, arrow, distance, angle, pen)','shift+9'],
+  ['View','present','Focus mode (hide the toolbars)','shift+f'], ['View','isolate','Highlight selection (dim the rest)','shift+h'], ['View','fit','Fit plot to screen','z'], ['View','zoomin','Zoom in','+'], ['View','zoomout','Zoom out','-'], ['View','zoom100','Zoom to 100%','mod+0'],
   ['View','snap','Snap on / off','s'], ['View','beams','Beams on / off','b'], ['View','specs','Fixture specs on / off','i'],
   ['Mind map','tidy','Tidy the mind map (all maps if nothing is selected)','mod+alt+t'], ['Mind map','fold','Fold / unfold the selected idea\'s branches','f'],
   ['Help','keys','Show shortcuts','?'], ['Help','guide','Helper bar on / off','h']
@@ -4335,7 +4360,7 @@ let keysEditing=false, keyCapture=null;
 function keysHTML(){
   const custom=Object.keys(keyCustom).length>0, groups=[...new Set(KEY_ACTIONS.map(a=>a[0]))];
   const kbd=c=>c?`<span class="kbd">${esc(keyLabel(c))}</span>`:'<span class="kbd none">Not set</span>';
-  return `<div class="keys" id="keysBox"><div class="keys-head"><h3>Keyboard shortcuts</h3><span style="flex:1"></span>`+
+  return `<div class="keys" id="keysBox"><div class="keys-head"><h3>Keyboard shortcuts</h3><span style="flex:1"></span><button class="btn sm ghost" data-kact="tour">Walkthrough</button>`+
     (custom?`<button class="btn sm ghost" data-kact="resetall">Reset all</button>`:'')+
     `<button class="btn sm ${keysEditing?'primary':''}" data-kact="edit">${keysEditing?'Done':'Customize'}</button><button class="ib" data-close aria-label="Close">${ic('close')}</button></div>`+
     (keysEditing?`<p class="muted keys-tip">Click a shortcut, then press the new key or combination. Esc cancels. A key already in use moves to the new action.</p>`:'')+
@@ -4351,6 +4376,7 @@ function rerenderKeys(){ const box=$('#keysBox'); if(box) box.outerHTML=keysHTML
 $('#modal').addEventListener('click',e=>{
   const b=e.target.closest('[data-kact]'); if(!b) return;
   const a=b.dataset.kact;
+  if(a==='tour'){ $('#modal').hidden=true; startTour(); return; }
   if(a==='edit'){ keysEditing=!keysEditing; keyCapture=null; }
   else if(a==='set'){ keyCapture = keyCapture===b.dataset.id ? null : b.dataset.id; }
   else if(a==='reset'){ delete keyCustom[b.dataset.id]; saveKeys(); }
@@ -6132,9 +6158,8 @@ function dupCard(id){ const it=itemById(id); if(!it) return; if(it.type==='board
 /* right toolbar: click to drop in the middle, or drag onto the board */
 const CARD_TOOLS=[['note','Note','note'],['todo','To-do','todo'],['comment','Comment','comment'],['grid','Table','table'],['color','Colour','swatch'],['column','Column','column'],['image','Image','image'],['gdoc','Doc','gdoc']];   // Trello card hidden for now: add ['trello','Trello','trello'] back to bring it back
 const ITEM_TOOLS=[['text','Text','notes'],['arrow','Arrow','arrow'],['measure','Distance','measure'],['sketch','Pen','pen']];
-$('#railR').innerHTML=CARD_TOOLS.map(([t,n,i])=>`<button class="tool" data-card="${t}" aria-label="Add ${n}">${ic(i)}${n}</button>`).join('')+
-  `<hr><button class="tool" data-cat="Notes" aria-expanded="false" aria-label="Text, arrows, distances, angles and pen">${ic('notes')}Notes</button>`+
-  `<button class="tool" data-cat="Align" aria-expanded="false" aria-label="Align and distribute">${ic('al_left')}Align</button>`;
+$('#railR').innerHTML=`<button class="tool" data-cat="Align" aria-expanded="false" aria-label="Align and distribute">${ic('al_left')}Align</button><hr>`+CARD_TOOLS.map(([t,n,i])=>`<button class="tool" data-card="${t}" aria-label="Add ${n}">${ic(i)}${n}</button>`).join('')+
+  `<hr><button class="tool" data-cat="Notes" aria-expanded="false" aria-label="Text, arrows, distances, angles and pen">${ic('notes')}Notes</button>`;
 railBadges();
 $('#railR').addEventListener('click',e=>{ const b=e.target.closest('[data-cat]'); if(!b) return; flyAt=null; if(drawMode) exitDraw(); closeBoard(); flyCat = flyCat===b.dataset.cat ? null : b.dataset.cat; renderRail(); renderFly(); });
 let railDrag=null;
@@ -6324,6 +6349,131 @@ $('#modal').addEventListener('click',async e=>{ const b=e.target.closest('[data-
   if(a==='sync'){ await cloudSync(true); return; }
   if(a==='signout'){ await sb.auth.signOut(); $('#modal').hidden=true; toast('Signed out · your plots stay in this browser'); return; } });
 $('#modal').addEventListener('keydown',e=>{ if(e.key==='Enter'&&e.target.matches&&e.target.matches('[data-acc-email],[data-acc-pass]')){ e.preventDefault(); const b=$('#modal [data-acc=email]'); if(b) b.click(); } });
+/* ================= walkthrough ================= */
+var tourOn=null;
+function startTour(){
+  if(tourOn) return; const F=t=>`<span class="kbd">${esc(t)}</span>`, PL={mod:IS_MAC_K?'⌘ Cmd':'Ctrl',shift:IS_MAC_K?'⇧ Shift':'Shift',alt:IS_MAC_K?'⌥ Option':'Alt','.':'. Dot',',':', Comma','?':'? Question mark'},
+    K=id=>{ const c=keyOf(id); if(!c) return F('Not set'); return c.split('+').map(p=>F(PL[p]||keyLabel(p))).join('<i class="tr-plus">+</i>'); }, M=PL.mod, A=PL.alt, S=PL.shift;
+    const RT=[['g_align','Align'],['c_note','Note'],['c_todo','To-do'],['c_comment','Comment'],['c_grid','Table'],['c_color','Colour'],['c_column','Column'],['c_image','Image'],['c_gdoc','Doc'],['g_notes','Notes']];
+    const rtGrid=`<div class="tr-lead">Hold ${F(S)} and press a number:</div><div class="tr-grid">${RT.map(([id,n])=>{ const c=keyOf(id), m=/^shift\+(\d)$/.exec(c||''); return `<div class="tr-g">${m?F(m[1]):K(id)}<span>${n}</span></div>`; }).join('')}</div>`;
+  const grid=(lead,items)=>`<div class="tr-lead">${lead}</div><div class="tr-grid" style="grid-template-rows:repeat(${Math.ceil(items.length/2)},auto)">${items.map(([k,n])=>`<div class="tr-g">${k}<span>${esc(n)}</span></div>`).join('')}</div>`;
+  const numGrid=(lead,list,re)=>grid(lead,list.map(([id,n])=>{ const m=re.exec(keyOf(id)||''); return [m?F(m[1]):K(id),n]; }));
+  const LT=[['c_board','Setup'],['g_lights','Lights'],['g_grip','Grip'],['g_camera','Camera'],['g_subjects','Subjects'],['g_set','Set'],['g_layers','Layers']];
+  const lights=tilesOf('Lights').slice(0,9).map(k=>TYPES[k].name);
+  const steps=[
+    {el:'#rail', t:'Left toolbar', b:`Lights, grip, camera, subjects and set pieces live here. Open a group, then click the board to place something.`,
+     html:()=>numGrid('Press a number to open a group:',LT,/^(\d)$/)},
+    {el:()=>$('#rail [data-cat="Lights"]'), t:'Pick from a group', b:`With a group open, its items are numbered too. Press a number to grab that item, then click the board to place it.`,
+     html:()=>grid(`In Lights, press ${F('1')} – ${F(String(lights.length))}:`,lights.map((n,j)=>[F(String(j+1)),n]))},
+    {el:'#railR', t:'Right toolbar', b:`Put notes, to-dos, tables, colours and images next to the plot, so the shoot's details stay in one place.`,
+     html:()=>rtGrid},
+    {t:'Add anything, fast', b:`Press ${K('addmenu')} anywhere on the board and start typing: a light, a flag, a camera, a note. Pick it with the arrow keys and ↵ Enter, and it lands right at your cursor.`,
+     k:[[K('addmenu'),'Search and add at the cursor'],[F('↑ ↓'),'Move through results'],[F('↵ Enter'),'Place it'],[F('Esc'),'Close']]},
+    {t:'Work with objects', b:`Select an object to move it. Lights get a beam you can aim, and a modifier you can swap on the board.`,
+     k:[[K('aim'),'Aim / rotate'],[K('modifier'),'Change light modifier'],[K('rotl')+' '+K('rotr'),'Turn 15°'],[F(A)+' + drag','Drag a copy'],[K('del'),'Delete']]},
+    {t:'Mind maps', b:`Notes connect into mind maps. Select a note and just start typing to write in it.`,
+     k:[[F('Tab'),'Add a connected note'],[F(S)+'<i class="tr-plus">+</i>'+F('Tab'),'Move it round its parent'],[F(S)+'<i class="tr-plus">+</i>'+F('← ↑ → ↓'),'Jump between notes'],[K('fold'),'Fold a branch'],[K('tidy'),'Tidy the map']]},
+    {el:()=>{ const t=$('#inspTab'); if(t&&!t.hidden&&!t.classList.contains('gone')) return t; return {left:innerWidth-26,top:innerHeight/2-56,width:22,height:112,right:innerWidth-4,bottom:innerHeight/2+56}; },
+     t:'Settings', b:`Settings are tucked away at the right edge so the board stays clear. Select an object, then move the mouse all the way to the right edge, or press ${K('settings')}, to open its settings: fixture, power, gel, notes. With nothing selected it shows the setup's details.`,
+     k:[[F('Mouse → right edge'),'Peek at settings'],[K('settings'),'Keep settings open'],[K('layers'),'Layers']]},
+    {el:'#exportBtn', t:'Export and share', b:`Export the plot as an image or PDF, or share it with your crew.`, k:[[K('undo'),'Undo'],[K('redo'),'Redo']]},
+    {el:()=>$('#snapBtn')&&$('#snapBtn').parentElement, t:'View controls', b:`Zoom, fit, and toggle snapping, beams and fixture specs here.`,
+     k:[[K('fit'),'Fit to screen'],[K('snap'),'Snap'],[K('beams'),'Beams'],[K('specs'),'Fixture specs'],[K('present'),'Focus mode']]},
+    {el:'#keysBtn', t:"That's it", b:`Every shortcut, and a way to change them, is one key away. The ? in the corner runs this walkthrough again.`, k:[[K('keys'),'All shortcuts']]}
+  ];
+  const root=document.createElement('div'); root.id='tour';
+  root.innerHTML=`<div class="tr-hole"></div><div class="tr-card" role="dialog" aria-live="polite"></div>`;
+  document.body.appendChild(root); const hole=root.querySelector('.tr-hole'), card=root.querySelector('.tr-card'); let i=0;
+  const target=st=>{ const e=typeof st.el==='function'?st.el():st.el?$(st.el):null; if(!e) return null; const r=e.getBoundingClientRect?e.getBoundingClientRect():e; return r.width&&r.height?r:null; };
+  const place=()=>{ const st=steps[i], r=target(st), vw=innerWidth, vh=innerHeight, pad=8;
+    if(r){ hole.classList.remove('none'); Object.assign(hole.style,{left:(r.left-pad)+'px',top:(r.top-pad)+'px',width:(r.width+pad*2)+'px',height:(r.height+pad*2)+'px'}); }
+    else { hole.classList.add('none'); Object.assign(hole.style,{left:vw/2+'px',top:vh/2+'px',width:'0px',height:'0px'}); }
+    const cw=card.offsetWidth, ch=card.offsetHeight, m=16; let x, y;
+    if(!r){ x=(vw-cw)/2; y=(vh-ch)/2; }
+    else { const sp={right:vw-r.right, left:r.left, below:vh-r.bottom, above:r.top};
+      if(sp.right>=cw+m*2 && r.width<vw*.5){ x=r.right+pad+m; y=r.top+r.height/2-ch/2; }
+      else if(sp.left>=cw+m*2 && r.width<vw*.5){ x=r.left-pad-m-cw; y=r.top+r.height/2-ch/2; }
+      else if(sp.below>=ch+m*2){ x=r.left+r.width/2-cw/2; y=r.bottom+pad+m; }
+      else { x=r.left+r.width/2-cw/2; y=r.top-pad-m-ch; } }
+    card.style.left=Math.round(clamp(x,m,vw-cw-m))+'px'; card.style.top=Math.round(clamp(y,m,vh-ch-m))+'px'; };
+  const show=()=>{ const st=steps[i], last=i===steps.length-1;
+    card.classList.remove('in'); void card.offsetWidth;
+    card.innerHTML=`<div class="tr-top"><span class="tr-n">${i+1} / ${steps.length}</span><button class="tr-x" data-t="end" aria-label="Close walkthrough">✕</button></div>
+<h3>${st.t}</h3><p>${st.b}</p>${st.html?st.html():''}${st.k&&st.k.length?`<div class="tr-keys"><div class="tr-kh"><span>Shortcut</span><span>Action</span></div>${st.k.map(([k,d])=>`<div class="tr-k"><span>${k}</span><em>${d}</em></div>`).join('')}</div>`:''}
+<div class="tr-bar"><div class="tr-dots">${steps.map((_,j)=>`<i class="${j===i?'on':''}"></i>`).join('')}</div><span style="flex:1"></span>${i?'<button class="tr-b sec" data-t="back">Back</button>':''}<button class="tr-b" data-t="${last?'end':'next'}">${last?'Start exploring':'Next'}</button></div>`;
+    card.classList.add('in'); place(); card.querySelector('.tr-bar .tr-b:last-child').focus({preventScroll:true}); };
+  const end=()=>{ tourOn=null; setTimeout(tourBtn,200); root.classList.add('out'); removeEventListener('keydown',onKey,true); removeEventListener('resize',place); setTimeout(()=>root.remove(),220); tourOn=null; };
+  const go=d=>{ i=clamp(i+d,0,steps.length-1); show(); };
+  card.addEventListener('click',e=>{ const b=e.target.closest('[data-t]'); if(!b) return; const t=b.dataset.t; if(t==='next') go(1); else if(t==='back') go(-1); else end(); });
+  const onKey=e=>{ if(e.metaKey||e.ctrlKey) return; e.stopImmediatePropagation();
+    if(e.key==='Escape'){ e.preventDefault(); end(); } else if(e.key==='ArrowRight'||e.key==='Enter'){ e.preventDefault(); i===steps.length-1?end():go(1); } else if(e.key==='ArrowLeft'){ e.preventDefault(); go(-1); }
+    else if(e.key!=='Tab') e.preventDefault(); };
+  addEventListener('keydown',onKey,true); addEventListener('resize',place);
+  root.addEventListener('pointerdown',e=>{ if(!e.target.closest('.tr-card')) e.preventDefault(); });
+  tourOn={end}; tourBtn(); show(); }
+/* the walkthrough stays one click away in the bottom-right corner */
+function tourBtn(){ let b=document.getElementById('tourBtn'); let seen=true; try{ seen=!!localStorage.getItem('setplot-beta-seen'); }catch(e){}
+  if(!b){ b=document.createElement('button'); b.id='tourBtn'; b.type='button'; b.setAttribute('aria-label','Walkthrough'); b.title='Walkthrough'; b.innerHTML='?'; b.onclick=()=>startTour(); document.body.appendChild(b); }
+  b.classList.toggle('hide',!!tourOn||!seen||!!document.getElementById('betaPop')); }
+(function(){ const st=document.createElement('style'); st.textContent=`
+#tourBtn{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:30;display:grid;place-items:center;width:40px;height:40px;padding:0;border:1px solid var(--line);border-radius:20px;background:var(--card);color:var(--ink);font:700 16px var(--sans);box-shadow:var(--shadow-lg,0 8px 24px -8px rgba(0,0,0,.35));cursor:pointer;transition:opacity .25s,transform .25s,background .2s}
+#tourBtn:hover{background:var(--hover)}
+#tourBtn.hide,body.presenting #tourBtn,body.insp-open #tourBtn{opacity:0;transform:translateY(8px);pointer-events:none}
+@media (max-width:760px){#tourBtn{bottom:calc(84px + env(safe-area-inset-bottom,0px))}}
+#tour{position:fixed;inset:0;z-index:9998;animation:betaFade .25s ease both}
+#tour.out{animation:betaFade .2s ease reverse both}
+#tour .tr-hole{position:fixed;border-radius:14px;box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 70%,transparent),0 0 0 200vmax rgba(8,10,13,.55);transition:left .35s cubic-bezier(.2,.8,.2,1),top .35s cubic-bezier(.2,.8,.2,1),width .35s cubic-bezier(.2,.8,.2,1),height .35s cubic-bezier(.2,.8,.2,1),box-shadow .3s;pointer-events:none}
+#tour .tr-hole.none{box-shadow:0 0 0 0 transparent,0 0 0 200vmax rgba(8,10,13,.55)}
+#tour .tr-card{position:fixed;width:min(340px,calc(100vw - 32px));background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:14px;padding:16px 18px 14px;box-shadow:0 24px 60px -20px rgba(0,0,0,.5);font-family:var(--sans);transition:left .35s cubic-bezier(.2,.8,.2,1),top .35s cubic-bezier(.2,.8,.2,1)}
+#tour .tr-card.in{animation:trIn .3s cubic-bezier(.2,.8,.2,1) both}
+@keyframes trIn{from{opacity:0;transform:translateY(6px)}}
+#tour .tr-top{display:flex;align-items:center;margin-bottom:6px}
+#tour .tr-n{font:600 11px var(--sans);color:var(--muted);letter-spacing:.04em;flex:1}
+#tour .tr-x{border:0;background:none;color:var(--muted);font-size:13px;cursor:pointer;width:26px;height:26px;border-radius:7px}#tour .tr-x:hover{background:var(--hover);color:var(--ink)}
+#tour h3{margin:0 0 6px;font-size:16.5px;letter-spacing:-.01em}
+#tour p{margin:0 0 12px;color:var(--muted);font-size:13.5px;line-height:1.55}
+#tour .tr-keys{display:grid;gap:6px;margin:0 0 14px;padding:10px 12px;background:var(--field);border-radius:10px}
+#tour .tr-plus{font-style:normal;color:var(--faint);margin:0 3px;font-size:11px}
+#tour .tr-lead{font-size:12.5px;color:var(--ink);margin:0 0 8px}#tour .tr-lead .kbd{font-size:11px;padding:2px 6px;background:var(--field);color:var(--ink);box-shadow:0 1px 0 var(--line2)}
+#tour .tr-grid{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(5,auto);grid-auto-flow:column;gap:4px 12px;margin:0 0 14px;padding:10px 12px;background:var(--field);border-radius:10px}
+#tour .tr-g{display:flex;align-items:center;gap:8px;font-size:12.5px;padding:2px 0}#tour .tr-g .kbd{min-width:20px;text-align:center;font-size:11.5px;padding:2px 6px;background:var(--card);color:var(--ink);box-shadow:0 1px 0 var(--line2)}
+#tour .tr-kh{display:flex;justify-content:space-between;font:700 10px/1 var(--sans);letter-spacing:.07em;text-transform:uppercase;color:var(--faint);padding-bottom:7px;margin-bottom:1px;border-bottom:1px solid var(--line)}
+#tour .tr-k{display:flex;align-items:center;gap:10px;font-size:12.5px}#tour .tr-k span{flex:0 0 auto;white-space:nowrap}#tour .tr-k em{font-style:normal;color:var(--ink);margin-left:auto;text-align:right}
+#tour .tr-k .kbd{display:inline-block;min-width:22px;text-align:center;font-size:11.5px;padding:2px 6px;background:var(--card);color:var(--ink);box-shadow:0 1px 0 var(--line2)}
+#tour .tr-bar{display:flex;align-items:center;gap:8px}
+#tour .tr-dots{display:flex;gap:4px}#tour .tr-dots i{width:5px;height:5px;border-radius:3px;background:var(--line2);transition:width .25s,background .25s}#tour .tr-dots i.on{width:14px;background:var(--accent)}
+#tour .tr-b{height:34px;padding:0 14px;border:0;border-radius:9px;background:var(--ink);color:var(--card);font:600 13px var(--sans);cursor:pointer}#tour .tr-b.sec{background:var(--field);color:var(--ink)}#tour .tr-b:hover{opacity:.9}`;
+  document.head.appendChild(st); })();
+(function(){ const go=()=>tourBtn(); document.body?go():addEventListener('DOMContentLoaded',go);
+  setTimeout(()=>{ try{ let was=false; Object.keys(all).forEach(k=>{ if(all[k]&&all[k].demo){ if(cur&&cur.id===k){ cur=null; dirty=false; was=true; } delete all[k]; deleteDoc(k); } }); if(was){ const n=sorted()[0]; if(n) openDiagram(n[0]); else { renderHeader(); renderInspector(); renderCards(); draw(); } } }catch(e){} },2500); })();   // clear any leftover walkthrough demo setup
+/* ================= open beta notice (first visit only) ================= */
+(function betaNotice(){
+  let seen=false; try{ seen=!!localStorage.getItem('setplot-beta-seen'); }catch(e){} if(seen) return;
+  const st=document.createElement('style'); st.textContent=`
+#betaPop{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;padding:16px;background:color-mix(in srgb,#0b0d10 45%,transparent);backdrop-filter:blur(3px);animation:betaFade .25s ease both}
+#betaPop .bp{width:min(400px,100%);background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:16px;padding:24px 24px 20px;box-shadow:0 24px 60px -20px rgba(0,0,0,.45);font-family:var(--sans);animation:betaUp .32s cubic-bezier(.2,.8,.2,1) both}
+#betaPop .bp-tag{display:inline-block;font:700 11px/1 var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,transparent);padding:6px 9px;border-radius:999px;margin-bottom:14px}
+#betaPop h2{margin:0 0 8px;font-size:20px;line-height:1.25;letter-spacing:-.01em}
+#betaPop p{margin:0 0 10px;color:var(--muted);font-size:14px;line-height:1.55}
+#betaPop a{color:var(--accent);font-weight:600;text-decoration:none}#betaPop a:hover{text-decoration:underline}
+#betaPop .bp-btns{display:flex;gap:8px;margin-top:12px}#betaPop .bp-btns button{flex:1}#betaPop button.bp-sec{background:var(--field);color:var(--ink)}
+#betaPop button{height:42px;border:0;border-radius:10px;background:var(--ink);color:var(--card);font:600 14px var(--sans);cursor:pointer}
+#betaPop button:hover{opacity:.9}#betaPop.out{animation:betaFade .2s ease reverse both}
+@keyframes betaFade{from{opacity:0}}@keyframes betaUp{from{opacity:0;transform:translateY(10px) scale(.98)}}`;
+  document.head.appendChild(st);
+  const el=document.createElement('div'); el.id='betaPop'; el.setAttribute('role','dialog'); el.setAttribute('aria-modal','true'); el.setAttribute('aria-labelledby','betaT');
+  el.innerHTML=`<div class="bp"><span class="bp-tag">Open beta</span><h2 id="betaT">Welcome</h2>
+<p>Plot your lighting and set-ups, keep the shoot's notes beside them, and share it all with your crew.</p>
+<p>The platform is still in beta, so features may change as it grows. You're one of the first to use it. Thank you for testing.</p>
+<p>If you run into a bug or have a suggestion for a feature, send your feedback to <a href="mailto:tobias@malikmotion.dk?subject=Beta%20feedback">tobias@malikmotion.dk</a>.</p>
+<div class="bp-btns"><button type="button" class="bp-sec" data-b="explore">Just explore</button><button type="button" data-b="tour">Take the walkthrough</button></div></div>`;
+  const close=()=>{ try{ localStorage.setItem('setplot-beta-seen','1'); }catch(e){} el.classList.add('out'); setTimeout(()=>{ el.remove(); if(typeof tourBtn==='function') tourBtn(); },200); removeEventListener('keydown',onKey,true); };
+  const onKey=e=>{ if(e.key==='Escape'){ e.preventDefault(); e.stopImmediatePropagation(); close(); } else if(e.key==='Enter'){ e.preventDefault(); e.stopImmediatePropagation(); const b=document.activeElement&&document.activeElement.closest&&document.activeElement.closest('#betaPop button'); (b||el.querySelector('[data-b=tour]')).click(); } else if(!e.metaKey&&!e.ctrlKey) e.stopImmediatePropagation(); };
+  el.querySelector('[data-b=explore]').onclick=close; el.querySelector('[data-b=tour]').onclick=()=>{ close(); setTimeout(()=>startTour(),220); }; el.addEventListener('pointerdown',e=>{ if(e.target===el) close(); });
+  addEventListener('keydown',onKey,true);
+  const show=()=>{ document.body.appendChild(el); el.querySelector('[data-b=tour]').focus({preventScroll:true}); };
+  document.body?show():addEventListener('DOMContentLoaded',show);
+})();
 /* ================= boot ================= */
 onTheme(); renderRail(); renderHeader(); renderInspector(); draw();
 function ready(){ if(layersOpen){ $('#layersPanel').hidden=false; document.body.classList.add('layers-on'); }
