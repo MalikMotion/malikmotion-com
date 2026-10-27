@@ -422,22 +422,17 @@ input.kelvin::-moz-range-track{background:linear-gradient(90deg,#e8752c,#f2b25c 
 @keyframes tabTrim{from{stroke-dashoffset:0}to{stroke-dashoffset:-100}}
 @media (prefers-reduced-motion:reduce){ .insp-tab .t-ring{animation:none;stroke-dasharray:100 0;stroke-opacity:.5} }
 .insp-tab.gone{opacity:0;pointer-events:none}
-.insp-tab.nudge svg{animation:tabNudge 1.1s cubic-bezier(.3,.7,.3,1) 2}
-.insp-tab.nudge .t-fill{animation:tabGreen 2.6s ease-in both}
-.insp-tab.nudge .t-ring{animation:tabTrim 2.6s linear infinite,tabGreenRing 2.6s ease-in both}
-@keyframes tabGreen{0%,35%{fill:#34c77b}100%{fill:var(--tab-fill)}}
-@keyframes tabGreenRing{0%,35%{stroke:#1fa463}100%{stroke:var(--tab-ring)}}
-@keyframes tabNudge{0%,100%{transform:none}30%{transform:translateX(-5px) scaleY(1.3)}60%{transform:translateX(0) scaleY(1.1)}}
-#inspHint{position:fixed;right:26px;top:50%;transform:translate(10px,-50%);z-index:19;display:grid;grid-template-columns:auto auto;grid-template-rows:auto auto;column-gap:10px;row-gap:3px;align-items:center;padding:10px 12px 10px 14px;border-radius:12px;max-width:320px;background:var(--card);color:var(--ink);border:1px solid var(--line);box-shadow:var(--shadow-lg,0 8px 24px -8px rgba(0,0,0,.35));font:600 12.5px var(--sans);opacity:0;pointer-events:none;transition:opacity .25s ease,transform .3s cubic-bezier(.2,.8,.2,1)}
+#inspHint{position:fixed;right:26px;top:50%;transform:translate(10px,-50%);z-index:19;display:flex;flex-direction:column;gap:3px;padding:11px 14px 10px;border-radius:12px;max-width:320px;background:var(--card);color:var(--ink);border:1px solid var(--line);box-shadow:var(--shadow-lg,0 8px 24px -8px rgba(0,0,0,.35));font:600 12.5px var(--sans);opacity:0;pointer-events:none;transition:opacity .25s ease,transform .3s cubic-bezier(.2,.8,.2,1)}
 #inspHint.on{opacity:1;transform:translate(0,-50%)}
 #inspHint::after{content:'';position:absolute;right:-6px;top:50%;width:10px;height:10px;background:var(--card);border-right:1px solid var(--line);border-top:1px solid var(--line);transform:translateY(-50%) rotate(45deg);border-radius:0 2px 0 0}
-#inspHint b{font-size:13px;grid-column:1}#inspHint>span{grid-column:1;font-weight:500;color:var(--muted);font-size:12px;line-height:1.5}
-#inspHint svg{grid-column:2;grid-row:1/3}
+#inspHint b{font-size:13px}#inspHint>span{font-weight:500;color:var(--muted);font-size:12px;line-height:1.5}
 #inspHint .kbd{font-size:11.5px;padding:1px 7px;background:var(--field);color:var(--ink)}
 #inspHint svg{width:14px;height:14px;color:var(--accent);animation:hintArrow 1s ease-in-out infinite}
 @keyframes hintArrow{50%{transform:translateX(3px)}}
 body.presenting #inspHint{display:none}
-@media (prefers-reduced-motion:reduce){ .insp-tab.nudge svg,#inspHint svg{animation:none} }
+@media (prefers-reduced-motion:reduce){ #inspHint svg{animation:none} }
+#inspHint.on{pointer-events:auto}
+#inspHint .ih-foot{display:flex;justify-content:flex-end;margin-top:8px;padding-top:8px;border-top:1px solid var(--line)}#inspHint .ih-x{display:inline-flex;align-items:center;line-height:1;-webkit-appearance:none;appearance:none;border:0;background:var(--field);padding:5px 10px;border-radius:7px;color:var(--ink);font:600 12px var(--sans);cursor:pointer}#inspHint .ih-x:hover{background:var(--hover)}
 .insp-head .ib.pin{color:var(--faint)}
 .insp-head .ib.pin.on{color:var(--accent)}
 .insp-head .ib.pin svg{width:17px;height:17px}
@@ -3925,7 +3920,7 @@ const canHover=matchMedia('(hover: hover) and (pointer: fine)');
 let peekT=0;
 var inspForce=null;   // '.' holds the settings panel open (and remembers how things were, for the second press)
 function inspAuto(){ return canHover.matches && !inspForce && ((typeof pres!=='undefined'&&pres) || (!inspPinned && !detailsOpen)); }
-function toggleSettingsKey(){ if(inspForce){ const pv=inspForce; inspForce=null; detailsOpen=pv.details; renderInspector(); draw(); return; }
+function toggleSettingsKey(){ if(typeof inspTipOff==='function') inspTipOff(true); if(inspForce){ const pv=inspForce; inspForce=null; detailsOpen=pv.details; renderInspector(); draw(); return; }
   inspForce={details:detailsOpen}; insp.classList.remove('peek'); if(!sel.size) detailsOpen=true; renderInspector(); draw(); }   // focus mode always tucks settings away, even when pinned
 function syncInspMode(){
   const auto=!insp.hidden && inspAuto();
@@ -3936,7 +3931,7 @@ function syncInspMode(){
   if(auto && !peek && !syncInspMode.hinted){ syncInspMode.hinted=true; let seen=false; try{ seen=localStorage.getItem('setplot-insp-hint')==='1'; localStorage.setItem('setplot-insp-hint','1'); }catch(e){} if(!seen) setTimeout(()=>toast('Settings are tucked away — move the cursor to the right edge to open them'),250); }
   document.body.classList.toggle('insp-open',!insp.hidden && !auto);
 }
-function setPeek(on){ clearTimeout(peekT); peekT=0; if(insp.classList.contains('peek')===on) return; insp.classList.toggle('peek',on); syncInspMode(); }
+function setPeek(on){ clearTimeout(peekT); peekT=0; if(on&&typeof inspTipOff==='function') inspTipOff(true); if(insp.classList.contains('peek')===on) return; insp.classList.toggle('peek',on); syncInspMode(); }
 new MutationObserver(syncInspMode).observe(insp,{attributes:true,attributeFilter:['hidden']});
 document.addEventListener('pointermove',e=>{
   if(!insp.classList.contains('auto') || e.pointerType==='touch') return;
@@ -4069,18 +4064,19 @@ function renderInspector(){ renderLayersSoon(); if(flyCat==='Align' && !$('#fly'
 }
 { const _ri=renderInspector; renderInspector=function(){ _ri(); syncInspMode(); inspNudge(); }; }
 /* picking something with settings while the panel is tucked away: the edge tab lights up, and the first few times a label points at it */
-var inspNudgeKey='', inspNudgeT=0;
+var inspNudgeKey='';
+/* until someone has opened settings once, picking an object shows a tip pointing at the edge tab (with "Don't show again") */
+function inspTipDone(){ try{ return localStorage.getItem('setplot-insp-nudge')==='done'; }catch(e){ return true; } }
+function inspTipOff(forever){ const h=$('#inspHint'); if(h) h.classList.remove('on'); if(forever){ try{ localStorage.setItem('setplot-insp-nudge','done'); }catch(e){} } }
 function inspNudge(){ const tab=$('#inspTab'); if(!tab) return; const key=[...sel].join(',');
-  if(key===inspNudgeKey) return; inspNudgeKey=key;
-  if(!sel.size||tab.hidden||insp.classList.contains('peek')||!insp.classList.contains('auto')||(typeof tourOn!=='undefined'&&tourOn)) return;
-  tab.classList.remove('nudge'); void tab.offsetWidth; tab.classList.add('nudge');
-  let n=0; try{ n=+localStorage.getItem('setplot-insp-nudge')||0; }catch(e){} if(n>=5) return;
-  let h=$('#inspHint'); if(!h){ h=document.createElement('div'); h.id='inspHint'; h.setAttribute('aria-hidden','true'); document.body.appendChild(h); }
+  if(!sel.size||tab.hidden||insp.classList.contains('peek')||!insp.classList.contains('auto')||(typeof tourOn!=='undefined'&&tourOn)||inspTipDone()){ inspTipOff(); inspNudgeKey=key; return; }
+  if(key===inspNudgeKey&&$('#inspHint')&&$('#inspHint').classList.contains('on')) return; inspNudgeKey=key;
+  let h=$('#inspHint'); if(!h){ h=document.createElement('div'); h.id='inspHint'; h.setAttribute('role','note'); document.body.appendChild(h);
+    h.addEventListener('click',e=>{ if(e.target.closest('.ih-x')){ inspTipOff(true); } }); }
   const nm=sel.size===1&&itemById([...sel][0])?itemName(itemById([...sel][0])):'';
-  h.innerHTML=`<b>${nm?esc(nm)+' settings':'Settings'}</b><span>Move your mouse to the edge, or press <span class="kbd">${esc(keyLabel(keyOf('settings'))||'.')}</span></span><svg viewBox="0 0 16 16"><path d="M6 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  h.innerHTML=`<b>${nm?esc(nm)+' settings':'Settings'}</b><span>Move your mouse to the edge, or press <span class="kbd">${esc(keyLabel(keyOf('settings'))||'.')}</span></span><div class="ih-foot"><button type="button" class="ih-x">Don't show again</button></div>`;
   { const rr=$('#railR'), rb=rr&&rr.offsetWidth?rr.getBoundingClientRect():null, tb=tab.getBoundingClientRect(); h.style.right=(rb&&rb.bottom>tb.top&&rb.top<tb.bottom?Math.round(innerWidth-rb.left+10):26)+'px'; }
-  h.classList.add('on'); clearTimeout(inspNudgeT); inspNudgeT=setTimeout(()=>{ h.classList.remove('on'); try{ localStorage.setItem('setplot-insp-nudge',String(n+1)); }catch(e){} },4200); }
-document.addEventListener('pointermove',e=>{ const h=$('#inspHint'); if(h&&h.classList.contains('on')&&e.clientX>=innerWidth-180){ h.classList.remove('on'); clearTimeout(inspNudgeT); try{ localStorage.setItem('setplot-insp-nudge','99'); }catch(err){} } },{passive:true});
+  h.classList.add('on'); }
 function rgbHex(c){ const m=String(c).match(/\d+/g); if(!m) return '#6ea8f5'; return '#'+m.slice(0,3).map(v=>(+v).toString(16).padStart(2,'0')).join(''); }
 function syncInspector(){
   if(sel.size!==1) return; const it=itemById([...sel][0]); if(!it) return;
@@ -6404,7 +6400,7 @@ function startTour(){
     card.classList.remove('in'); void card.offsetWidth;
     card.innerHTML=`<div class="tr-top"><span class="tr-n">${i+1} / ${steps.length}</span><button class="tr-x" data-t="end" aria-label="Close walkthrough">✕</button></div>
 <h3>${st.t}</h3><p>${st.b}</p>${st.html?st.html():''}${st.k&&st.k.length?`<div class="tr-keys"><div class="tr-kh"><span>Shortcut</span><span>Action</span></div>${st.k.map(([k,d])=>`<div class="tr-k"><span>${k}</span><em>${d}</em></div>`).join('')}</div>`:''}
-<div class="tr-bar"><div class="tr-dots">${steps.map((_,j)=>`<i class="${j===i?'on':''}"></i>`).join('')}</div><span style="flex:1"></span>${i?'<button class="tr-b sec" data-t="back">Back</button>':''}<button class="tr-b" data-t="${last?'end':'next'}">${last?'Start exploring':'Next'}</button></div>`;
+<div class="tr-bar"><div class="tr-dots">${steps.map((_,j)=>`<i class="${j===i?'on':''}"></i>`).join('')}</div><span style="flex:1"></span>${i?'<button class="tr-b tr-sec" data-t="back">Back</button>':''}<button class="tr-b" data-t="${last?'end':'next'}">${last?'Start exploring':'Next'}</button></div>`;
     card.classList.add('in'); place(); card.querySelector('.tr-bar .tr-b:last-child').focus({preventScroll:true}); };
   const end=()=>{ tourOn=null; setTimeout(tourBtn,200); root.classList.add('out'); removeEventListener('keydown',onKey,true); removeEventListener('resize',place); setTimeout(()=>root.remove(),220); tourOn=null; };
   const go=d=>{ i=clamp(i+d,0,steps.length-1); show(); };
@@ -6422,6 +6418,10 @@ function tourBtn(){ let b=document.getElementById('tourBtn'); let seen=true; try
 (function(){ const st=document.createElement('style'); st.textContent=`
 #tourBtn{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:30;display:grid;place-items:center;width:40px;height:40px;padding:0;border:1px solid var(--line);border-radius:20px;background:var(--card);color:var(--ink);font:700 16px var(--sans);box-shadow:var(--shadow-lg,0 8px 24px -8px rgba(0,0,0,.35));cursor:pointer;transition:opacity .25s,transform .25s,background .2s}
 #tourBtn:hover{background:var(--hover)}
+#tourBtn.arrive{animation:tbArrive .5s cubic-bezier(.3,1.6,.5,1) both}
+#tourBtn.arrive::after{content:'';position:absolute;inset:-1px;border-radius:inherit;border:2px solid var(--accent);animation:tbRing 1.2s ease-out .15s 2 both;pointer-events:none}
+@keyframes tbArrive{from{transform:scale(.6)}to{transform:none}}
+@keyframes tbRing{from{opacity:.9;transform:scale(1)}to{opacity:0;transform:scale(1.8)}}
 #tourBtn.hide,body.presenting #tourBtn,body.insp-open #tourBtn{opacity:0;transform:translateY(8px);pointer-events:none}
 @media (max-width:760px){#tourBtn{bottom:calc(84px + env(safe-area-inset-bottom,0px))}}
 #tour{position:fixed;inset:0;z-index:9998;animation:betaFade .25s ease both}
@@ -6446,7 +6446,7 @@ function tourBtn(){ let b=document.getElementById('tourBtn'); let seen=true; try
 #tour .tr-k .kbd{display:inline-block;min-width:22px;text-align:center;font-size:11.5px;padding:2px 6px;background:var(--card);color:var(--ink);box-shadow:0 1px 0 var(--line2)}
 #tour .tr-bar{display:flex;align-items:center;gap:8px}
 #tour .tr-dots{display:flex;gap:4px}#tour .tr-dots i{width:5px;height:5px;border-radius:3px;background:var(--line2);transition:width .25s,background .25s}#tour .tr-dots i.on{width:14px;background:var(--accent)}
-#tour .tr-b{height:34px;padding:0 14px;border:0;border-radius:9px;background:var(--ink);color:var(--card);font:600 13px var(--sans);cursor:pointer}#tour .tr-b.sec{background:var(--field);color:var(--ink)}#tour .tr-b:hover{opacity:.9}`;
+#tour .tr-b{display:inline-flex;align-items:center;justify-content:center;line-height:1;margin:0;-webkit-appearance:none;appearance:none;height:34px;padding:0 14px;border:0;border-radius:9px;background:var(--ink);color:var(--card);font:600 13px var(--sans);cursor:pointer}#tour .tr-b.tr-sec{background:var(--field);color:var(--ink)}#tour .tr-b:hover{opacity:.9}`;
   document.head.appendChild(st); })();
 (function(){ const go=()=>tourBtn(); document.body?go():addEventListener('DOMContentLoaded',go);
   setTimeout(()=>{ try{ let was=false; Object.keys(all).forEach(k=>{ if(all[k]&&all[k].demo){ if(cur&&cur.id===k){ cur=null; dirty=false; was=true; } delete all[k]; deleteDoc(k); } }); if(was){ const n=sorted()[0]; if(n) openDiagram(n[0]); else { renderHeader(); renderInspector(); renderCards(); draw(); } } }catch(e){} },2500); })();   // clear any leftover walkthrough demo setup
@@ -6472,8 +6472,17 @@ function tourBtn(){ let b=document.getElementById('tourBtn'); let seen=true; try
 <p>If you run into a bug or have a suggestion for a feature, send your feedback to <a href="mailto:tobias@malikmotion.dk?subject=Beta%20feedback">tobias@malikmotion.dk</a>.</p>
 <div class="bp-btns"><button type="button" class="bp-sec" data-b="explore">Just explore</button><button type="button" data-b="tour">Take the walkthrough</button></div></div>`;
   const close=()=>{ try{ localStorage.setItem('setplot-beta-seen','1'); }catch(e){} el.classList.add('out'); setTimeout(()=>{ el.remove(); if(typeof tourBtn==='function') tourBtn(); },200); removeEventListener('keydown',onKey,true); };
-  const onKey=e=>{ if(e.key==='Escape'){ e.preventDefault(); e.stopImmediatePropagation(); close(); } else if(e.key==='Enter'){ e.preventDefault(); e.stopImmediatePropagation(); const b=document.activeElement&&document.activeElement.closest&&document.activeElement.closest('#betaPop button'); (b||el.querySelector('[data-b=tour]')).click(); } else if(!e.metaKey&&!e.ctrlKey) e.stopImmediatePropagation(); };
-  el.querySelector('[data-b=explore]').onclick=close; el.querySelector('[data-b=tour]').onclick=()=>{ close(); setTimeout(()=>startTour(),220); }; el.addEventListener('pointerdown',e=>{ if(e.target===el) close(); });
+  const onKey=e=>{ if(e.key==='Escape'){ e.preventDefault(); e.stopImmediatePropagation(); flyHome(); } else if(e.key==='Enter'){ e.preventDefault(); e.stopImmediatePropagation(); const b=document.activeElement&&document.activeElement.closest&&document.activeElement.closest('#betaPop button'); (b||el.querySelector('[data-b=tour]')).click(); } else if(!e.metaKey&&!e.ctrlKey) e.stopImmediatePropagation(); };
+  const flyHome=()=>{ try{ localStorage.setItem('setplot-beta-seen','1'); }catch(e){} removeEventListener('keydown',onKey,true);   // "Just explore": the box shrinks into the ? in the corner, so you know where it went
+    const card=el.querySelector('.bp'), b=document.getElementById('tourBtn');
+    if(!card||!b||!card.animate||matchMedia('(prefers-reduced-motion: reduce)').matches){ close(); return; }
+    el.style.pointerEvents='none'; const r=card.getBoundingClientRect(), t=b.getBoundingClientRect();
+    const dx=(t.left+t.width/2)-(r.left+r.width/2), dy=(t.top+t.height/2-8)-(r.top+r.height/2), sx=t.width/r.width, sy=t.height/r.height;
+    [...card.children].forEach(c=>c.animate([{opacity:1},{opacity:0}],{duration:160,fill:'forwards'}));
+    el.animate([{backgroundColor:getComputedStyle(el).backgroundColor,backdropFilter:'blur(3px)'},{backgroundColor:'transparent',backdropFilter:'blur(0px)'}],{duration:480,fill:'forwards'});
+    const a=card.animate([{transform:'none',borderRadius:'16px',opacity:1},{transform:`translate(${dx*.55}px,${dy*.35}px) scale(${Math.max(sx,.35)},${Math.max(sy,.35)})`,borderRadius:'40px',opacity:1,offset:.55},{transform:`translate(${dx}px,${dy}px) scale(${sx},${sy})`,borderRadius:'999px',opacity:.9}],{duration:780,easing:'cubic-bezier(.55,0,.25,1)',fill:'forwards'});
+    a.onfinish=()=>{ el.remove(); tourBtn(); b.classList.remove('arrive'); void b.offsetWidth; b.classList.add('arrive'); setTimeout(()=>b.classList.remove('arrive'),1400); }; };
+  el.querySelector('[data-b=explore]').onclick=flyHome; el.querySelector('[data-b=tour]').onclick=()=>{ close(); setTimeout(()=>startTour(),220); }; el.addEventListener('pointerdown',e=>{ if(e.target===el) flyHome(); });
   addEventListener('keydown',onKey,true);
   const show=()=>{ document.body.appendChild(el); el.querySelector('[data-b=tour]').focus({preventScroll:true}); };
   document.body?show():addEventListener('DOMContentLoaded',show);
